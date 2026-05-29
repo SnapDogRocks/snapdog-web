@@ -9,7 +9,10 @@ export default function Home() {
       {/* Content */}
       <main className="relative z-10 flex flex-col items-center gap-8 max-w-2xl text-center">
         {/* Logo */}
-        <Image src="/logo.svg" alt="SnapDog" width={160} height={160} priority />
+        <div className="relative">
+          <div className="absolute inset-0 blur-2xl bg-amber-400/20 rounded-full scale-110" />
+          <Image src="/logo.svg" alt="SnapDog" width={160} height={160} priority className="relative" />
+        </div>
 
         {/* Title */}
         <h1 className="text-5xl sm:text-6xl font-bold tracking-tight">
