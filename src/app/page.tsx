@@ -1,6 +1,21 @@
 import Image from "next/image";
 
-export default function Home() {
+async function getLatestVersion(): Promise<string> {
+  try {
+    const res = await fetch(
+      "https://api.github.com/repos/metaneutrons/snapdog-os/releases/latest",
+      { next: { revalidate: 3600 } }
+    );
+    if (!res.ok) return "v0.2.0";
+    const data = await res.json();
+    return data.tag_name ?? "v0.2.0";
+  } catch {
+    return "v0.2.0";
+  }
+}
+
+export default async function Home() {
+  const version = await getLatestVersion();
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center px-6 py-16 relative overflow-hidden">
       {/* Background glow */}
@@ -43,7 +58,7 @@ export default function Home() {
           </div>
           <div className="flex flex-col py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10">
             <span className="text-[9px] uppercase font-semibold text-neutral-500 tracking-wider">Version</span>
-            <span className="font-semibold text-white mt-1 tabular-nums tracking-tight text-sm">v0.2.0</span>
+            <span className="font-semibold text-white mt-1 tabular-nums tracking-tight text-sm">{version}</span>
           </div>
           <a
             href="https://github.com/metaneutrons/snapdog"
