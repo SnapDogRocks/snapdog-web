@@ -66,22 +66,6 @@ export default function Home() {
           </a>
         </div>
 
-        {/* CTA */}
-        <div className="flex gap-4 mt-6">
-          <a
-            href="https://github.com/metaneutrons/snapdog"
-            className="px-6 py-3 rounded-full bg-amber-500 text-black font-semibold text-sm hover:bg-amber-400 transition-colors"
-          >
-            View on GitHub
-          </a>
-          <a
-            href="https://github.com/metaneutrons/snapdog-os"
-            className="px-6 py-3 rounded-full border border-white/20 text-white font-semibold text-sm hover:bg-white/5 transition-colors"
-          >
-            SnapDog OS
-          </a>
-        </div>
-
         {/* Footer */}
         <p className="text-xs text-neutral-600 mt-12">
           © 2026 Fabian Schmieder
