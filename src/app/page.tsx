@@ -26,7 +26,7 @@ export default async function Home() {
         {/* Logo */}
         <div className="relative">
           <div className="absolute inset-0 blur-2xl bg-amber-400/20 rounded-full scale-110" />
-          <Image src="/logo.svg" alt="SnapDog" width={160} height={160} priority className="relative" />
+          <Image src="/logo.svg" alt="SnapDog" width={240} height={240} priority className="relative" />
         </div>
 
         {/* Title */}
