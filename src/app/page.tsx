@@ -29,11 +29,6 @@ export default async function Home() {
           <Image src="/logo.svg" alt="SnapDog" width={240} height={240} priority className="relative" />
         </div>
 
-        {/* Title */}
-        <h1 className="text-5xl sm:text-6xl font-bold tracking-tight">
-          Snap<span className="text-amber-400">Dog</span>
-        </h1>
-
         {/* Tagline */}
         <p className="text-lg sm:text-xl text-neutral-400 max-w-lg leading-relaxed">
           Multi-zone audio controller with AirPlay, Spotify, Subsonic, MQTT, and KNX integration.
