@@ -26,7 +26,7 @@ export default async function Home() {
       <main className="relative z-10 flex flex-col items-center gap-8 max-w-2xl text-center">
         {/* Logo */}
         <div className="relative">
-          <div className="absolute inset-0 blur-2xl bg-amber-400/20 rounded-full scale-110" />
+          <div className="absolute inset-0 blur-2xl bg-amber-400/15 rounded-full scale-110" />
           <Image src="/logo.svg" alt="SnapDog" width={240} height={240} priority className="relative" />
         </div>
 
