@@ -1,9 +1,10 @@
 import Image from "next/image";
+import { DownloadSelector } from "./download-selector";
 
 async function getLatestVersion(): Promise<string> {
   try {
     const res = await fetch(
-      "https://api.github.com/repos/metaneutrons/snapdog-os/releases/latest",
+      "https://api.github.com/repos/SnapDogRocks/snapdog-os/releases/latest",
       { next: { revalidate: 3600 } }
     );
     if (!res.ok) return "v0.2.0";
@@ -47,22 +48,20 @@ export default async function Home() {
 
         {/* Info cards */}
         <div className="grid grid-cols-[2fr_1fr] gap-3 w-full max-w-sm font-mono text-left text-xs mt-4">
-          <div className="flex flex-col py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10">
-            <span className="text-[9px] uppercase font-semibold text-neutral-500 tracking-wider">Model</span>
-          </div>
+          <DownloadSelector />
           <div className="flex flex-col py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10">
             <span className="text-[9px] uppercase font-semibold text-neutral-500 tracking-wider">Version</span>
             <span className="font-semibold text-white mt-1 tabular-nums tracking-tight text-sm">{version}</span>
           </div>
           <a
-            href="https://github.com/metaneutrons/snapdog"
+            href="https://github.com/SnapDogRocks/snapdog-os"
             target="_blank"
             rel="noopener noreferrer"
             className="flex flex-col py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-white/20 transition-all group"
           >
             <span className="text-[9px] uppercase font-semibold text-neutral-500 tracking-wider">Source</span>
             <span className="font-semibold text-amber-400 mt-1 group-hover:underline tracking-tight text-sm">
-              metaneutrons/snapdog ↗
+              SnapDogRocks/snapdog-os ↗
             </span>
           </a>
           <a
