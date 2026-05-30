@@ -54,7 +54,6 @@ export default async function Home() {
         <div className="grid grid-cols-[2fr_1fr] gap-3 w-full max-w-sm font-mono text-left text-xs mt-4">
           <div className="flex flex-col py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10">
             <span className="text-[9px] uppercase font-semibold text-neutral-500 tracking-wider">Model</span>
-            <span className="font-semibold text-white mt-1 tracking-tight text-sm">SNAPDOG</span>
           </div>
           <div className="flex flex-col py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10">
             <span className="text-[9px] uppercase font-semibold text-neutral-500 tracking-wider">Version</span>
