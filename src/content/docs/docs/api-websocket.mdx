@@ -1,0 +1,86 @@
+---
+title: WebSocket API
+description: Real-time event notifications and state synchronization over WebSockets.
+---
+
+SnapDog publishes real-time state changes to connected clients over a WebSocket interface. This allows user interfaces to sync instantly without polling HTTP endpoints.
+
+---
+
+## 1. Connection & Security
+
+The WebSocket server listens on the same port as the REST API (`5555` by default) at the `/ws` path:
+
+```
+ws://<device-ip>:5555/ws
+```
+
+### Authentication
+If Bearer token authentication is enabled in `snapdog.toml` (via `[http].api_keys`), you must pass the token as a query parameter:
+
+```
+ws://<device-ip>:5555/ws?token=<your-configured-api-key>
+```
+
+Connections with invalid or missing tokens are immediately rejected with a `401 Unauthorized` HTTP handshake response.
+
+### Connection Lifecycle
+* **Heartbeat:** The server does not require custom client ping frames, but standard WebSocket pings are responded to automatically.
+* **Initial State Broadcast:** Immediately upon successful connection, the server pushes a complete list of all zones and connected clients to the WebSocket client to populate UI states.
+
+---
+
+## 2. Event Frames
+
+All WebSocket messages are JSON objects containing a `"type"` string that identifies the event.
+
+### `zone_changed`
+Fired whenever a zone's playback state, active source, track, or position changes.
+
+```json
+{
+  "type": "zone_changed",
+  "zone": 1,
+  "playback": "playing",
+  "source": "subsonic",
+  "title": "Acoustic Song",
+  "artist": "The Band",
+  "album": "Unplugged",
+  "duration_ms": 240000,
+  "position_ms": 12400,
+  "volume": 75,
+  "muted": false
+}
+```
+
+### `zone_volume_changed`
+Fired when a zone's master volume or mute state is altered.
+
+```json
+{
+  "type": "zone_volume_changed",
+  "zone": 1,
+  "volume": 80,
+  "muted": false
+}
+```
+
+### `client_connected`
+Fired when a physical speaker client connects to the audio streaming port.
+
+```json
+{
+  "type": "client_connected",
+  "mac": "02:42:ac:11:00:10"
+}
+```
+
+### `client_disconnected`
+Fired when a speaker client drops connection.
+
+```json
+{
+  "type": "client_disconnected",
+  "mac": "02:42:ac:11:00:10"
+}
+```

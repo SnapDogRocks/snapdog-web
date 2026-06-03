@@ -1,0 +1,99 @@
+---
+title: D-Bus API (MPRIS2)
+description: Controlling SnapDog audio zones via standard Linux MPRIS2 media interfaces.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+On Linux deployments, SnapDog registers a standard **MPRIS2** (Media Player Remote Interoperability Specification) interface on the user's D-Bus session bus for each configured audio zone. This allows media keys, system tray controllers, and home automation daemons to query and control playback natively.
+
+---
+
+## 1. Interface Details
+
+Each zone runs as a separate player device.
+
+* **Bus Name:** `org.mpris.MediaPlayer2.snapdog.zone{N}` (where `{N}` is the 1-based index of the zone)
+* **Object Path:** `/org/mpris/MediaPlayer2`
+* **Implemented Interfaces:**
+  * `org.mpris.MediaPlayer2` — Root player properties.
+  * `org.mpris.MediaPlayer2.Player` — Core playback operations.
+
+---
+
+## 2. Properties & Metadata
+
+The player implements standard D-Bus properties under `org.mpris.MediaPlayer2.Player`:
+
+| Property | Type | Access | Description |
+|---|---|---|---|
+| **`PlaybackStatus`** | `String` | Read-only | Playback state: `"Playing"`, `"Paused"`, or `"Stopped"`. |
+| **`Volume`** | `Double` | Read-write | Normalized volume level between `0.0` and `1.0`. |
+| **`LoopStatus`** | `String` | Read-write | Loop mode: `"None"`, `"Track"`, or `"Playlist"`. |
+| **`Position`** | `Int64` | Read-only | Current playback position in **microseconds** (10⁻⁶ seconds). |
+| **`Metadata`** | `Dict (a{sv})` | Read-only | Dictionary of track metadata tags (defined below). |
+| **`CanGoNext`** | `Boolean` | Read-only | True if another track exists in the playlist. |
+| **`CanGoPrevious`** | `Boolean` | Read-only | True if a previous track exists. |
+| **`CanPlay`** | `Boolean` | Read-only | True if playback can be resumed. |
+| **`CanPause`** | `Boolean` | Read-only | True if playback can be paused. |
+| **`CanControl`** | `Boolean` | Read-only | True if the player is controllable. |
+
+### Metadata Dictionary Schema
+The `Metadata` dictionary maps to standard Xesam tags:
+
+* **`mpris:trackid`** (`Object Path`) — Unique URI identifier.
+* **`mpris:length`** (`Int64`) — Total track duration in **microseconds**.
+* **`mpris:artUrl`** (`String`) — E.g., `http://192.168.1.10:5555/api/v1/zones/1/cover`.
+* **`xesam:title`** (`String`) — Track title.
+* **`xesam:artist`** (`Array of Strings`) — List of contributing artists.
+* **`xesam:album`** (`String`) — Album title.
+
+---
+
+## 3. CLI Control Examples
+
+You can use standard command-line tools like `playerctl` or standard `busctl` utilities to interface with SnapDog zones.
+
+### Control using `playerctl`
+
+`playerctl` automatically detects and formats MPRIS2 commands.
+
+```bash
+# List all active SnapDog zone players
+playerctl --list-all | grep snapdog
+
+# Toggle Play/Pause on Zone 1
+playerctl -p snapdog.zone1 play-pause
+
+# Skip to the next track on Zone 2
+playerctl -p snapdog.zone2 next
+
+# Set volume of Zone 1 to 80% (0.8)
+playerctl -p snapdog.zone1 volume 0.8
+
+# Retrieve title and artist of active track on Zone 1
+playerctl -p snapdog.zone1 metadata --format "{{title}} - {{artist}}"
+```
+
+### Control using `busctl`
+
+For low-level D-Bus diagnostics or raw scripting, use `busctl`.
+
+```bash
+# Query active playback status
+busctl --user get-property \
+  org.mpris.MediaPlayer2.snapdog.zone1 \
+  /org/mpris/MediaPlayer2 \
+  org.mpris.MediaPlayer2.Player \
+  PlaybackStatus
+
+# Send raw Play command to Zone 2
+busctl --user call \
+  org.mpris.MediaPlayer2.snapdog.zone2 \
+  /org/mpris/MediaPlayer2 \
+  org.mpris.MediaPlayer2.Player \
+  Play
+
+# Monitor state-change signals (e.g. metadata or volume edits) in real time
+busctl --user monitor org.mpris.MediaPlayer2.snapdog.zone1
+```

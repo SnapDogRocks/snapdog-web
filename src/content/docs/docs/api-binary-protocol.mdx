@@ -1,0 +1,211 @@
+---
+title: Custom Binary Protocol
+description: Extension framing and payload schemas for custom SnapDog client-server interactions.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+SnapDog client boards (`snapdog-client` and SnapDog OS) communicate with the server daemon over an extended binary protocol built on top of Snapcast. Standard Snapcast clients ignore these proprietary message headers, while SnapDog players parse and act upon them.
+
+---
+
+## 1. Frame Structure & Message Types
+
+All messages are prefixed with a header containing a 2-byte Message Type ID (big-endian), a 4-byte Payload Length (big-endian), and the variable-length payload bytes.
+
+SnapDog extends the protocol using message type IDs `10` through `15`:
+
+| Type ID | Name | Direction | Format | Description |
+|:---:|---|---|---|---|
+| **`10`** | `MSG_TYPE_EQ_CONFIG` | Server → Client | JSON | User-configured Parametric EQ coefficients for client-side DSP hardware. |
+| **`11`** | `MSG_TYPE_SPEAKER_EQ` | Server → Client | JSON | Room correction PEQ coefficients from matching Spinorama speaker profiles. |
+| **`12`** | `MSG_TYPE_FADE_OUT` | Server → Client | Binary | Triggers immediate client-side volume fade-out. |
+| **`13`** | `MSG_TYPE_PLAYBACK_CONTROL` | Client → Server | JSON | Key presses/actions from physical buttons on client hardware. |
+| **`14`** | `MSG_TYPE_TRACK_METADATA` | Server → Client | JSON | Playback status and track tags to render on client OLED/LCD screens. |
+| **`15`** | `MSG_TYPE_COVER_ART` | Server → Client | Binary | Raw cover art image data (JPEG/PNG) streamed in chunks. |
+
+---
+
+## 2. Payload Schemas
+
+### Type 10 & 11: Equalizer Coefficients (`EqConfig`)
+Used to configure the hardware DSP filters. Both the user EQ (`Type 10`) and speaker correction profiles (`Type 11`) share this JSON schema.
+
+* **Payload Format:** JSON
+* **Maximum EQ Bands:** 10
+
+```json
+{
+  "enabled": true,
+  "bands": [
+    {
+      "freq": 80.0,
+      "gain": -3.2,
+      "q": 1.41,
+      "type": "peaking"
+    },
+    {
+      "freq": 1000.0,
+      "gain": 1.5,
+      "q": 1.0,
+      "type": "high_shelf"
+    }
+  ],
+  "preset": "custom"
+}
+```
+
+#### Band Properties
+* **`freq`** (`f32`) — Center/cutoff frequency in Hz.
+* **`gain`** (`f32`) — Boost or cut in dB (ignored for low/high pass).
+* **`q`** (`f32`) — Filter quality factor (bandwidth selector).
+* **`type`** (`String`) — Filter curve. Supported options:
+  * `"low_shelf"` — Boosts/attenuates below cutoff.
+  * `"high_shelf"` — Boosts/attenuates above cutoff.
+  * `"peaking"` — Peak band filter.
+  * `"low_pass"` — Low pass attenuation.
+  * `"high_pass"` — High pass attenuation.
+
+---
+
+### Type 12: Fade-out Trigger
+Triggers client-side fading before stream preemption or zone switching.
+
+* **Payload Format:** Binary
+* **Size:** 2 bytes (u16 little-endian representing fade duration in milliseconds).
+* **Example:** `[44, 1]` translates to `0x012C` = `300` milliseconds.
+
+---
+
+### Type 13: Playback Control (`PlaybackControl`)
+Transmits client button inputs (e.g. physical buttons on a speaker chassis or custom remote) back to the server.
+
+* **Payload Format:** JSON (enum tagged with `cmd`)
+
+#### Available Commands
+
+##### Play
+```json
+{ "cmd": "play" }
+```
+
+##### Pause
+```json
+{ "cmd": "pause" }
+```
+
+##### Stop
+```json
+{ "cmd": "stop" }
+```
+
+##### Next Track
+```json
+{ "cmd": "next" }
+```
+
+##### Previous Track
+```json
+{ "cmd": "previous" }
+```
+
+##### Seek
+Supports absolute position or relative offset seeks in milliseconds.
+```json
+{
+  "cmd": "seek",
+  "position_ms": 45000,
+  "offset_ms": null
+}
+```
+*or*
+```json
+{
+  "cmd": "seek",
+  "position_ms": null,
+  "offset_ms": -5000
+}
+```
+
+##### Shuffle
+```json
+{
+  "cmd": "shuffle",
+  "enabled": true
+}
+```
+
+##### Repeat Mode
+```json
+{
+  "cmd": "repeat",
+  "mode": "track"
+}
+```
+*(modes: `"off"`, `"track"`, `"playlist"`)*
+
+##### Specific Playlist Switch
+```json
+{
+  "cmd": "playlist",
+  "index": 2,
+  "track": 0
+}
+```
+
+##### Playlist Navigation
+```json
+{ "cmd": "playlist_next" }
+```
+```json
+{ "cmd": "playlist_previous" }
+```
+
+---
+
+### Type 14: Track Metadata (`TrackMetadata`)
+Pushed to the client upon stream state changes to update local player displays.
+
+* **Payload Format:** JSON
+
+```json
+{
+  "playback": "playing",
+  "source": "subsonic",
+  "shuffle": false,
+  "repeat": "off",
+  "title": "Acoustic Song",
+  "artist": "The Band",
+  "album": "Unplugged",
+  "album_artist": "The Band",
+  "genre": "Rock",
+  "year": 2024,
+  "track_number": 2,
+  "disc_number": 1,
+  "duration_ms": 240000,
+  "position_ms": 12400,
+  "seekable": true,
+  "cover_url": "http://192.168.1.10:5555/api/v1/zones/1/cover",
+  "bitrate_kbps": 320,
+  "content_type": "audio/flac",
+  "track_index": 2,
+  "track_count": 10,
+  "playlist": 1,
+  "playlist_name": "My Acoustic Playlist",
+  "playlist_total": 5,
+  "can_playlist_next": true,
+  "can_playlist_prev": true,
+  "can_next": true,
+  "can_prev": false,
+  "volume": 75,
+  "muted": false
+}
+```
+
+---
+
+### Type 15: Cover Art Binary Stream
+Pushed to clients to render album art thumbnails on color player screens.
+
+* **Payload Format:** Binary
+* **Payload Content:** Raw image binary buffer (JPEG or PNG bytes) with no headers or wrapper frames. Clients can immediately decode and draw the buffer to video buffers.

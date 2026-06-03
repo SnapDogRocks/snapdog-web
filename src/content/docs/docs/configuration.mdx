@@ -25,7 +25,7 @@ Handles server execution settings, logging outputs, and local state directories.
   Sets logging verbosity. Options: `trace`, `debug`, `info`, `warn`, `error`.
 * **`log_file`** (String, optional)
   Path to a local log file. If set, logs will rotate daily in addition to standard output.
-* **`state_dir`** (String, default: platform-dependent)
+* **`state_dir`** (String, default: `platform-dependent`)
   Directory where SnapDog saves state files like EQ configurations, current volume levels, and dynamic client mappings.
   * Defaults to `/var/lib/snapdog` under `systemd` or platform data folders (`~/.local/state/snapdog` on Linux, `~/Library/Application Support/SnapDog` on macOS).
 

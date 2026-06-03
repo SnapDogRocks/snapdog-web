@@ -1,0 +1,469 @@
+---
+title: REST API Reference
+description: Complete reference for SnapDog HTTP control endpoints, parameter structures, and security.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The SnapDog REST API is hosted on port `5555` by default (configurable via `[http].port` in `snapdog.toml`). All requests and responses utilize the `application/json` Content-Type.
+
+---
+
+## 1. Authentication & Security
+
+If token security is activated in `snapdog.toml` (via `[http].api_keys`), all clients must include the bearer token in their request headers:
+
+```http
+Authorization: Bearer <your-configured-api-key>
+Accept: application/json
+```
+
+### Authentication Errors
+Requests with missing, malformed, or invalid tokens return a `401 Unauthorized` status:
+
+```json
+{
+  "error": "unauthorized",
+  "message": "Invalid or missing API key"
+}
+```
+
+---
+
+## 2. Interactive Scalar Console
+
+If SnapDog is compiled with the `api-docs` feature flag and `api_docs = true` is set in the `[http]` section of your configuration, you can access the built-in documentation server directly:
+
+* **Scalar Interactive Console:** `http://<device-ip>:5555/docs`
+* **Raw OpenAPI Specification:** `http://<device-ip>:5555/api-docs/openapi.json`
+
+This visual console provides sandbox forms to execute endpoints directly against live hardware.
+
+---
+
+## 3. System Endpoints
+
+### Get System Summary Statistics
+Returns count statistics for configured zones, clients, and radio streams.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/system/status`
+* **Response `200 OK`:**
+  ```json
+  {
+    "version": "1.0.0",
+    "zones": 2,
+    "clients": 4,
+    "radios": 12
+  }
+  ```
+
+### Get Application and Platform Version
+Returns detailed package and compilation versions along with the host name.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/system/version`
+* **Response `200 OK`:**
+  ```json
+  {
+    "version": "1.0.0",
+    "rust_version": "1.78.0",
+    "name": "SnapDog Controller"
+  }
+  ```
+
+---
+
+## 4. Zone Management & Playback
+
+Zones represent rooms or audio output groups. You can query their states and send actions like play, pause, volume scales, seek operations, or presence adjustments.
+
+### List Zones
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/zones`
+* **Response `200 OK`:**
+  ```json
+  [
+    {
+      "index": 1,
+      "name": "Living Room",
+      "icon": "sofa",
+      "volume": 75,
+      "muted": false,
+      "playback": "playing",
+      "source": "subsonic",
+      "shuffle": false,
+      "repeat": "off",
+      "presence": false,
+      "presence_enabled": true,
+      "presence_timer_active": false
+    }
+  ]
+  ```
+
+### Get Zone Count
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/zones/count`
+* **Response `200 OK`:** `2`
+
+### Get Single Zone Status
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/zones/{zone_index}`
+* **Response `200 OK`:** *(Returns the single zone object depicted in the list output)*
+* **Response `404 Not Found`:**
+  ```json
+  {
+    "error": "not_found",
+    "message": "Zone index 99 does not exist"
+  }
+  ```
+
+### Get or Set Zone Volume
+Volume can be adjusted absolutely (`0` to `100`) or relative to the current level (`"+5"`, `"-10"`).
+
+* **Method:** `GET` | `PUT`
+* **Endpoint:** `/api/v1/zones/{zone_index}/volume`
+* **Request Body (PUT):**
+  ```json
+  {
+    "volume": 80
+  }
+  ```
+  *or*
+  ```json
+  {
+    "volume": "+10"
+  }
+  ```
+* **Response `200 OK`:** `80` (new resolved volume)
+
+### Get or Set Zone Mute State
+* **Method:** `GET` | `PUT`
+* **Endpoint:** `/api/v1/zones/{zone_index}/mute`
+* **Request Body (PUT):** `true` or `false`
+* **Response `200 OK`:** `true`
+
+### Toggle Zone Mute State
+* **Method:** `POST`
+* **Endpoint:** `/api/v1/zones/{zone_index}/mute/toggle`
+* **Response `200 OK`:** `false` (returns the new resolved mute status)
+
+### Play / Pause / Stop Commands
+* **Method:** `POST`
+* **Endpoints:**
+  * `/api/v1/zones/{zone_index}/play`
+  * `/api/v1/zones/{zone_index}/pause`
+  * `/api/v1/zones/{zone_index}/stop`
+* **Response `200 OK`:** Returns nothing on success, or an error if playback fails.
+
+### Track Navigation
+Skip tracks inside the current active playlist.
+
+* **Method:** `POST`
+* **Endpoints:**
+  * `/api/v1/zones/{zone_index}/next`
+  * `/api/v1/zones/{zone_index}/previous`
+* **Response `200 OK`:** Success payload or standard HTTP status.
+
+### Retrieve Current Track Details
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/zones/{zone_index}/track`
+* **Response `200 OK`:** `3` (index of active track in the playlist)
+
+### Retrieve Full Track Metadata
+Returns all tags of the currently playing stream.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/zones/{zone_index}/track/metadata`
+* **Response `200 OK`:**
+  ```json
+  {
+    "title": "Acoustic Song",
+    "artist": "The Band",
+    "album": "Unplugged",
+    "album_artist": "The Band",
+    "genre": "Rock",
+    "year": 2024,
+    "track_number": 2,
+    "disc_number": 1,
+    "duration_ms": 240000,
+    "position_ms": 12400,
+    "seekable": true,
+    "bitrate_kbps": 320,
+    "content_type": "audio/flac",
+    "sample_rate": 48000,
+    "source": "subsonic",
+    "cover_url": "http://192.168.1.10:5555/api/v1/zones/1/cover",
+    "playlist_index": 1,
+    "playlist_name": "My Acoustic Playlist",
+    "playlist_total": 5,
+    "playlist_track_index": 1,
+    "playlist_track_count": 12,
+    "can_next": true,
+    "can_prev": false
+  }
+  ```
+
+### Retrieve Cover Art Image
+Fetches the cover image binary. If no cover is active, returns the default SnapDog placeholder PNG.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/zones/{zone_index}/cover`
+* **Response `200 OK`:** Raw image binary stream.
+  * Headers include: `Content-Type: image/jpeg` (or png), `Cache-Control: public, max-age=86400, immutable`, and matching `ETag`.
+
+### Specific Metadata Tag Endpoints
+Quick shortcuts to pull separate tags.
+
+* **Method:** `GET`
+* **Endpoints:**
+  * `/api/v1/zones/{zone_index}/track/title` (returns JSON String)
+  * `/api/v1/zones/{zone_index}/track/artist` (returns JSON String)
+  * `/api/v1/zones/{zone_index}/track/album` (returns JSON String)
+  * `/api/v1/zones/{zone_index}/track/duration` (returns JSON Integer in ms)
+
+### Seek Position
+* **Method:** `GET` | `PUT`
+* **Endpoint:** `/api/v1/zones/{zone_index}/track/position`
+* **Request Body (PUT):** Provide exactly one of `position_ms` (absolute position) or `offset_ms` (relative position).
+  ```json
+  {
+    "position_ms": 45000
+  }
+  ```
+  *or*
+  ```json
+  {
+    "offset_ms": -5000
+  }
+  ```
+* **Response `200 OK`:** `40000` (returns absolute position in ms)
+
+### Seek Progress
+Allows querying or seeking via a normalized percentage float (`0.0` to `1.0`).
+
+* **Method:** `GET` | `PUT`
+* **Endpoint:** `/api/v1/zones/{zone_index}/track/progress`
+* **Request Body (PUT):** `0.5` (seeks to the middle of the track)
+* **Response `200 OK`:** `0.5`
+
+### Direct Playback Trigger Endpoints
+Instructs a zone to immediately play a specific track, URL stream, or Subsonic playlist.
+
+* **Method:** `POST`
+* **Endpoints & Requests:**
+  * `/api/v1/zones/{zone_index}/play/track` — Request Body: track index (e.g. `2`).
+  * `/api/v1/zones/{zone_index}/play/url` — Request Body: absolute URL string.
+  * `/api/v1/zones/{zone_index}/play/playlist` — Request Body:
+    ```json
+    {
+      "id": 1,
+      "track": 0
+    }
+    ```
+  * `/api/v1/zones/{zone_index}/play/subsonic/{track_id}` — Starts a Subsonic server file stream.
+
+### Shuffle & Repeat
+* **Method:** `GET` | `PUT`
+* **Endpoints:**
+  * `/api/v1/zones/{zone_index}/shuffle` — Query/set boolean.
+  * `/api/v1/zones/{zone_index}/repeat` — Query/set mode: `"off"`, `"track"`, `"playlist"`.
+* **Method:** `POST`
+* **Endpoints:**
+  * `/api/v1/zones/{zone_index}/shuffle/toggle`
+  * `/api/v1/zones/{zone_index}/repeat/toggle`
+
+### Presence Detection Automation
+Configures auto-off triggers when motion sensors report room occupancy states.
+
+* **Method:** `GET` | `PUT`
+* **Endpoints:**
+  * `/api/v1/zones/{zone_index}/presence` — Occupation state (JSON bool).
+  * `/api/v1/zones/{zone_index}/presence/enable` — Enable/disable presence automation (JSON bool).
+  * `/api/v1/zones/{zone_index}/presence/timeout` — Duration in seconds of no motion before turning off the zone (JSON u16).
+  * `/api/v1/zones/{zone_index}/presence/timer` — Returns active countdown status (JSON bool).
+
+---
+
+## 5. DSP & Zone Equalizer
+
+Equalizers configured at the zone level are applied to the resampled master stream on the server.
+
+### Get Zone EQ configuration
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/zones/{zone_index}/eq`
+* **Response `200 OK`:**
+  ```json
+  {
+    "enabled": true,
+    "preset": "custom",
+    "bands": [
+      { "frequency": 125, "q": 1.0, "gain": 4.5, "type": "peaking" }
+    ]
+  }
+  ```
+
+### Modify EQ Bands
+Allows patching specific filters.
+* **Method:** `PUT`
+* **Endpoint:** `/api/v1/zones/{zone_index}/eq`
+* **Request Body:**
+  ```json
+  {
+    "enabled": true,
+    "bands": [
+      { "frequency": 125, "q": 1.0, "gain": 2.0, "type": "peaking" }
+    ]
+  }
+  ```
+* **Response `200 OK`:** Returns full modified `EqConfig` object.
+
+### Load EQ Preset
+Quickly overwrite current EQ settings with a standard curve.
+* **Method:** `POST`
+* **Endpoint:** `/api/v1/zones/{zone_index}/eq/preset`
+* **Request Body:** `"bass_boost"` (supported: `flat`, `bass_boost`, `loudness`, `vocals`, `treble_boost`)
+* **Response `200 OK`:** Returns loaded `EqConfig`.
+
+---
+
+## 6. Connected Client Speakers
+
+Client speakers represent physical hardware players.
+
+### List Connected Speakers
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/clients`
+* **Response `200 OK`:**
+  ```json
+  [
+    {
+      "index": 1,
+      "name": "Kitchen Speaker",
+      "mac": "02:42:ac:11:00:10",
+      "zone_index": 1,
+      "icon": "cook",
+      "volume": 85,
+      "max_volume": 100,
+      "muted": false,
+      "connected": true,
+      "is_snapdog": true
+    }
+  ]
+  ```
+
+### Get or Set Client Volume
+* **Method:** `GET` | `PUT`
+* **Endpoint:** `/api/v1/clients/{client_index}/volume`
+* **Request Body (PUT):** absolute integer or relative string increment (`80` or `"+5"`).
+
+### Mute Controls
+* **Method:** `GET` | `PUT` | `POST`
+* **Endpoints:**
+  * `GET` / `PUT` `/api/v1/clients/{client_index}/mute`
+  * `POST` `/api/v1/clients/{client_index}/mute/toggle`
+
+### Get or Set Client Sync Latency
+Adjust delay offset (in ms) to align speakers in space.
+* **Method:** `GET` | `PUT`
+* **Endpoint:** `/api/v1/clients/{client_index}/latency`
+* **Request Body (PUT):** Integer ms delay (e.g. `45`).
+
+### Switch Client Zone Mapping
+Assigns a client speaker to a different audio zone.
+
+* **Method:** `GET` | `PUT`
+* **Endpoint:** `/api/v1/clients/{client_index}/zone`
+* **Request Body (PUT):** Target zone index (JSON Integer, e.g. `2`).
+* **Response `200 OK`:** `2`
+
+<Aside type="note" title="Pre-Switching Fade Behavior">
+If the target client is a native **SnapDog Client**, the server will trigger a custom fade-out command to the client hardware prior to migrating it. The server blocks and sleeps for the fade duration (configured in `[audio].zone_switch_fade_ms`) to ensure a smooth transition with no audio cracks, then transfers the client to the new zone stream.
+</Aside>
+
+---
+
+## 7. Client-Side DSP & Speaker Correction
+
+Native SnapDog client boards feature local DSP chips. The server can push filters directly to the client hardware, separating room correction EQs from user EQ settings.
+
+### Client Parametric EQ
+Query or modify the user-configured EQ applied locally on the client player board.
+
+* **Method:** `GET` | `PUT`
+* **Endpoint:** `/api/v1/clients/{client_index}/eq`
+* **Response / Request Body:** Same structure as Zone-level EQ. Supports up to 10 bands.
+
+### Modify Single EQ Band on Client
+* **Method:** `PUT`
+* **Endpoint:** `/api/v1/clients/{client_index}/eq/{band_index}`
+* **Request Body:** `{ "frequency": 1000, "q": 1.0, "gain": -1.5, "type": "peaking" }`
+
+### Apply Client Preset
+* **Method:** `POST`
+* **Endpoint:** `/api/v1/clients/{client_index}/eq/preset`
+* **Request Body:** `"loudness"`
+
+---
+
+## 8. Spinorama Speaker Correction Database
+
+SnapDog embeds the Spinorama measurement library. You can select your speaker model to retrieve and apply matching parametric correction coefficients.
+
+### List Available Speaker Profiles
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/speakers`
+* **Response `200 OK`:** Array of speaker name strings.
+
+### Fetch PEQ Coefficients for Model
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/speakers/{name}/profile`
+* **Response `200 OK`:** Returns `EqConfig` generated from the Spinorama profile curves.
+
+### Get Active Speaker Correction on Client
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/clients/{client_index}/speaker`
+
+### Apply Speaker Correction to Client
+Sets either a predefined Spinorama speaker model, or applies custom correction filters.
+
+* **Method:** `PUT`
+* **Endpoint:** `/api/v1/clients/{client_index}/speaker`
+* **Request Body:** Provide exactly one of `speaker` name or a `custom` filter block:
+  ```json
+  {
+    "speaker": "Genelec 8030C"
+  }
+  ```
+  *or*
+  ```json
+  {
+    "custom": {
+      "enabled": true,
+      "bands": [
+        { "frequency": 80, "q": 1.41, "gain": -3.2, "type": "peaking" }
+      ]
+    }
+  }
+  ```
+
+---
+
+## 9. KNX Integration
+
+If the SnapDog daemon is running in KNX device mode, it functions as an ETS-programmable device. These endpoints manage its KNX hardware configuration.
+
+### Get or Set ETS Programming Mode
+Activates or deactivates the physical button programming state (equivalent to pressing the physical programming button on a DIN rail module) to allow the ETS software to assign an individual address.
+
+* **Method:** `GET` | `PUT`
+* **Endpoint:** `/api/v1/knx/programming-mode`
+* **Request Body (PUT):** `true` or `false`
+* **Response `200 OK`:** `true`
+* **Response `409 Conflict`:** If the server is configured in client mode instead of device mode.
+  ```json
+  {
+    "error": "conflict",
+    "message": "KNX device mode not active"
+  }
+  ```
