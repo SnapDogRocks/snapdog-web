@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: oklch(0.769 0.188 70.08);
+  --color-brand-hover: oklch(0.82 0.19 75);
+}
+
+/* Starlight color theme overrides for vacuum-tube amber */
+:root {
+  --sl-color-accent-low: #362000;
+  --sl-color-accent: #f59e0b;
+  --sl-color-accent-high: #ffbe47;
+  --sl-color-text-accent: #f59e0b;
+  --sl-color-asides-note-border: #f59e0b;
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: #ffbe47;
+  --sl-color-accent: #d97706;
+  --sl-color-accent-high: #362000;
+}
