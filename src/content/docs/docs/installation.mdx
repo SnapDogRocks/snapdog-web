@@ -22,7 +22,7 @@ Before setting up SnapDog, ensure your target machine meets the following requir
 SnapDog binds to several ports depending on your configuration. Ensure your firewall permits traffic on these ports:
 * `5555/tcp` — REST API, WebUI, and WebSockets (configurable via `[http].port`).
 * `1704/tcp` — Snapcast streaming endpoint where clients connect.
-* `1705/tcp` — Snapcast JSON-RPC control API (used by player managers).
+* `1705/tcp` — Snapcast JSON-RPC control API (only for external snapcast).
 * `3671/udp` — KNX/IP routing or tunneling communication (if KNX is enabled).
 * `5353/udp` — mDNS/Bonjour discovery advertisement.
 
