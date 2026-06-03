@@ -215,5 +215,5 @@ Create `~/Library/LaunchAgents/cc.snapdog.server.plist`:
 
 SnapDog supports two primary Snapcast compilation backends. You can select the backend using Cargo feature flags:
 
-* **`snapcast-embedded` (Default & Recommended):** Integrates the Snapcast server directly into the Rust daemon binary. This mode is strongly recommended because it manages group synchronization inline, supports proprietary float PCM channels for parametric EQ corrections, and doesn't require maintaining an external binary.
+* **`snapcast-embedded` (Default & Recommended):** Integrates the Snapcast server directly into the Rust daemon binary (leveraging our native Rust port of the original C++ Snapcast codebase via the `snapcast-*` crates). This mode is strongly recommended because it manages group synchronization inline, supports proprietary float PCM channels for parametric EQ corrections, and doesn't require maintaining an external binary.
 * **`snapcast-process`:** Spawns and manages a standalone C++ `snapserver` process in the background. Choose this only if you must rely on advanced C++ features or legacy external pipe encoders.
