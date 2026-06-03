@@ -1,0 +1,115 @@
+---
+title: API & Protocols Reference
+description: Reference for REST, WebSocket, D-Bus, and Custom Binary interfaces.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+SnapDog exposes a rich set of interfaces for developers to build client applications, scripts, and smart home integrations.
+
+---
+
+## 1. REST API
+
+The HTTP REST server is built with Axum and runs on port `5555` by default. It provides complete control over play state, media items, equalizers, and zone configurations.
+
+### Key Endpoints
+
+#### Zone Control
+* `GET /api/v1/zones` — Get a list of all active audio zones.
+* `GET /api/v1/zones/{zone_index}` — Retrieve status for a single zone.
+* `PUT /api/v1/zones/{zone_index}/volume` — Set zone volume (absolute `0–100` or relative `"+5"`, `"-3"`).
+* `POST /api/v1/zones/{zone_index}/play` — Start or resume playback.
+* `POST /api/v1/zones/{zone_index}/pause` — Pause playback.
+* `GET /api/v1/zones/{zone_index}/cover` — Fetch the current active cover art image binary.
+
+#### DSP & EQ
+* `GET /api/v1/zones/{zone_index}/eq` — Get the active parametric EQ configuration.
+* `POST /api/v1/zones/{zone_index}/eq/preset` — Load an EQ preset (e.g., `loudness`, `bass_boost`).
+
+#### Media Sources
+* `POST /api/v1/zones/{zone_index}/play/url` — Stream an arbitrary HTTP radio/audio stream.
+* `POST /api/v1/zones/{zone_index}/play/subsonic/{track_id}` — Play a track from the Subsonic library.
+
+---
+
+## 2. WebSocket Interface
+
+A WebSocket server runs at `ws://<host>:5555/ws`. It broadcasts real-time server changes as JSON-serialized messages.
+
+### Message Schema
+All WebSocket messages contain a `type` string property. Key notification payloads:
+
+#### `zone_changed`
+Triggered on full track or playback state changes.
+```json
+{
+  "type": "zone_changed",
+  "zone": 1,
+  "playback": "playing",
+  "source": "SubsonicPlaylist",
+  "title": "Acoustic Song",
+  "artist": "The Band",
+  "album": "Unplugged",
+  "duration_ms": 240000,
+  "position_ms": 12400,
+  "volume": 75,
+  "muted": false
+}
+```
+
+#### `zone_volume_changed`
+Lightweight notification pushed on high-frequency volume changes.
+```json
+{
+  "type": "zone_volume_changed",
+  "zone": 1,
+  "volume": 80,
+  "muted": false
+}
+```
+
+---
+
+## 3. D-Bus Interface (MPRIS2)
+
+On Linux systems, SnapDog exposes a standard **MPRIS2** media interface per zone on the D-Bus session bus. This allows standard widgets (like Gnome Shell media menus) and control utilities to interact with SnapDog out of the box.
+
+* **Bus Name:** `org.mpris.MediaPlayer2.snapdog.zone{N}`
+* **Object Path:** `/org/mpris/MediaPlayer2`
+
+### Command Examples
+
+You can use standard command-line tools to interact with zones:
+
+```bash
+# List all active SnapDog players
+playerctl -l
+# Output: snapdog.zone1, snapdog.zone2
+
+# Toggle play/pause on Zone 1
+playerctl -p snapdog.zone1 play-pause
+
+# Set Zone 1 volume to 80%
+playerctl -p snapdog.zone1 volume 0.8
+
+# Fetch the active track title
+playerctl -p snapdog.zone1 metadata xesam:title
+```
+
+---
+
+## 4. Custom Binary Protocol (snapdog-client ↔ server)
+
+SnapDog extends the standard Snapcast binary streaming protocol with custom message structures. Standard Snapcast clients ignore these messages, but `snapdog-client` parses them to execute hardware-level functions.
+
+Custom frame messages use the following Type IDs:
+
+| Message Type | Direction | Payload | Purpose |
+|:---:|---|---|---|
+| **`10`** | Server → Client | JSON | **EQ configuration:** sends the 10-band biquad parameters for client-side DSP processing. |
+| **`11`** | Server → Client | JSON | **Speaker Correction:** sends the matching Spinorama profile coefficients for the client's output hardware. |
+| **`12`** | Server → Client | None | **Fade-out Trigger:** signals the client to fade out output immediately (e.g. before preemption). |
+| **`13`** | Client → Server | Binary | **Playback Controls:** client sends buttons actions (Play, Next, Seek) from physical buttons back to the server. |
+| **`14`** | Server → Client | JSON | **Zone Metadata:** syncs active track details (Title, Artist, Duration) for client-side hardware displays. |
+| **`15`** | Server → Client | Binary | **Cover Art:** streams the raw JPEG/PNG cover art bytes directly to the client's display. |

@@ -1,0 +1,82 @@
+---
+title: SnapDog OS
+description: Dedicated minimal operating system for SnapDog audio receivers.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+**SnapDog OS** is a custom, minimal Buildroot-based Linux distribution that turns a Raspberry Pi with an I2S soundcard (DAC) into a dedicated, appliance-like audio receiver. It boots in seconds, connects to your network automatically, and requires zero command-line configuration.
+
+<Aside type="caution">
+  **Alpha Release:** SnapDog OS is currently under active development. For production installations, we recommend using standard Raspberry Pi OS with the SnapDog `.deb` client package.
+</Aside>
+
+---
+
+## Supported Hardware
+
+SnapDog OS is compiled as a 64-bit (`aarch64`) image running a minimal Linux 6.6 LTS kernel. The following boards are fully supported:
+* **Raspberry Pi 5**
+* **Raspberry Pi 4**
+* **Raspberry Pi 3**
+* **Raspberry Pi Zero 2 W**
+
+---
+
+## 1. Installation & First Boot
+
+### Flashing the Image
+1. Download the latest `.img.gz` image for your board from [Releases](https://github.com/SnapDogRocks/snapdog-os/releases).
+2. Open **Raspberry Pi Imager**.
+3. Under **OS**, choose **"Use custom"** and select the downloaded `.img.gz` file.
+4. Select your SD card and write.
+
+<Aside type="caution">
+  **CLI Warning:** If flashing via `dd` in the terminal, double-check your output target (`of=/dev/sdX` or `/dev/rdiskN`) to prevent overwriting your main system drive.
+</Aside>
+
+### Setting Up Wi-Fi & Initial Boot
+1. Insert the written SD card into your Raspberry Pi and power it on.
+2. If no Ethernet cable is connected, the board automatically spawns a setup Wi-Fi network:
+   * **SSID:** `SnapDog-XXXX` (where `XXXX` represents the last 4 characters of your client's MAC address).
+   * **Password:** `snapdog123`
+3. Connect to the setup Wi-Fi using your phone or laptop.
+4. Your device will automatically open a **Captive Portal** configuration wizard.
+5. Enter your home Wi-Fi details, select your SnapDog server (auto-discovered via mDNS), and select your I2S DAC model. Click **Save**—the Pi will reboot and join your home network.
+
+---
+
+## 2. Web UI Device Management (`snapdog-ctrl`)
+
+Once the Pi is connected to your local network, you can access the configuration dashboard at `http://<hostname>.local` (or via its IP address) on port `80`. The interface is served by a lightweight Rust Axum daemon called `snapdog-ctrl`:
+
+* **Dashboard:** Live view of the client hostname, network connections, system load, and uptime.
+* **Network:** Change between Wi-Fi and Ethernet configurations, configure static IPs, or join new wireless networks.
+* **Audio:** Select your I2S DAC overlay (e.g., HiFiBerry, Allo Boss, JustBoom) from the visual list. 
+* **Client Control:** Specify the target SnapDog server manually, test playback, configure latency offsets (to synchronize with other rooms), and set default startup volumes.
+* **Updates:** Check for OTA updates, select update tracks (stable vs. beta), and configure update maintenance windows.
+
+---
+
+## 3. Architecture & Security
+
+SnapDog OS is designed as a secure, robust audio appliance.
+
+### Partition Layout & Read-Only Rootfs
+To prevent flash memory wear and SD card corruption from sudden power loss, the root filesystem is mounted strictly **read-only**. All mutable configurations are symbolically linked to a dedicated, writeable `/data` partition.
+
+| Partition | Size | Type | Mount Point | Purpose |
+|---|---|---|---|---|
+| 1 | 256 MB | FAT32 | `/boot` | Bootloader, kernel, DTBs, config.txt |
+| 2 | 1 GB | EXT4 | `/` (slot A) | System Root filesystem (Read-Only) |
+| 3 | 1 GB | EXT4 | `/` (slot B) | Alternative Root filesystem (Read-Only) |
+| 4 | 128 MB+ | EXT4 | `/data` | Persistent writable settings (Wi-Fi, updates) |
+
+### Dual A/B System Updates (RAUC)
+System updates use standard `.raucb` signed bundles:
+* **Background Check:** Daily automated update checks verify signature certificates and verify partition integrity.
+* **A/B Rollbacks:** Updates install to the inactive slot. On reboot, the bootloader attempts to launch the new kernel. If the system fails to boot successfully 3 times, the bootloader automatically rolls back to the previous stable partition.
+
+### Security Hardening
+* **No Default Access:** SSH is disabled by default. When enabled, it is restricted to public-key authentication only (keys uploaded via Web UI).
+* **Root Password:** Challege-gated root password setups, easily managed through `snapdog-ctrl`.
