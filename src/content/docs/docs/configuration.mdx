@@ -1,0 +1,204 @@
+---
+title: Configuration Guide
+description: In-depth reference for every option inside the snapdog.toml configuration file.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+SnapDog is configured using a single `snapdog.toml` file. The server parses this file at startup (defaults to `/etc/snapdog/snapdog.toml`, or specified via the `--config` CLI argument).
+
+---
+
+## 1. Global Keys
+
+* **`name`** (String, default: `"SnapDog"`)
+  The display name of the audio controller server. Used as the default broadcast name for `mDNS`, the base MQTT topic node, and system status listings.
+
+---
+
+## 2. Table Reference
+
+### `[system]`
+Handles server execution settings, logging outputs, and local state directories.
+
+* **`log_level`** (String, default: `"info"`)
+  Sets logging verbosity. Options: `trace`, `debug`, `info`, `warn`, `error`.
+* **`log_file`** (String, optional)
+  Path to a local log file. If set, logs will rotate daily in addition to standard output.
+* **`state_dir`** (String, default: platform-dependent)
+  Directory where SnapDog saves state files like EQ configurations, current volume levels, and dynamic client mappings.
+  * Defaults to `/var/lib/snapdog` under `systemd` or platform data folders (`~/.local/state/snapdog` on Linux, `~/Library/Application Support/SnapDog` on macOS).
+
+### `[audio]`
+Controls formatting and preemption rules for audio streams.
+
+* **`sample_rate`** (Integer, default: `48000`)
+  Sets the target resampling frequency in Hz. All sources are resampled to this rate before encoding.
+* **`bit_depth`** (Integer, default: `16`)
+  PCM encoding bit depth. Options: `16`, `24`, or `32` bits.
+* **`channels`** (Integer, default: `2`)
+  Number of output channels (e.g. `2` for stereo, `1` for mono).
+* **`source_conflict`** (String, default: `"last_wins"`)
+  Preemption rules when multiple sources try to play on the same zone:
+  * `"last_wins"`: The newest request (e.g. starting a Spotify stream or manual radio click) overrides the active source.
+  * `"receiver_wins"`: AirPlay or Spotify Connect streams block any incoming Subsonic or radio play requests until the receiver stream stops.
+* **`zone_switch_fade_ms`** (Integer, default: `300`, max: `1000`)
+  Fade duration in milliseconds when a SnapDog speaker switches between audio zones. Set to `0` to disable.
+* **`source_switch_fade_ms`** (Integer, default: `300`, max: `1000`)
+  Fade duration when changing the audio source (e.g., Radio → Spotify) within a single zone.
+
+### `[http]`
+Configures the REST API, WebSocket notifications, and static WebUI hosting.
+
+* **`port`** (Integer, default: `5555`)
+  The TCP port on which the web server listens.
+* **`bind`** (String, default: `"0.0.0.0"`)
+  Listen interface IP. Set to `"0.0.0.0"` to listen on all IPv4 addresses, or `"::"` to enable dual-stack IPv4+IPv6.
+* **`base_url`** (String, default: `"http://localhost:<port>"`)
+  The absolute base URL of the server (e.g., `http://192.168.1.50:5555`). Used for generating absolute links for cover art endpoints in API payloads.
+* **`tls_cert`** (String, optional)
+  Path to a PEM-formatted TLS certificate chain. Required together with `tls_key` to activate HTTPS.
+* **`tls_key`** (String, optional)
+  Path to an unencrypted PEM TLS private key.
+* **`api_keys`** (Array of Strings, optional)
+  If configured, activates bearer token authentication. All requests to `/api/v1/*` and the `/ws` socket require the `Authorization: Bearer <key>` header.
+* **`api_docs`** (Boolean, default: `true`)
+  Exposes the embedded **Scalar API Reference** UI dynamically at `http://<host>:<port>/docs`. Only applicable if the binary was compiled with the `api-docs` feature flag.
+
+### `[snapcast]`
+Manages the embedded Snapcast synchronizer backend.
+
+* **`address`** (String, default: `"127.0.0.1"`)
+  The hostname or IP address of the Snapcast server.
+* **`jsonrpc_tcp_port`** (Integer, default: `1705`)
+  TCP port used to communicate JSON-RPC control events.
+* **`streaming_port`** (Integer, default: `1704`)
+  TCP port where Snapcast client devices connect to pull the encoded PCM audio data.
+* **`codec`** (String, default: `"flac"`)
+  Streaming compression encoder. Options: `"pcm"`, `"flac"`, `"f32lz4"`, `"f32lz4e"` (encrypted floats).
+* **`encryption_psk`** (String, optional)
+  Pre-shared key (PSK) used to encrypt the stream when `codec = "f32lz4e"` is active.
+* **`group_volume_mode`** (String, default: `"compressed"`)
+  Defines how zone-level volume adjustments scale connected client speakers:
+  * `"absolute"`: Changes the volume of all clients to match the zone volume.
+  * `"relative"`: Scales each client proportionally (`client_vol * zone_vol / 100`).
+  * `"compressed"`: Soft relative scaling using a square-root curve, ensuring quiet clients do not drop too quickly.
+* **`managed`** (Boolean, default: `true`)
+  If true, starts the built-in Rust snapcast server inside the daemon process.
+* **`verbose`** (Boolean, default: `false`)
+  Enables verbose console logging for the underlying Snapcast protocol encoder.
+* **`unknown_clients`** (String, default: `"accept"`)
+  Action when an unconfigured MAC address connects:
+  * `"accept"`: Admits the speaker and assigns it to the `default_zone`.
+  * `"ignore"`: Accepts connection but excludes the client from WebUI controls.
+  * `"reject"`: Drops connection immediately.
+* **`default_zone`** (String, optional)
+  Name of the fallback zone to place new clients into. Defaults to the first defined zone.
+
+### `[mdns]`
+* **`enabled`** (Boolean, default: `true`)
+  Enables Bonjour/mDNS service advertisement.
+* **`advertise_snapcast`** (Boolean, default: `false`)
+  Additionally advertises the `_snapcast._tcp` service type for discovery by generic Snapcast mobile apps.
+
+### `[dbus]`
+* **`enabled`** (Boolean, default: `true`)
+  Exposes the MPRIS2 audio control interface on Linux D-Bus.
+
+### `[airplay]`
+* **`mode`** (String, default: `"airplay2"`)
+  AirPlay protocol compatibility: `"airplay1"` or `"airplay2"`.
+* **`password`** (String, optional)
+  If set, requires verification to stream to the AirPlay receiver.
+* **`bind`** (Array of Strings, optional)
+  Restricts the AirPlay receiver to bind to specific network interfaces.
+
+### `[spotify]`
+* **`name`** (String)
+  Device name advertised to Spotify Connect clients.
+* **`bitrate`** (Integer, default: `320`)
+  Streaming bitrate. Options: `96`, `160`, or `320` kbps.
+
+### `[subsonic]`
+* **`url`** (String)
+  URL of the Subsonic API endpoint (e.g. Navidrome or Gonic).
+* **`username`** (String)
+  Connection username.
+* **`password`** (String)
+  Connection password.
+* **`format`** (String, default: `"raw"`)
+  Transcoding stream request format: `"raw"`, `"flac"`, `"mp3"`, or `"opus"`.
+* **`tls_skip_verify`** (Boolean, default: `false`)
+  Skips certificate checks for self-signed certificates.
+
+#### `[subsonic.cache]`
+* **`path`** (String)
+  Local folder for pre-caching track streams.
+* **`max_size_mb`** (Integer, default: `2048`)
+  Maximum size in MB before LRU track eviction occurs.
+
+### `[mqtt]`
+* **`broker`** (String)
+  MQTT broker host and port (e.g. `192.168.1.10:1883`).
+* **`client_id`** (String, default: `"snapdog"`)
+  Unique client ID.
+* **`username`** (String, optional)
+  Broker username.
+* **`password`** (String, optional)
+  Broker password.
+* **`base_topic`** (String, default: `"snapdog/"`)
+  Base namespace path under which states are published and commands are received.
+
+### `[knx]`
+* **`role`** (String, default: `"client"`)
+  KNX integration mode: `"client"` (connects to gateway tunnel) or `"device"` (registers as an ETS-programmable device).
+* **`url`** (String, optional)
+  Gateway connection URL (e.g. `udp://192.168.1.50:3671`).
+* **`individual_address`** (String, optional)
+  KNX individual address (e.g. `1.1.100`) for ETS programming.
+* **`persist_ets_config`** (Boolean, optional)
+  Saves ETS parameter changes to local persistent memory across restarts.
+* **`start_prog_mode`** (Boolean, default: `false`)
+  Starts with KNX physical programming mode enabled for ETS addressing.
+
+---
+
+## 3. Array Configuration Tables
+
+### `[[zone]]`
+Multiple zones can be defined using array of tables.
+
+* **`name`** (String)
+  Unique name for the room (e.g. `"Living Room"`).
+* **`icon`** (String, default: `"speaker"`)
+  Icon tag used in the WebUI.
+* **`sink`** (String, optional)
+  Manual override for the Snapcast audio sink path.
+* **`airplay_name`** (String, optional)
+  Override for the AirPlay receiver name.
+* **`knx`** (Table, optional)
+  Custom group addresses for clients (e.g. `{ volume = "1/1/1", mute = "1/1/2" }`).
+* **`presence`** (Table, optional)
+  Presence-activated schedules to automate playing radio stations or playlists when motion is detected.
+
+### `[[client]]`
+Defines output speaker hardware mapped to zones.
+
+* **`name`** (String)
+  Friendly name for the speaker (e.g. `"Living Room Left"`).
+* **`mac`** (String)
+  Lowercase MAC address identifying the client device.
+* **`zone`** (String)
+  Initial zone mapping. Must match a defined `[[zone]].name`.
+* **`max_volume`** (Integer, default: `100`)
+  Limits the maximum volume output (0-100) to protect speaker hardware.
+
+### `[[radio]]`
+Defines global internet radio streams.
+
+* **`name`** (String)
+  Station name.
+* **`url`** (String)
+  Streaming source stream URL (supports direct links, M3U/PLS, and HLS).
+* **`cover`** (String, optional)
+  URL to a cover art image to display when this station is playing.

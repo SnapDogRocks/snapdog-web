@@ -1,155 +1,219 @@
 ---
-title: Installation & Configuration
-description: How to install and configure the SnapDog server.
+title: Installation Guide
+description: Learn how to install the SnapDog server via docker, package managers, or compile from source.
 ---
 
-import { Tabs, TabItem } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-SnapDog is distributed as a single binary. It runs on Linux and macOS, and can be installed via package managers, run in Docker, or compiled from source.
+**SnapDog** is distributed as a lightweight, single statically-linked binary. It can be deployed on Linux (x86_64, aarch64, armv7) and macOS. Choose the installation method that fits your environment below.
 
 ---
 
-## 1. Installation
+## 1. System Requirements & Prerequisites
 
-Choose your preferred platform below to install SnapDog:
+Before setting up SnapDog, ensure your target machine meets the following requirements:
+
+### Operating System
+* **Linux:** Kernel 5.4 or higher. ALSA (Advanced Linux Sound Architecture) is required for local audio output interfaces.
+* **macOS:** macOS 12 (Monterey) or higher.
+* **Windows:** Windows 10/11 or Windows Server 2019+ (supported when running as a background service).
+
+### Network Ports
+SnapDog binds to several ports depending on your configuration. Ensure your firewall permits traffic on these ports:
+* `5555/tcp` — REST API, WebUI, and WebSockets (configurable via `[http].port`).
+* `1704/tcp` — Snapcast streaming endpoint where clients connect.
+* `1705/tcp` — Snapcast JSON-RPC control API (used by player managers).
+* `3671/udp` — KNX/IP routing or tunneling communication (if KNX is enabled).
+* `5353/udp` — mDNS/Bonjour discovery advertisement.
+
+---
+
+## 2. Installation Methods
 
 <Tabs>
-  <TabItem label="Docker">
-    Run the production container by binding your audio config file and mapping a data volume:
-    
-    ```yaml
-    # docker-compose.yml
-    services:
-      snapdog:
-        image: ghcr.io/metaneutrons/snapdog:latest
-        restart: unless-stopped
-        volumes:
-          - snapdog-data:/var/lib/snapdog
-          - ./snapdog.toml:/etc/snapdog/snapdog.toml:ro
-        ports:
-          - "5555:5555"      # WebUI + REST API
-          - "1704:1704"      # Snapcast streaming
-          - "3671:3671/udp"  # KNX/IP device
-    
-    volumes:
-      snapdog-data:
-    ```
+  <TabItem label="Docker (Compose)">
+    Docker is the recommended deployment method for home servers or NAS devices (like Unraid or Synology).
+
+    1. Create a `docker-compose.yml` file:
+       ```yaml
+       version: '3.8'
+       services:
+         snapdog:
+           image: ghcr.io/metaneutrons/snapdog:latest
+           container_name: snapdog
+           restart: unless-stopped
+           network_mode: host # Required for mDNS discovery and KNX multicast
+           devices:
+             - "/dev/snd:/dev/snd" # Expose ALSA soundcards for direct playback
+           volumes:
+             - snapdog-data:/var/lib/snapdog
+             - ./snapdog.toml:/etc/snapdog/snapdog.toml:ro
+           environment:
+             - TZ=Europe/Berlin
+
+       volumes:
+         snapdog-data:
+       ```
+    2. Start the container:
+       ```bash
+       docker compose up -d
+       ```
   </TabItem>
+
   <TabItem label="Arch Linux (AUR)">
-    Install the package directly from the Arch User Repository using your favorite AUR helper:
-    
+    AUR helper tools can be used to install the latest pre-compiled binary or build SnapDog directly from the Arch User Repository.
+
     ```bash
+    # Install the server and control client
     yay -S snapdog snapdog-client
+    
+    # Enable and start the systemd service
+    sudo systemctl enable --now snapdog
     ```
   </TabItem>
+
   <TabItem label="macOS (Homebrew)">
-    Tap the repository and install the command-line utility:
-    
+    For Apple Silicon or Intel Macs, we maintain a custom Homebrew tap:
+
     ```bash
+    # Tap the repository
     brew tap metaneutrons/tap
+
+    # Install the server and control utility
     brew install snapdog snapdog-client
+
+    # Run SnapDog as a macOS background service
+    brew services start snapdog
     ```
   </TabItem>
-  <TabItem label="Debian/Ubuntu">
-    Add the stable APT repository:
-    
-    ```bash
-    echo "deb [trusted=yes] https://metaneutrons.github.io/snapdog/debian stable main" \
-      | sudo tee /etc/apt/sources.list.d/snapdog.list
-    sudo apt update
-    sudo apt install snapdog snapdog-client
-    ```
+
+  <TabItem label="Debian/Ubuntu (APT)">
+    We distribute native `.deb` packages for Debian and Ubuntu architectures (amd64, arm64).
+
+    1. Register the trusted APT repository source:
+       ```bash
+       echo "deb [trusted=yes] https://metaneutrons.github.io/snapdog/debian stable main" \
+         | sudo tee /etc/apt/sources.list.d/snapdog.list
+       ```
+    2. Update package lists and install:
+       ```bash
+       sudo apt update
+       sudo apt install snapdog snapdog-client
+       ```
+    3. Start the background service:
+       ```bash
+       sudo systemctl daemon-reload
+       sudo systemctl enable --now snapdog
+       ```
   </TabItem>
+
   <TabItem label="Windows Service">
-    SnapDog can run as a native Windows background service:
-    
-    ```cmd
-    sc create SnapDog binPath= "\"C:\Program Files\SnapDog\snapdog.exe\" --service --config \"C:\ProgramData\snapdog\snapdog.toml\""
-    sc start SnapDog
-    ```
+    SnapDog compiles to a native Windows binary and can run as an NT Service.
+
+    1. Download the Windows binary (`snapdog.exe`) and place it in `C:\Program Files\SnapDog\`.
+    2. Open a Command Prompt as Administrator and register the service:
+       ```cmd
+       sc create SnapDog binPath= "\"C:\Program Files\SnapDog\snapdog.exe\" --service --config \"C:\ProgramData\snapdog\snapdog.toml\"" start= auto
+       sc start SnapDog
+       ```
   </TabItem>
 </Tabs>
 
 ---
 
-## 2. Configuration (`snapdog.toml`)
+## 3. Direct Binary Download
 
-SnapDog uses a single TOML configuration file. It follows **convention over configuration**—most naming structures, streaming ports, and automation channels are derived automatically from your zone and client definitions to keep the config file as small as possible.
+If you prefer to install the pre-compiled binaries manually:
 
-Here is a complete, documented configuration template:
+1. Download the correct archive for your architecture from the [GitHub Releases](https://github.com/metaneutrons/snapdog/releases) page.
+2. Extract the archive and copy the binary to `/usr/local/bin`:
+   ```bash
+   tar -xzf snapdog-linux-amd64.tar.gz
+   sudo mv snapdog /usr/local/bin/
+   sudo chmod 755 /usr/local/bin/snapdog
+   ```
 
-```toml
-# Server display name — used for mDNS, MQTT, and browser titles
-name = "SnapDog"
+---
 
-[http]
-port = 5555
-bind = "0.0.0.0"                       # Set :: for dual-stack IPv4+IPv6
-base_url = "http://192.168.1.10:5555"  # Required for generating cover art URLs
-# api_keys = ["secret1", "secret2"]   # Optional token protection
+## 4. Compiling from Source
 
-[audio]
-sample_rate = 48000
-bit_depth = 16                         # 16 or 24 (FLAC)
-source_conflict = "last_wins"          # last_wins | receiver_wins
-zone_switch_fade_ms = 300              # Fades when changing client zones (max 1000)
-source_switch_fade_ms = 300            # Fades when changing active audio source
+If you want to compile SnapDog with custom target optimizations, you can build it from source using Cargo.
 
-[snapcast]
-streaming_port = 1704
-unknown_clients = "accept"             # accept | ignore | reject
-default_zone = "Living Room"           # Fallback zone for new clients
+### Build Dependencies
+Ensure your development machine has the required system libraries installed:
+* **Debian/Ubuntu:** `sudo apt install build-essential pkg-config clang libasound2-dev libavahi-compat-libdnssd-dev`
+* **macOS:** Xcode Command Line Tools are sufficient.
 
-[dbus]
-enabled = true                         # Enables MPRIS2 interface per zone (Linux-only)
+### Building
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/metaneutrons/snapdog.git
+   cd snapdog
+   ```
+2. Build the release binary:
+   ```bash
+   cargo build --release --bin snapdog
+   ```
+3. The compiled binary will be available at `target/release/snapdog`.
 
-[mqtt]
-broker = "192.168.1.10:1883"
-base_topic = "snapdog/"                # Namespace for commands & states
+---
 
-[subsonic]
-url = "https://music.example.com"
-username = "user"
-password = "pass"
-format = "flac"                        # flac | mp3 | opus
-[subsonic.cache]
-path = "~/.cache/snapdog/tracks"
-max_size_mb = 2048                     # LRU cache eviction size
+## 5. Post-Installation Service Scripts
 
-# Define Zones (physical rooms)
-[[zone]]
-name = "Living Room"
-icon = "sofa"                          # Icon used in WebUI
+To ensure SnapDog starts automatically on boot and restarts in case of failures, configure a service supervisor.
 
-[[zone]]
-name = "Kitchen"
-icon = "cook"
+### Linux Systemd Service Unit
+Create `/etc/systemd/system/snapdog.service`:
 
-# Define Clients (speakers connected to Zones by MAC address)
-[[client]]
-name = "Living Room L"
-mac = "00:11:22:33:44:55"
-zone = "Living Room"
+```ini
+[Unit]
+Description=SnapDog Multi-room Audio Controller
+After=network-online.target sound.target
+Wants=network-online.target
 
-[[client]]
-name = "Kitchen Speaker"
-mac = "02:42:ac:11:00:10"
-zone = "Kitchen"
+[Service]
+Type=simple
+User=snapdog
+Group=audio
+ExecStart=/usr/local/bin/snapdog --config /etc/snapdog/snapdog.toml
+Restart=always
+RestartSec=5
+LimitRTPRIO=99
+LimitMEMLOCK=infinity
 
-# Define Internet Radio Stations
-[[radio]]
-name = "Deutschlandfunk"
-url = "https://st01.sslstream.dlf.de/dlf/01/high/aac/stream.aac"
+[Install]
+WantedBy=multi-user.target
+```
+
+### macOS Launchd Service Agent
+Create `~/Library/LaunchAgents/cc.snapdog.server.plist`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>cc.snapdog.server</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/snapdog</string>
+        <string>--config</string>
+        <string>/Users/shared/snapdog.toml</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+</dict>
+</plist>
 ```
 
 ---
 
-## 3. Server Backend Recommendations
+## 6. Server Mode Selection
 
-SnapDog supports two Snapcast modes via compile-time features:
+SnapDog supports two primary Snapcast compilation backends. You can select the backend using Cargo feature flags:
 
-1. **`snapcast-embedded` (Default & Recommended):** Runs the Snapcast server directly inside the SnapDog process. It is the preferred method because:
-   * It requires no external dependencies or processes to manage.
-   * It fully supports custom protocol channels (message IDs 10–15) used to communicate parametric EQ adjustments and speaker-correction profiles to custom hardware.
-   * It handles client volume and connection events inline, reducing metadata syncing delays.
-2. **`snapcast-process`:** Spawns and manages an external C++ `snapserver` process. This is only recommended if you need to use specific C++ server features not yet ported to `snapcast-rs`.
+* **`snapcast-embedded` (Default & Recommended):** Integrates the Snapcast server directly into the Rust daemon binary. This mode is strongly recommended because it manages group synchronization inline, supports proprietary float PCM channels for parametric EQ corrections, and doesn't require maintaining an external binary.
+* **`snapcast-process`:** Spawns and manages a standalone C++ `snapserver` process in the background. Choose this only if you must rely on advanced C++ features or legacy external pipe encoders.

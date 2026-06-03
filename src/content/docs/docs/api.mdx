@@ -1,53 +1,308 @@
 ---
 title: API & Protocols Reference
-description: Reference for REST, WebSocket, D-Bus, and Custom Binary interfaces.
+description: Comprehensive reference for REST API, WebSocket notifications, D-Bus interfaces, and Custom Binary frames.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-SnapDog exposes a rich set of interfaces for developers to build client applications, scripts, and smart home integrations.
+SnapDog exposes high-performance control and sync endpoints for developers to implement clients, home automation routines, or customized receiver hardware.
 
 ---
 
 ## 1. REST API
 
-The HTTP REST server is built with Axum and runs on port `5555` by default. It provides complete control over play state, media items, equalizers, and zone configurations.
+The SnapDog REST API is hosted on port `5555` by default (configurable via `[http].port`). All requests and responses must utilize the `application/json` Content-Type.
 
-### Key Endpoints
+### Authentication & Headers
 
-#### Zone Control
-* `GET /api/v1/zones` — Get a list of all active audio zones.
-* `GET /api/v1/zones/{zone_index}` — Retrieve status for a single zone.
-* `PUT /api/v1/zones/{zone_index}/volume` — Set zone volume (absolute `0–100` or relative `"+5"`, `"-3"`).
-* `POST /api/v1/zones/{zone_index}/play` — Start or resume playback.
-* `POST /api/v1/zones/{zone_index}/pause` — Pause playback.
-* `GET /api/v1/zones/{zone_index}/cover` — Fetch the current active cover art image binary.
+If token security is activated in `snapdog.toml` (via `[http].api_keys`), clients must include a bearer token in the headers:
 
-#### DSP & EQ
-* `GET /api/v1/zones/{zone_index}/eq` — Get the active parametric EQ configuration.
-* `POST /api/v1/zones/{zone_index}/eq/preset` — Load an EQ preset (e.g., `loudness`, `bass_boost`).
+```http
+Authorization: Bearer <your-configured-api-key>
+Accept: application/json
+```
 
-#### Media Sources
-* `POST /api/v1/zones/{zone_index}/play/url` — Stream an arbitrary HTTP radio/audio stream.
-* `POST /api/v1/zones/{zone_index}/play/subsonic/{track_id}` — Play a track from the Subsonic library.
+#### Authentication Errors
+Requests with missing, malformed, or invalid tokens return a `401 Unauthorized` status code with the following JSON schema:
+```json
+{
+  "error": "unauthorized",
+  "message": "Invalid or missing API key"
+}
+```
+
+### Live Interactive API Documentation
+
+If SnapDog is compiled with the `api-docs` feature flag and `api_docs = true` is set in the `[http]` section of your configuration, you can view the interactive developer interface directly in your browser:
+
+* **Scalar Interactive Console:** `http://<device-ip>:5555/docs`
+* **Raw OpenAPI Specification:** `http://<device-ip>:5555/api-docs/openapi.json`
+
+The Scalar console allows you to view all endpoints and schemas, and directly perform "Try it out" requests from your browser to test endpoints against live hardware.
 
 ---
 
-## 2. WebSocket Interface
+## 2. API Endpoints
 
-A WebSocket server runs at `ws://<host>:5555/ws`. It broadcasts real-time server changes as JSON-serialized messages.
+### Zone Configuration & Playback
 
-### Message Schema
-All WebSocket messages contain a `type` string property. Key notification payloads:
+#### Get All Zones
+* **Endpoint:** `GET /api/v1/zones`
+* **Response `200 OK`:**
+  ```json
+  [
+    {
+      "index": 1,
+      "name": "Living Room",
+      "icon": "sofa",
+      "playback": "playing",
+      "volume": 75,
+      "muted": false,
+      "source": "subsonic",
+      "track": {
+        "title": "Acoustic Song",
+        "artist": "The Band",
+        "album": "Unplugged",
+        "duration_ms": 240000,
+        "position_ms": 12400,
+        "cover_url": "http://192.168.1.10:5555/api/v1/zones/1/cover"
+      }
+    }
+  ]
+  ```
+
+#### Get Single Zone Status
+* **Endpoint:** `GET /api/v1/zones/{zone_index}`
+* **Response `200 OK`:** *(Returns the single zone object depicted above)*
+* **Response `404 Not Found`:**
+  ```json
+  {
+    "error": "not_found",
+    "message": "Zone index 99 does not exist"
+  }
+  ```
+
+#### Set Zone Volume
+* **Endpoint:** `PUT /api/v1/zones/{zone_index}/volume`
+* **Request Body:** Supports absolute integer values (`0` to `100`) or relative string increments (`"+5"`, `"-10"`).
+  ```json
+  {
+    "volume": 80
+  }
+  ```
+  or
+  ```json
+  {
+    "volume": "+5"
+  }
+  ```
+* **Response `200 OK`:**
+  ```json
+  {
+    "index": 1,
+    "volume": 80,
+    "muted": false
+  }
+  ```
+
+#### Set Zone Mute State
+* **Endpoint:** `PUT /api/v1/zones/{zone_index}/mute`
+* **Request Body:**
+  ```json
+  {
+    "muted": true
+  }
+  ```
+* **Response `200 OK`:**
+  ```json
+  {
+    "index": 1,
+    "muted": true
+  }
+  ```
+
+#### Toggle Mute
+* **Endpoint:** `POST /api/v1/zones/{zone_index}/mute/toggle`
+* **Response `200 OK`:**
+  ```json
+  {
+    "index": 1,
+    "muted": false
+  }
+  ```
+
+#### Play / Pause / Stop Commands
+* **Endpoints:** 
+  * `POST /api/v1/zones/{zone_index}/play`
+  * `POST /api/v1/zones/{zone_index}/pause`
+  * `POST /api/v1/zones/{zone_index}/stop`
+* **Response `200 OK`:**
+  ```json
+  {
+    "index": 1,
+    "playback": "paused"
+  }
+  ```
+
+#### Playback Mode Control
+* **Endpoints:**
+  * `POST /api/v1/zones/{zone_index}/next` — Skip to the next track.
+  * `POST /api/v1/zones/{zone_index}/previous` — Skip to the previous track.
+* **Response `200 OK`:**
+  ```json
+  {
+    "status": "success"
+  }
+  ```
+
+#### Retrieve Current Cover Art Binary
+* **Endpoint:** `GET /api/v1/zones/{zone_index}/cover`
+* **Response `200 OK`:** Serves the raw cover art image binary directly.
+  * `Content-Type`: `image/jpeg` or `image/png` or `image/webp`.
+  * `Cache-Control`: `public, max-age=86400` (1 day).
+
+---
+
+### DSP & Equalizer
+
+#### Retrieve Zone Equalizer Settings
+* **Endpoint:** `GET /api/v1/zones/{zone_index}/eq`
+* **Response `200 OK`:**
+  ```json
+  {
+    "enabled": true,
+    "preset": "custom",
+    "bands": [
+      { "frequency": 31, "q": 1.0, "gain": 0.0 },
+      { "frequency": 62, "q": 1.0, "gain": 1.5 },
+      { "frequency": 125, "q": 1.0, "gain": 3.0 },
+      { "frequency": 250, "q": 1.0, "gain": 0.0 },
+      { "frequency": 500, "q": 1.0, "gain": -1.0 },
+      { "frequency": 1000, "q": 1.0, "gain": 0.0 },
+      { "frequency": 2000, "q": 1.0, "gain": 0.0 },
+      { "frequency": 4000, "q": 1.0, "gain": 1.0 },
+      { "frequency": 8000, "q": 1.0, "gain": 2.0 },
+      { "frequency": 16000, "q": 1.0, "gain": 0.0 }
+    ]
+  }
+  ```
+
+#### Modify Equalizer Bands
+* **Endpoint:** `PUT /api/v1/zones/{zone_index}/eq`
+* **Request Body:**
+  ```json
+  {
+    "enabled": true,
+    "bands": [
+      { "frequency": 125, "q": 1.0, "gain": 4.5 }
+    ]
+  }
+  ```
+* **Response `200 OK`:** Returns the full modified EQ configuration.
+
+#### Load Preset
+* **Endpoint:** `POST /api/v1/zones/{zone_index}/eq/preset`
+* **Request Body:**
+  ```json
+  {
+    "preset": "bass_boost"
+  }
+  ```
+  *(Supported presets: `flat`, `bass_boost`, `loudness`, `vocals`, `treble_boost`)*
+* **Response `200 OK`:** Returns the loaded preset EQ settings.
+
+---
+
+### Media Streams & Sources
+
+#### Play Arbitrary Stream URL
+* **Endpoint:** `POST /api/v1/zones/{zone_index}/play/url`
+* **Request Body:**
+  ```json
+  {
+    "url": "https://stream.example.com/live.mp3",
+    "title": "My Favorite Web Radio"
+  }
+  ```
+* **Response `202 Accepted`:**
+  ```json
+  {
+    "status": "buffering",
+    "url": "https://stream.example.com/live.mp3"
+  }
+  ```
+
+#### Play Subsonic Track
+* **Endpoint:** `POST /api/v1/zones/{zone_index}/play/subsonic/{track_id}`
+* **Response `202 Accepted`:**
+  ```json
+  {
+    "status": "buffering",
+    "track_id": "9a8b7c6d-5e4f"
+  }
+  ```
+
+---
+
+### Speaker Client Mappings
+
+#### Get All Connected Speaker Clients
+* **Endpoint:** `GET /api/v1/clients`
+* **Response `200 OK`:**
+  ```json
+  [
+    {
+      "mac": "02:42:ac:11:00:10",
+      "name": "Kitchen Speaker",
+      "icon": "cook",
+      "zone": "Kitchen",
+      "volume": 85,
+      "muted": false,
+      "latency": 50,
+      "max_volume": 100,
+      "connected": true
+    }
+  ]
+  ```
+
+#### Set Client Zone Mapping
+* **Endpoint:** `PUT /api/v1/clients/{mac}/zone`
+* **Request Body:**
+  ```json
+  {
+    "zone": "Living Room"
+  }
+  ```
+* **Response `200 OK`:**
+  ```json
+  {
+    "mac": "02:42:ac:11:00:10",
+    "zone": "Living Room"
+  }
+  ```
+
+---
+
+## 3. WebSocket Interface
+
+The WebSocket interface provides real-time state synchronization. Client applications should open a connection to `ws://<host>:5555/ws`.
+
+### Authentication
+If Bearer token authentication is enabled, the token must be passed as a query parameter:
+```
+ws://<host>:5555/ws?token=<your-api-key>
+```
+
+### Event Notification Frames
 
 #### `zone_changed`
-Triggered on full track or playback state changes.
+Emitted when playback state, track, or position changes.
 ```json
 {
   "type": "zone_changed",
   "zone": 1,
   "playback": "playing",
-  "source": "SubsonicPlaylist",
+  "source": "Subsonic",
   "title": "Acoustic Song",
   "artist": "The Band",
   "album": "Unplugged",
@@ -59,7 +314,7 @@ Triggered on full track or playback state changes.
 ```
 
 #### `zone_volume_changed`
-Lightweight notification pushed on high-frequency volume changes.
+Emitted on volume adjustments.
 ```json
 {
   "type": "zone_volume_changed",
@@ -69,47 +324,62 @@ Lightweight notification pushed on high-frequency volume changes.
 }
 ```
 
----
-
-## 3. D-Bus Interface (MPRIS2)
-
-On Linux systems, SnapDog exposes a standard **MPRIS2** media interface per zone on the D-Bus session bus. This allows standard widgets (like Gnome Shell media menus) and control utilities to interact with SnapDog out of the box.
-
-* **Bus Name:** `org.mpris.MediaPlayer2.snapdog.zone{N}`
-* **Object Path:** `/org/mpris/MediaPlayer2`
-
-### Command Examples
-
-You can use standard command-line tools to interact with zones:
-
-```bash
-# List all active SnapDog players
-playerctl -l
-# Output: snapdog.zone1, snapdog.zone2
-
-# Toggle play/pause on Zone 1
-playerctl -p snapdog.zone1 play-pause
-
-# Set Zone 1 volume to 80%
-playerctl -p snapdog.zone1 volume 0.8
-
-# Fetch the active track title
-playerctl -p snapdog.zone1 metadata xesam:title
+#### `client_connected` / `client_disconnected`
+Emitted when speaker hardware connects or disconnects from the streaming port.
+```json
+{
+  "type": "client_connected",
+  "mac": "02:42:ac:11:00:10"
+}
 ```
 
 ---
 
-## 4. Custom Binary Protocol (snapdog-client ↔ server)
+## 4. D-Bus Interface (MPRIS2)
 
-SnapDog extends the standard Snapcast binary streaming protocol with custom message structures. Standard Snapcast clients ignore these messages, but `snapdog-client` parses them to execute hardware-level functions.
+For Linux host deployments, SnapDog registers a standard **MPRIS2** media interface on the D-Bus session bus for each zone. 
 
-Custom frame messages use the following Type IDs:
+* **Bus Name:** `org.mpris.MediaPlayer2.snapdog.zone{N}` (where `{N}` is the 1-based index of the zone)
+* **Object Path:** `/org/mpris/MediaPlayer2`
+* **Implemented Interfaces:**
+  * `org.mpris.MediaPlayer2`
+  * `org.mpris.MediaPlayer2.Player`
 
-| Message Type | Direction | Payload | Purpose |
-|:---:|---|---|---|
-| **`10`** | Server → Client | JSON | **EQ configuration:** sends the 10-band biquad parameters for client-side DSP processing. |
-| **`11`** | Server → Client | JSON | **Speaker Correction:** sends the matching Spinorama profile coefficients for the client's output hardware. |
-| **`12`** | Server → Client | None | **Fade-out Trigger:** signals the client to fade out output immediately (e.g. before preemption). |
-| **`13`** | Client → Server | Binary | **Playback Controls:** client sends buttons actions (Play, Next, Seek) from physical buttons back to the server. |
-| **`14`** | Server → Client | JSON | **Zone Metadata:** syncs active track details (Title, Artist, Duration) for client-side hardware displays. |
-| **`15`** | Server → Client | Binary | **Cover Art:** streams the raw JPEG/PNG cover art bytes directly to the client's display. |
+### Control Examples
+
+You can use standard command-line tools like `playerctl` or `busctl` to query and control playback:
+
+```bash
+# Toggle play/pause on Zone 1
+playerctl -p snapdog.zone1 play-pause
+
+# Skip track on Zone 2
+playerctl -p snapdog.zone2 next
+
+# Retrieve current playback volume
+playerctl -p snapdog.zone1 volume
+
+# Read active metadata
+busctl --user get-property \
+  org.mpris.MediaPlayer2.snapdog.zone1 \
+  /org/mpris/MediaPlayer2 \
+  org.mpris.MediaPlayer2.Player \
+  Metadata
+```
+
+---
+
+## 5. Custom Binary Protocol
+
+SnapDog clients (`snapdog-client` / SnapDog OS) communicate with the server over an extended Snapcast binary protocol. Standard Snapcast clients will ignore these frames, while SnapDog hardware processes them directly.
+
+The custom frames utilize Type IDs `10` through `15`:
+
+| ID | Name | Direction | Payload | Description / Format |
+|:---:|---|---|---|---|
+| **`10`** | `EQ` | Server → Client | JSON | **Equalizer coefficients:** Sends the frequency, Q, and gain parameters for client-side DSP hardware filters. |
+| **`11`** | `CORRECTION` | Server → Client | JSON | **Speaker Correction:** Sends the biquad coefficient array generated from the matching Spinorama speaker profile. |
+| **`12`** | `PREEMPT` | Server → Client | None | **Preempt Fade-out:** Signals the client to fade out immediately to allow another source to take over without clicks. |
+| **`13`** | `CONTROL` | Client → Server | Binary | **Client Control Commands:** Transmits physical button events (e.g. Play, Pause, Next) pressed on client hardware back to the server. |
+| **`14`** | `METADATA` | Server → Client | JSON | **Track Info:** Sends the title, artist, album, and playing state for display on client OLED/LCD hardware. |
+| **`15`** | `COVER_ART` | Server → Client | Binary | **Direct Image Stream:** Broadcasts the raw cover art image binary (JPEG/PNG) in chunks directly to the client's screen. |
