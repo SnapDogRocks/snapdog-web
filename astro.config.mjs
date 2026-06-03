@@ -22,20 +22,20 @@ export default defineConfig({
         {
           label: 'Getting Started',
           items: [
-            { label: 'Introduction', link: '/introduction' },
-            { label: 'Installation', link: '/installation' },
+            { label: 'Introduction', link: '/docs/introduction' },
+            { label: 'Installation', link: '/docs/installation' },
           ],
         },
         {
           label: 'SnapDog OS',
           items: [
-            { label: 'Overview & Setup', link: '/snapdog-os' },
+            { label: 'Overview & Setup', link: '/docs/snapdog-os' },
           ],
         },
         {
           label: 'Developer Reference',
           items: [
-            { label: 'API Reference', link: '/api' },
+            { label: 'API Reference', link: '/docs/api' },
           ],
         },
       ],
