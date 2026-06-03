@@ -92,7 +92,11 @@
       mouseX = -1;
     });
 
+    let animationFrameId: number | null = null;
+    let isElementVisible = false;
+
     const animate = () => {
+      if (!isElementVisible) return;
       time += 0.05;
       
       for (let i = 0; i < BAR_COUNT; i++) {
@@ -152,9 +156,25 @@
         }
       }
 
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     };
 
-    animate();
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        isElementVisible = entry.isIntersecting;
+        if (isElementVisible) {
+          if (!animationFrameId) {
+            animate();
+          }
+        } else {
+          if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+          }
+        }
+      });
+    }, { threshold: 0.05 });
+
+    observer.observe(container);
   }
 </script>

@@ -143,7 +143,7 @@
         </g>
 
         <!-- Room 1 (Living Room) Client -->
-        <g id="node-room-1" class="cursor-pointer transform hover:scale-105 transition-transform duration-300" data-room="1">
+        <g id="node-room-1" class="cursor-pointer transform hover:scale-105 transition-transform duration-300 focus:outline-none focus:stroke-amber-500" data-room="1" role="button" tabindex="0" aria-label="Toggle Living Room client zone" aria-pressed="true">
           <circle cx="530" cy="70" r="24" fill="#0f0f0f" stroke="#22c55e" stroke-width="1.5" id="c-circle-1"></circle>
           <circle cx="530" cy="70" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
           <!-- Status LED -->
@@ -155,7 +155,7 @@
         </g>
 
         <!-- Room 2 (Kitchen) Client -->
-        <g id="node-room-2" class="cursor-pointer transform hover:scale-105 transition-transform duration-300" data-room="2">
+        <g id="node-room-2" class="cursor-pointer transform hover:scale-105 transition-transform duration-300 focus:outline-none focus:stroke-amber-500" data-room="2" role="button" tabindex="0" aria-label="Toggle Kitchen client zone" aria-pressed="true">
           <circle cx="530" cy="150" r="24" fill="#0f0f0f" stroke="#22c55e" stroke-width="1.5" id="c-circle-2"></circle>
           <circle cx="530" cy="150" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
           <!-- Status LED -->
@@ -167,7 +167,7 @@
         </g>
 
         <!-- Room 3 (Patio) Client -->
-        <g id="node-room-3" class="cursor-pointer transform hover:scale-105 transition-transform duration-300" data-room="3">
+        <g id="node-room-3" class="cursor-pointer transform hover:scale-105 transition-transform duration-300 focus:outline-none focus:stroke-amber-500" data-room="3" role="button" tabindex="0" aria-label="Toggle Patio client zone" aria-pressed="false">
           <circle cx="530" cy="230" r="24" fill="#0f0f0f" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" id="c-circle-3"></circle>
           <circle cx="530" cy="230" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
           <!-- Status LED -->
@@ -335,11 +335,19 @@
   // Run initial state updates
   roomNodes.forEach((_, idx) => updateRoomState(idx));
 
-  // Attach toggle click events to room nodes
+  // Attach toggle click & keydown events to room nodes
   roomNodes.forEach((room, idx) => {
-    room.group?.addEventListener('click', () => {
+    const toggleActive = () => {
       room.active = !room.active;
       updateRoomState(idx);
+    };
+
+    room.group?.addEventListener('click', toggleActive);
+    room.group?.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        toggleActive();
+      }
     });
   });
 
@@ -355,8 +363,12 @@
     document.getElementById('vu-8')
   ];
 
+  let animationFrameId: number | null = null;
+  let isElementVisible = false;
   let time = 0;
+
   const updateVUMeter = () => {
+    if (!isElementVisible) return;
     time += 0.1;
     
     // Check if at least one room is active to bounce the meters, otherwise flatline them
@@ -379,9 +391,28 @@
       }
     });
 
-    requestAnimationFrame(updateVUMeter);
+    animationFrameId = requestAnimationFrame(updateVUMeter);
   };
 
-  // Start VU simulation
-  updateVUMeter();
+  const svgElement = document.getElementById('routing-svg');
+  const observerContainer = svgElement?.closest('.glass-card');
+  if (observerContainer) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        isElementVisible = entry.isIntersecting;
+        if (isElementVisible) {
+          if (!animationFrameId) {
+            updateVUMeter();
+          }
+        } else {
+          if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+          }
+        }
+      });
+    }, { threshold: 0.05 });
+
+    observer.observe(observerContainer);
+  }
 </script>
