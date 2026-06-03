@@ -1,0 +1,291 @@
+---
+// Interactive Captive Portal Setup Walkthrough
+---
+
+<section class="w-full max-w-4xl px-4 py-16 flex flex-col gap-10 items-center text-center">
+  <div class="flex flex-col gap-3 max-w-xl">
+    <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-white">
+      Zero-Configuration <span class="text-amber-400 glow-amber">Provisioning</span>
+    </h2>
+    <p class="text-sm text-neutral-400">
+      Set up new room clients in less than a minute. SnapDog OS boots a secure captive portal to guide you through network credentials and DAC configurations.
+    </p>
+  </div>
+
+  <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center text-left max-w-3xl">
+    
+    <!-- Left column: Text Instructions & Stepper Controls -->
+    <div class="flex flex-col gap-6 order-2 md:order-1">
+      
+      <!-- Steps Container -->
+      <div id="step-info-container" class="min-h-[160px] flex flex-col justify-center">
+        <!-- Step 1 -->
+        <div class="step-content flex flex-col gap-3 transition-opacity duration-300" data-step="1">
+          <span class="text-xs font-mono text-amber-500 uppercase tracking-widest">Step 01 • Connect AP</span>
+          <h3 class="text-xl font-semibold text-white">Join the SnapDog Hotspot</h3>
+          <p class="text-xs text-neutral-400 leading-relaxed">
+            Flash SnapDog OS onto a microSD card and boot your Raspberry Pi. The client will automatically publish a local Wi-Fi hotspot named <code class="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 font-mono text-amber-400">SnapDog-XXXX</code>. Search for it on your smartphone or computer and connect.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-content hidden flex flex-col gap-3 transition-opacity duration-300" data-step="2">
+          <span class="text-xs font-mono text-amber-500 uppercase tracking-widest">Step 02 • Credentials</span>
+          <h3 class="text-xl font-semibold text-white">Provide Network Details</h3>
+          <p class="text-xs text-neutral-400 leading-relaxed">
+            Once connected to the hotspot, your browser will automatically launch the Captive Portal. Select your home Wi-Fi network from the scanned list, and enter your password.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-content hidden flex flex-col gap-3 transition-opacity duration-300" data-step="3">
+          <span class="text-xs font-mono text-amber-500 uppercase tracking-widest">Step 03 • Audio Calibration</span>
+          <h3 class="text-xl font-semibold text-white">Select DAC & Room Name</h3>
+          <p class="text-xs text-neutral-400 leading-relaxed">
+            Select your specific audio card/HAT (e.g. IQaudIO DAC, HiFiBerry, or HDMI). Give your client zone a friendly name (e.g. "Bedroom") so the server can automatically identify it.
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step-content hidden flex flex-col gap-3 transition-opacity duration-300" data-step="4">
+          <span class="text-xs font-mono text-amber-500 uppercase tracking-widest">Step 04 • Success</span>
+          <h3 class="text-xl font-semibold text-white">Synced and Ready!</h3>
+          <p class="text-xs text-neutral-400 leading-relaxed">
+            Upon saving, the hotspot will turn off. The client will connect to your home network, fetch audio from the central SnapDog server, and start playing. It's now visible inside the central dashboard.
+          </p>
+        </div>
+      </div>
+
+      <!-- Navigation & Dots -->
+      <div class="flex items-center gap-6 mt-4">
+        <button
+          id="btn-prev"
+          class="p-2 rounded-lg bg-white/[0.02] border border-white/10 text-neutral-400 hover:bg-white/[0.08] hover:text-white cursor-pointer transition-all disabled:opacity-30 disabled:pointer-events-none"
+          disabled
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+
+        <!-- Stepper Dots -->
+        <div class="flex items-center gap-2">
+          <span class="step-dot w-2 h-2 rounded-full bg-amber-500 transition-all duration-300" data-step="1"></span>
+          <span class="step-dot w-1.5 h-1.5 rounded-full bg-white/20 transition-all duration-300" data-step="2"></span>
+          <span class="step-dot w-1.5 h-1.5 rounded-full bg-white/20 transition-all duration-300" data-step="3"></span>
+          <span class="step-dot w-1.5 h-1.5 rounded-full bg-white/20 transition-all duration-300" data-step="4"></span>
+        </div>
+
+        <button
+          id="btn-next"
+          class="px-4 py-2 rounded-lg bg-amber-500 text-black font-semibold hover:bg-amber-400 cursor-pointer transition-all flex items-center gap-2 active:scale-95"
+        >
+          <span>Next</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right column: Interactive Device Mockup -->
+    <div class="flex justify-center order-1 md:order-2">
+      <!-- Phone Frame -->
+      <div class="w-[240px] h-[440px] rounded-[36px] border-4 border-neutral-800 bg-[#080808] p-3 shadow-2xl relative overflow-hidden flex flex-col justify-between select-none">
+        
+        <!-- Screen Speaker Notch -->
+        <div class="absolute top-3 left-1/2 -translate-x-1/2 w-16 h-3 bg-neutral-900 rounded-full z-30 flex items-center justify-center">
+          <div class="w-1 h-1 rounded-full bg-neutral-800"></div>
+        </div>
+
+        <!-- Phone screen inner glass -->
+        <div class="w-full h-full bg-[#0a0a0a] rounded-[24px] border border-white/5 relative overflow-hidden p-4 flex flex-col justify-between pt-6">
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-amber-500/[0.02] blur-2xl rounded-full"></div>
+
+          <!-- Mockup Status Bar -->
+          <div class="flex justify-between items-center text-[7px] font-mono text-neutral-500 relative z-20 mb-2">
+            <span>9:41 AM</span>
+            <div class="flex items-center gap-1">
+              <span id="screen-wifi-icon">📶</span>
+              <span>🔋 100%</span>
+            </div>
+          </div>
+
+          <!-- Phone Dynamic Content Screen -->
+          <div id="screen-content-area" class="flex-1 flex flex-col relative z-20 justify-center">
+            
+            <!-- Screen step 1 -->
+            <div class="screen-step flex flex-col gap-4 text-center items-center" data-step="1">
+              <div class="text-3xl">📱</div>
+              <div class="flex flex-col gap-1 w-full">
+                <span class="text-[9px] uppercase tracking-wider text-neutral-500 font-semibold">Settings &gt; Wi-Fi</span>
+                <div class="w-full rounded-xl bg-white/[0.02] border border-white/5 p-2 text-[10px] font-mono text-left flex flex-col gap-1">
+                  <div class="flex justify-between items-center text-neutral-500">
+                    <span>Other Networks</span>
+                  </div>
+                  <div class="flex justify-between items-center py-1 border-b border-white/5">
+                    <span>FritzBox_Slow</span>
+                    <span class="opacity-40">🔒</span>
+                  </div>
+                  <div class="flex justify-between items-center py-1 font-semibold text-amber-400">
+                    <span>SnapDog-A8BF</span>
+                    <span class="animate-pulse">✓</span>
+                  </div>
+                  <div class="flex justify-between items-center py-1">
+                    <span>Coffee_Shop</span>
+                    <span class="opacity-40">🔒</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Screen step 2 -->
+            <div class="screen-step hidden flex flex-col gap-3 text-left" data-step="2">
+              <div class="flex items-center gap-1.5 pb-2 border-b border-white/5">
+                <span class="text-sm">🐕</span>
+                <span class="text-[9px] uppercase font-bold tracking-wider text-amber-500">SnapDog Portal</span>
+              </div>
+              <div class="flex flex-col gap-2 font-mono text-[9px] mt-2">
+                <label class="text-neutral-500 font-semibold uppercase">SSID</label>
+                <div class="rounded-lg bg-white/[0.03] border border-white/10 p-2 text-white flex justify-between">
+                  <span>My_Home_WiFi</span>
+                  <span class="opacity-40">▼</span>
+                </div>
+                <label class="text-neutral-500 font-semibold uppercase mt-1">Passphrase</label>
+                <div class="rounded-lg bg-white/[0.03] border border-white/10 p-2 text-neutral-300">
+                  <span>••••••••••••</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Screen step 3 -->
+            <div class="screen-step hidden flex flex-col gap-3 text-left" data-step="3">
+              <div class="flex items-center gap-1.5 pb-2 border-b border-white/5">
+                <span class="text-sm">🐕</span>
+                <span class="text-[9px] uppercase font-bold tracking-wider text-amber-500">SnapDog Portal</span>
+              </div>
+              <div class="flex flex-col gap-2 font-mono text-[9px] mt-2">
+                <label class="text-neutral-500 font-semibold uppercase">Audio Output</label>
+                <div class="rounded-lg bg-white/[0.03] border border-white/10 p-2 text-white flex justify-between">
+                  <span>HiFiBerry DAC+ Pro</span>
+                  <span class="opacity-40">▼</span>
+                </div>
+                <label class="text-neutral-500 font-semibold uppercase mt-1">Client Name</label>
+                <div class="rounded-lg bg-white/[0.03] border border-white/10 p-2 text-amber-400">
+                  <span>Bedroom</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Screen step 4 -->
+            <div class="screen-step hidden flex flex-col gap-4 text-center items-center" data-step="4">
+              <div class="w-12 h-12 rounded-full border border-green-500/20 bg-green-500/10 flex items-center justify-center animate-bounce">
+                <span class="text-green-500 text-lg">✓</span>
+              </div>
+              <div class="flex flex-col gap-1 font-mono text-[9px]">
+                <span class="font-bold text-white text-xs">Connected</span>
+                <span class="text-neutral-400 mt-1">IP: 192.168.1.142</span>
+                <span class="text-neutral-500">Zone Name: <span class="text-amber-400">Bedroom</span></span>
+                <span class="text-neutral-600 mt-2">Closed captive portal.</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom Home Indicator bar -->
+          <div class="w-20 h-1 bg-neutral-800 rounded-full mx-auto relative z-20"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  let currentStep = 1;
+  const TOTAL_STEPS = 4;
+
+  const btnPrev = document.getElementById('btn-prev') as HTMLButtonElement | null;
+  const btnNext = document.getElementById('btn-next') as HTMLButtonElement | null;
+  
+  const stepContents = document.querySelectorAll('.step-content');
+  const screenSteps = document.querySelectorAll('.screen-step');
+  const stepDots = document.querySelectorAll('.step-dot');
+  
+  const screenWifiIcon = document.getElementById('screen-wifi-icon');
+
+  const updateUI = () => {
+    // 1. Update text instructions
+    stepContents.forEach((content) => {
+      const stepVal = parseInt(content.getAttribute('data-step') ?? '0', 10);
+      if (stepVal === currentStep) {
+        content.classList.remove('hidden');
+        content.classList.add('flex');
+      } else {
+        content.classList.add('hidden');
+        content.classList.remove('flex');
+      }
+    });
+
+    // 2. Update screen visual mockup
+    screenSteps.forEach((screen) => {
+      const stepVal = parseInt(screen.getAttribute('data-step') ?? '0', 10);
+      if (stepVal === currentStep) {
+        screen.classList.remove('hidden');
+        screen.classList.add('flex');
+      } else {
+        screen.classList.add('hidden');
+        screen.classList.remove('flex');
+      }
+    });
+
+    // 3. Update dots
+    stepDots.forEach((dot) => {
+      const stepVal = parseInt(dot.getAttribute('data-step') ?? '0', 10);
+      if (stepVal === currentStep) {
+        dot.classList.remove('w-1.5', 'h-1.5', 'bg-white/20');
+        dot.classList.add('w-2', 'h-2', 'bg-amber-500');
+      } else {
+        dot.classList.add('w-1.5', 'h-1.5', 'bg-white/20');
+        dot.classList.remove('w-2', 'h-2', 'bg-amber-500');
+      }
+    });
+
+    // 4. Update Button states
+    if (btnPrev) {
+      btnPrev.disabled = currentStep === 1;
+    }
+    
+    if (btnNext) {
+      const nextText = btnNext.querySelector('span');
+      if (nextText) {
+        nextText.textContent = currentStep === TOTAL_STEPS ? 'Finish' : 'Next';
+      }
+    }
+
+    // 5. Update Wi-Fi icon mockup
+    if (screenWifiIcon) {
+      if (currentStep === 1) {
+        screenWifiIcon.textContent = '📶'; // Connected to hotspot AP (or no cellular connection yet)
+      } else if (currentStep === 4) {
+        screenWifiIcon.textContent = '📶 🌐'; // Connected to home Wi-Fi and online
+      } else {
+        screenWifiIcon.textContent = '📶';
+      }
+    }
+  };
+
+  btnNext?.addEventListener('click', () => {
+    if (currentStep < TOTAL_STEPS) {
+      currentStep++;
+      updateUI();
+    } else {
+      // Loop back to step 1 on completion
+      currentStep = 1;
+      updateUI();
+    }
+  });
+
+  btnPrev?.addEventListener('click', () => {
+    if (currentStep > 1) {
+      currentStep--;
+      updateUI();
+    }
+  });
+</script>

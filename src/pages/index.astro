@@ -1,5 +1,9 @@
 ---
 import '../styles/globals.css';
+import AudioWave from '../components/AudioWave.astro';
+import BentoGrid from '../components/BentoGrid.astro';
+import RoutingVisualizer from '../components/RoutingVisualizer.astro';
+import SetupWalkthrough from '../components/SetupWalkthrough.astro';
 
 // Fetch the latest version from GitHub at build time
 let version = 'v0.2.0';
@@ -23,16 +27,18 @@ try {
     <link rel="icon" type="image/png" href="/favicon.png" />
     <title>SnapDog — Multiroom Audio System</title>
   </head>
-  <body class="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-center px-6 py-16 relative overflow-hidden select-none">
+  <body class="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-start px-6 relative overflow-x-hidden select-none selection:bg-amber-500/20 selection:text-amber-200">
     
-    <!-- Background glow -->
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-[120px]"></div>
+    <!-- Background glows -->
+    <div class="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute top-[60%] left-1/3 w-[500px] h-[500px] bg-amber-500/[0.02] rounded-full blur-[140px] pointer-events-none"></div>
+    <div class="absolute top-[80%] right-1/4 w-[600px] h-[600px] bg-amber-500/[0.03] rounded-full blur-[150px] pointer-events-none"></div>
 
-    <!-- Content -->
-    <main class="relative z-10 flex flex-col items-center gap-8 max-w-2xl text-center">
+    <!-- Hero Header / Introduction Section -->
+    <header class="relative z-10 flex flex-col items-center gap-8 max-w-2xl text-center pt-24 pb-16 min-h-[90vh] justify-center">
       <!-- Logo -->
       <div class="relative">
-        <div class="absolute inset-0 blur-2xl bg-amber-400/15 rounded-full scale-110"></div>
+        <div class="absolute inset-0 blur-3xl bg-amber-400/15 rounded-full scale-110"></div>
         <img src="/logo.svg" alt="SnapDog" width="240" height="240" class="relative" />
       </div>
 
@@ -41,15 +47,8 @@ try {
         Multi-zone audio controller with AirPlay, Spotify, Subsonic, MQTT, and KNX integration.
       </p>
 
-      <!-- Audio wave icon -->
-      <div class="flex items-center gap-[3px] h-8">
-        {[3, 5, 7, 5, 8, 5, 7, 5, 3].map((h, i) => (
-          <div
-            class="w-[3px] rounded-full bg-amber-400/80 animate-pulse"
-            style={`height: ${h * 3}px; animation-delay: ${i * 0.1}s;`}
-          />
-        ))}
-      </div>
+      <!-- Interactive Audio Wave -->
+      <AudioWave />
 
       <!-- Info and download grids -->
       <div class="grid grid-cols-[2fr_1fr] gap-3 w-full max-w-sm font-mono text-left text-xs mt-4">
@@ -117,19 +116,50 @@ try {
         </a>
       </div>
 
-      <!-- Documentation Button Link -->
-      <a
-        href="/docs/introduction"
-        class="mt-4 px-8 py-3 rounded-full bg-amber-500 text-black hover:bg-amber-400 font-semibold tracking-wide transition shadow-[0_4px_20px_rgba(245,158,11,0.2)] hover:shadow-[0_4px_25px_rgba(245,158,11,0.3)]"
-      >
-        Go to Documentation
-      </a>
+      <!-- Quick Scroll Indicator -->
+      <div class="mt-8 flex flex-col items-center gap-2 text-[10px] font-mono tracking-widest text-neutral-500 uppercase">
+        <span>Explore Architecture</span>
+        <span class="animate-bounce text-sm">↓</span>
+      </div>
+    </header>
 
-      <!-- Footer -->
-      <p class="text-xs text-neutral-600 mt-12">
-        © 2026 Fabian Schmieder
-      </p>
+    <!-- Main visual presentation sections -->
+    <main class="w-full flex flex-col items-center relative z-10">
+      
+      <!-- Interactive Signal Routing Visualizer Section (Step 4) -->
+      <RoutingVisualizer />
+
+      <!-- Bento Features Section (Step 3) -->
+      <BentoGrid />
+
+      <!-- Captive Portal Provisioning Setup Section (Step 5) -->
+      <SetupWalkthrough />
+
+      <!-- CTA to Docs -->
+      <section class="py-24 flex flex-col items-center gap-6 text-center max-w-xl">
+        <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight">Ready to integrate?</h2>
+        <p class="text-xs sm:text-sm text-neutral-400 leading-relaxed">
+          SnapDog is open source and runs on standard Raspberry Pi devices. Check out our comprehensive setup guides, hardware recommendations, and REST API documentation to get started.
+        </p>
+        <a
+          href="/docs/introduction"
+          class="mt-4 px-8 py-3 rounded-full bg-amber-500 text-black hover:bg-amber-400 font-semibold tracking-wide transition shadow-[0_4px_20px_rgba(245,158,11,0.2)] hover:shadow-[0_4px_25px_rgba(245,158,11,0.3)]"
+        >
+          Go to Documentation
+        </a>
+      </section>
+
     </main>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-5xl py-12 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-neutral-600 relative z-10">
+      <p>© 2026 Fabian Schmieder</p>
+      <div class="flex gap-6">
+        <a href="/docs/introduction" class="hover:text-neutral-400">Docs</a>
+        <a href="https://github.com/SnapDogRocks/snapdog-os" target="_blank" rel="noopener noreferrer" class="hover:text-neutral-400">GitHub</a>
+        <a href="https://updates.snapdog.cc/os/images/snapdog-os-pi4-beta.img.gz" class="hover:text-neutral-400">Download OS</a>
+      </div>
+    </footer>
 
     <!-- Client-side javascript to handle download URL swapping -->
     <script is:inline>

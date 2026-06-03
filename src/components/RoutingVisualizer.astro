@@ -1,0 +1,387 @@
+---
+// Interactive Audio Routing Visualizer
+---
+
+<section class="w-full max-w-4xl px-4 py-16 flex flex-col gap-8 text-center items-center">
+  <div class="flex flex-col gap-3 max-w-xl">
+    <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-white">
+      Real-Time <span class="text-amber-400 glow-amber">Routing</span> & Sync
+    </h2>
+    <p class="text-sm text-neutral-400">
+      Click sources to change input protocols, or click individual room nodes to connect/disconnect client zones. Watch the synchronized audio stream distribute dynamically.
+    </p>
+  </div>
+
+  <!-- Interactive Controls -->
+  <div class="flex flex-wrap gap-2 justify-center font-mono text-[10px] uppercase tracking-wider relative z-20">
+    <button
+      id="src-airplay"
+      class="px-4 py-2 rounded-lg bg-amber-500 text-black font-semibold border border-amber-500/20 transition-all hover:bg-amber-400 cursor-pointer active:scale-95"
+      data-source="airplay"
+    >
+      AirPlay 2
+    </button>
+    <button
+      id="src-spotify"
+      class="px-4 py-2 rounded-lg bg-white/[0.03] text-neutral-400 border border-white/10 transition-all hover:bg-white/[0.08] hover:text-white cursor-pointer active:scale-95"
+      data-source="spotify"
+    >
+      Spotify Connect
+    </button>
+    <button
+      id="src-mqtt"
+      class="px-4 py-2 rounded-lg bg-white/[0.03] text-neutral-400 border border-white/10 transition-all hover:bg-white/[0.08] hover:text-white cursor-pointer active:scale-95"
+      data-source="mqtt"
+    >
+      MQTT / Auxiliary
+    </button>
+  </div>
+
+  <!-- Visualizer Board -->
+  <div class="w-full glass-card shadow-glow-card rounded-2xl p-6 md:p-10 relative overflow-hidden flex flex-col items-center justify-center">
+    <div class="absolute inset-0 bg-radial from-amber-500/[0.01] via-transparent to-transparent"></div>
+
+    <div class="w-full max-w-2xl aspect-[2/1] relative">
+      <svg
+        id="routing-svg"
+        viewBox="0 0 600 300"
+        class="w-full h-full overflow-visible select-none"
+      >
+        <!-- Grids / Layout Guidelines -->
+        <g stroke="rgba(255,255,255,0.02)" stroke-width="1">
+          <line x1="0" y1="75" x2="600" y2="75"></line>
+          <line x1="0" y1="150" x2="600" y2="150"></line>
+          <line x1="0" y1="225" x2="600" y2="225"></line>
+          <line x1="150" y1="0" x2="150" y2="300"></line>
+          <line x1="300" y1="0" x2="300" y2="300"></line>
+          <line x1="450" y1="0" x2="450" y2="300"></line>
+        </g>
+
+        <!-- Dynamic Paths (Flowing streams) -->
+        <!-- Source -> Server Path -->
+        <path
+          id="path-src-server"
+          d="M 120,150 L 250,150"
+          fill="none"
+          stroke="url(#grad-amber-flow)"
+          stroke-width="3"
+          stroke-linecap="round"
+          class="flowing-line"
+        ></path>
+
+        <!-- Server -> Room Paths -->
+        <path
+          id="path-room-1"
+          d="M 350,150 C 400,150 420,70 500,70"
+          fill="none"
+          stroke="url(#grad-amber-flow)"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          class="flowing-line"
+        ></path>
+        <path
+          id="path-room-2"
+          d="M 350,150 L 500,150"
+          fill="none"
+          stroke="url(#grad-amber-flow)"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          class="flowing-line"
+        ></path>
+        <path
+          id="path-room-3"
+          d="M 350,150 C 400,150 420,230 500,230"
+          fill="none"
+          stroke="url(#grad-amber-flow)"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          class="flowing-line"
+        ></path>
+
+        <!-- Node Gradients -->
+        <defs>
+          <linearGradient id="grad-amber-flow" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.3"></stop>
+            <stop offset="50%" stop-color="#fbbf24" stop-opacity="1"></stop>
+            <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.3"></stop>
+          </linearGradient>
+        </defs>
+
+        <!-- Source Node -->
+        <g id="node-source" class="cursor-pointer transform hover:scale-105 transition-transform duration-300">
+          <circle cx="90" cy="150" r="30" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"></circle>
+          <circle id="src-glow" cx="90" cy="150" r="30" fill="none" stroke="#f59e0b" stroke-width="1.5" class="opacity-30 animate-pulse"></circle>
+          <!-- Source Phone Icon -->
+          <rect x="78" y="132" width="24" height="36" rx="4" ry="4" fill="#0f0f0f" stroke="rgba(255,255,255,0.2)" stroke-width="1"></rect>
+          <line x1="86" y1="135" x2="94" y2="135" stroke="rgba(255,255,255,0.4)" stroke-width="1"></line>
+          <circle cx="90" cy="164" r="1.5" fill="rgba(255,255,255,0.6)"></circle>
+          <!-- Protocol Text -->
+          <text id="src-label" x="90" y="200" fill="#a3a3a3" font-family="monospace" font-size="9" text-anchor="middle" letter-spacing="1">AIRPLAY 2</text>
+        </g>
+
+        <!-- SnapDog Server Node -->
+        <g id="node-server" class="transform hover:scale-105 transition-transform duration-300">
+          <!-- Outer border -->
+          <rect x="250" y="110" width="100" height="80" rx="12" ry="12" fill="#0c0a09" stroke="rgba(255,255,255,0.08)" stroke-width="2" class="shadow-glow-card"></rect>
+          <rect x="250" y="110" width="100" height="80" rx="12" ry="12" fill="none" stroke="#f59e0b" stroke-width="1" class="opacity-20"></rect>
+          <!-- VU Meters / EQ bars inside server -->
+          <g transform="translate(262, 130)" class="fill-amber-500/80">
+            <rect id="vu-1" x="0" y="10" width="6" height="25" rx="1.5"></rect>
+            <rect id="vu-2" x="10" y="15" width="6" height="20" rx="1.5"></rect>
+            <rect id="vu-3" x="20" y="5" width="6" height="30" rx="1.5"></rect>
+            <rect id="vu-4" x="30" y="22" width="6" height="13" rx="1.5"></rect>
+            <rect id="vu-5" x="40" y="18" width="6" height="17" rx="1.5"></rect>
+            <rect id="vu-6" x="50" y="8" width="6" height="27" rx="1.5"></rect>
+            <rect id="vu-7" x="60" y="12" width="6" height="23" rx="1.5"></rect>
+            <rect id="vu-8" x="70" y="2" width="6" height="33" rx="1.5"></rect>
+          </g>
+          <!-- Status Lamp -->
+          <circle cx="340" cy="122" r="3" fill="#22c55e" class="animate-pulse"></circle>
+          <text x="300" y="210" fill="#f59e0b" font-family="monospace" font-weight="bold" font-size="10" text-anchor="middle" letter-spacing="1.5">SNAPDOG CORE</text>
+          <!-- Parametric EQ tag -->
+          <text x="300" y="223" fill="#6b7280" font-family="monospace" font-size="7" text-anchor="middle">DSP / 5-BAND EQ ACTIVE</text>
+        </g>
+
+        <!-- Room 1 (Living Room) Client -->
+        <g id="node-room-1" class="cursor-pointer transform hover:scale-105 transition-transform duration-300" data-room="1">
+          <circle cx="530" cy="70" r="24" fill="#0f0f0f" stroke="#22c55e" stroke-width="1.5" id="c-circle-1"></circle>
+          <circle cx="530" cy="70" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
+          <!-- Status LED -->
+          <circle cx="530" cy="70" r="3" fill="#22c55e" id="c-led-1"></circle>
+          <!-- Speaker Icon geometry -->
+          <path d="M 515,67 L 519,67 L 523,63 L 523,77 L 519,73 L 515,73 Z" fill="rgba(255,255,255,0.4)" id="c-icon-1"></path>
+          <path d="M 526,67 C 528,68 528,72 526,73" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-linecap="round" id="c-wave-1"></path>
+          <text x="530" y="112" fill="#e5e5e5" font-family="monospace" font-size="8" text-anchor="middle" letter-spacing="0.5" id="c-text-1">LIVING ROOM</text>
+        </g>
+
+        <!-- Room 2 (Kitchen) Client -->
+        <g id="node-room-2" class="cursor-pointer transform hover:scale-105 transition-transform duration-300" data-room="2">
+          <circle cx="530" cy="150" r="24" fill="#0f0f0f" stroke="#22c55e" stroke-width="1.5" id="c-circle-2"></circle>
+          <circle cx="530" cy="150" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
+          <!-- Status LED -->
+          <circle cx="530" cy="150" r="3" fill="#22c55e" id="c-led-2"></circle>
+          <!-- Speaker Icon geometry -->
+          <path d="M 515,147 L 519,147 L 523,143 L 523,157 L 519,153 L 515,153 Z" fill="rgba(255,255,255,0.4)" id="c-icon-2"></path>
+          <path d="M 526,147 C 528,148 528,152 526,153" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-linecap="round" id="c-wave-2"></path>
+          <text x="530" y="192" fill="#e5e5e5" font-family="monospace" font-size="8" text-anchor="middle" letter-spacing="0.5" id="c-text-2">KITCHEN</text>
+        </g>
+
+        <!-- Room 3 (Patio) Client -->
+        <g id="node-room-3" class="cursor-pointer transform hover:scale-105 transition-transform duration-300" data-room="3">
+          <circle cx="530" cy="230" r="24" fill="#0f0f0f" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" id="c-circle-3"></circle>
+          <circle cx="530" cy="230" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
+          <!-- Status LED -->
+          <circle cx="530" cy="230" r="3" fill="#ea580c" id="c-led-3"></circle>
+          <!-- Speaker Icon geometry -->
+          <path d="M 515,227 L 519,227 L 523,223 L 523,237 L 519,233 L 515,233 Z" fill="rgba(255,255,255,0.2)" id="c-icon-3"></path>
+          <text x="530" y="272" fill="#737373" font-family="monospace" font-size="8" text-anchor="middle" letter-spacing="0.5" id="c-text-3">PATIO (MUTE)</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  @keyframes flow-animation {
+    to {
+      stroke-dashoffset: -40;
+    }
+  }
+
+  .flowing-line {
+    stroke-dasharray: 10 10;
+    animation: flow-animation 1.5s linear infinite;
+  }
+
+  .flowing-line-fast {
+    stroke-dasharray: 8 8;
+    animation: flow-animation 0.8s linear infinite;
+  }
+
+  .flowing-line-slow {
+    stroke-dasharray: 12 12;
+    animation: flow-animation 3s linear infinite;
+  }
+</style>
+
+<script>
+  // Dynamic behavior for inputs and room selections
+  const airplayBtn = document.getElementById('src-airplay');
+  const spotifyBtn = document.getElementById('src-spotify');
+  const mqttBtn = document.getElementById('src-mqtt');
+  const srcLabel = document.getElementById('src-label');
+  const srcGlow = document.getElementById('src-glow');
+  const inputPath = document.getElementById('path-src-server');
+
+  // Room nodes and paths
+  const roomNodes = [
+    {
+      group: document.getElementById('node-room-1'),
+      path: document.getElementById('path-room-1'),
+      circle: document.getElementById('c-circle-1'),
+      led: document.getElementById('c-led-1'),
+      icon: document.getElementById('c-icon-1'),
+      wave: document.getElementById('c-wave-1'),
+      text: document.getElementById('c-text-1'),
+      name: 'LIVING ROOM',
+      active: true
+    },
+    {
+      group: document.getElementById('node-room-2'),
+      path: document.getElementById('path-room-2'),
+      circle: document.getElementById('c-circle-2'),
+      led: document.getElementById('c-led-2'),
+      icon: document.getElementById('c-icon-2'),
+      wave: document.getElementById('c-wave-2'),
+      text: document.getElementById('c-text-2'),
+      name: 'KITCHEN',
+      active: true
+    },
+    {
+      group: document.getElementById('node-room-3'),
+      path: document.getElementById('path-room-3'),
+      circle: document.getElementById('c-circle-3'),
+      led: document.getElementById('c-led-3'),
+      icon: document.getElementById('c-icon-3'),
+      wave: document.getElementById('c-wave-3'),
+      text: document.getElementById('c-text-3'),
+      name: 'PATIO',
+      active: false
+    }
+  ];
+
+  // Helper to update button selection styles
+  const selectSource = (source: string) => {
+    const buttons = [airplayBtn, spotifyBtn, mqttBtn];
+    buttons.forEach((btn) => {
+      if (btn) {
+        btn.classList.remove('bg-amber-500', 'text-black', 'font-semibold');
+        btn.classList.add('bg-white/[0.03]', 'text-neutral-400');
+      }
+    });
+
+    let activeBtn = airplayBtn;
+    let label = 'AIRPLAY 2';
+    let lineClass = 'flowing-line';
+    let glowColor = '#f59e0b';
+
+    if (source === 'spotify') {
+      activeBtn = spotifyBtn;
+      label = 'SPOTIFY CONNECT';
+      lineClass = 'flowing-line-fast';
+      glowColor = '#22c55e';
+    } else if (source === 'mqtt') {
+      activeBtn = mqttBtn;
+      label = 'MQTT / AUX';
+      lineClass = 'flowing-line-slow';
+      glowColor = '#38bdf8';
+    }
+
+    if (activeBtn) {
+      activeBtn.classList.remove('bg-white/[0.03]', 'text-neutral-400');
+      activeBtn.classList.add('bg-amber-500', 'text-black', 'font-semibold');
+    }
+
+    if (srcLabel) srcLabel.textContent = label;
+    if (srcGlow) {
+      srcGlow.setAttribute('stroke', glowColor);
+    }
+
+    if (inputPath) {
+      inputPath.className.baseVal = lineClass;
+    }
+  };
+
+  // Attach source listeners
+  airplayBtn?.addEventListener('click', () => selectSource('airplay'));
+  spotifyBtn?.addEventListener('click', () => selectSource('spotify'));
+  mqttBtn?.addEventListener('click', () => selectSource('mqtt'));
+
+  // Initial setup for the paths to match client state
+  const updateRoomState = (index: number) => {
+    const room = roomNodes[index];
+    if (!room) return;
+
+    if (room.active) {
+      // Connect path and node aesthetics
+      if (room.path) {
+        room.path.style.display = 'block';
+        room.path.style.stroke = 'url(#grad-amber-flow)';
+      }
+      if (room.circle) room.circle.style.stroke = '#22c55e';
+      if (room.led) room.led.style.fill = '#22c55e';
+      if (room.icon) room.icon.style.fill = 'rgba(255, 255, 255, 0.7)';
+      if (room.wave) room.wave.style.display = 'block';
+      if (room.text) {
+        room.text.textContent = room.name;
+        room.text.style.fill = '#e5e5e5';
+      }
+    } else {
+      // Mute path and node aesthetics
+      if (room.path) {
+        room.path.style.display = 'none';
+      }
+      if (room.circle) room.circle.style.stroke = 'rgba(255, 255, 255, 0.1)';
+      if (room.led) room.led.style.fill = '#ea580c';
+      if (room.icon) room.icon.style.fill = 'rgba(255, 255, 255, 0.2)';
+      if (room.wave) room.wave.style.display = 'none';
+      if (room.text) {
+        room.text.textContent = `${room.name} (MUTE)`;
+        room.text.style.fill = '#737373';
+      }
+    }
+  };
+
+  // Run initial state updates
+  roomNodes.forEach((_, idx) => updateRoomState(idx));
+
+  // Attach toggle click events to room nodes
+  roomNodes.forEach((room, idx) => {
+    room.group?.addEventListener('click', () => {
+      room.active = !room.active;
+      updateRoomState(idx);
+    });
+  });
+
+  // VU Meter Simulation loop (animating the height of the bars in snapdog server node)
+  const vuBars = [
+    document.getElementById('vu-1'),
+    document.getElementById('vu-2'),
+    document.getElementById('vu-3'),
+    document.getElementById('vu-4'),
+    document.getElementById('vu-5'),
+    document.getElementById('vu-6'),
+    document.getElementById('vu-7'),
+    document.getElementById('vu-8')
+  ];
+
+  let time = 0;
+  const updateVUMeter = () => {
+    time += 0.1;
+    
+    // Check if at least one room is active to bounce the meters, otherwise flatline them
+    const anyRoomActive = roomNodes.some(r => r.active);
+
+    vuBars.forEach((bar, idx) => {
+      if (bar) {
+        let height = 4; // minimum height
+        if (anyRoomActive) {
+          // Combination of sine waves to simulate audio spectrum analyzer bounce
+          const factor = 0.5 + 0.5 * Math.sin(time + idx * 0.7) * Math.cos(time * 0.5 - idx * 0.3);
+          height = 4 + 30 * factor;
+        } else {
+          // slight tiny ambient flutter
+          height = 4 + 2 * Math.sin(time * 0.2 + idx);
+        }
+        const y = 35 - height; // Y coordinate starts from top, so we shift up
+        bar.setAttribute('y', y.toString());
+        bar.setAttribute('height', height.toString());
+      }
+    });
+
+    requestAnimationFrame(updateVUMeter);
+  };
+
+  // Start VU simulation
+  updateVUMeter();
+</script>

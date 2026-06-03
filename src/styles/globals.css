@@ -5,6 +5,25 @@
   --color-brand-hover: oklch(0.82 0.19 75);
 }
 
+@utility glow-amber {
+  text-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+}
+
+@utility shadow-glow-amber {
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.12);
+}
+
+@utility shadow-glow-card {
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+}
+
+@utility glass-card {
+  background: rgba(255, 255, 255, 0.015);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Starlight color theme overrides for vacuum-tube amber */
 :root {
   --sl-color-accent-low: #362000;

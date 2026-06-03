@@ -1,0 +1,160 @@
+---
+// Interactive Audio Wave Component
+---
+
+<div class="relative w-full max-w-[280px] h-16 flex items-center justify-center group cursor-pointer my-4" id="audio-wave-container">
+  <!-- Glowing background behind the wave -->
+  <div class="absolute inset-0 bg-amber-500/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+  
+  <svg
+    id="audio-wave-svg"
+    viewBox="0 0 240 60"
+    class="w-full h-full overflow-visible"
+    preserveAspectRatio="none"
+  >
+    <!-- We will generate 36 bars dynamically via JS -->
+    <g id="bars-group" class="fill-amber-400/80 group-hover:fill-amber-400 transition-all duration-300"></g>
+  </svg>
+</div>
+
+<script>
+  const container = document.getElementById('audio-wave-container');
+  const svg = document.getElementById('audio-wave-svg') as SVGSVGElement | null;
+  const group = document.getElementById('bars-group');
+
+  if (container && svg && group) {
+    const BAR_COUNT = 36;
+    const GAP = 3;
+    const SVG_WIDTH = 240;
+    const SVG_HEIGHT = 60;
+    const BAR_WIDTH = (SVG_WIDTH - (BAR_COUNT - 1) * GAP) / BAR_COUNT;
+    
+    // Create bars
+    const rects: SVGRectElement[] = [];
+    for (let i = 0; i < BAR_COUNT; i++) {
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      const x = i * (BAR_WIDTH + GAP);
+      rect.setAttribute('x', x.toString());
+      rect.setAttribute('width', BAR_WIDTH.toString());
+      rect.setAttribute('rx', (BAR_WIDTH / 2).toString());
+      rect.setAttribute('ry', (BAR_WIDTH / 2).toString());
+      // Initial height and y
+      rect.setAttribute('y', (SVG_HEIGHT / 2 - 2).toString());
+      rect.setAttribute('height', '4');
+      group.appendChild(rect);
+      rects.push(rect);
+    }
+
+    let mouseX = -1;
+    let isHovered = false;
+    let time = 0;
+    let currentHeights = new Array(BAR_COUNT).fill(4);
+
+    // Track mouse position relative to SVG
+    const updateMousePos = (e: MouseEvent | TouchEvent) => {
+      const rect = svg.getBoundingClientRect();
+      let clientX = 0;
+      if ('touches' in e) {
+        if (e.touches.length > 0) {
+          clientX = e.touches[0].clientX;
+        } else {
+          return;
+        }
+      } else {
+        clientX = (e as MouseEvent).clientX;
+      }
+      mouseX = (clientX - rect.left) / rect.width; // 0 to 1
+    };
+
+    container.addEventListener('mouseenter', () => {
+      isHovered = true;
+    });
+    
+    container.addEventListener('mousemove', updateMousePos);
+
+    container.addEventListener('mouseleave', () => {
+      isHovered = false;
+      mouseX = -1;
+    });
+
+    // Touch support
+    container.addEventListener('touchstart', (e) => {
+      isHovered = true;
+      updateMousePos(e);
+    }, { passive: true });
+
+    container.addEventListener('touchmove', (e) => {
+      updateMousePos(e);
+    }, { passive: true });
+
+    container.addEventListener('touchend', () => {
+      isHovered = false;
+      mouseX = -1;
+    });
+
+    const animate = () => {
+      time += 0.05;
+      
+      for (let i = 0; i < BAR_COUNT; i++) {
+        // 1. Ambient height: smooth scrolling sine waves
+        // Symmetrical scale centered around the middle
+        const distanceFromCenter = Math.abs(i - BAR_COUNT / 2) / (BAR_COUNT / 2);
+        const centerFactor = 1 - distanceFromCenter * 0.5; // taller in middle
+
+        let targetHeight = 6 + 18 * centerFactor * (
+          0.5 + 0.3 * Math.sin(time + i * 0.25) + 0.2 * Math.cos(time * 0.7 - i * 0.4)
+        );
+
+        // 2. Interactive height if hovered
+        if (isHovered && mouseX >= 0) {
+          const barNormalizedX = i / BAR_COUNT;
+          const distToMouse = Math.abs(barNormalizedX - mouseX);
+          
+          // Gaussian distribution centered at mouseX
+          const sigma = 0.12; // width of influence
+          const hoverBoostFactor = Math.exp(-Math.pow(distToMouse, 2) / (2 * Math.pow(sigma, 2)));
+          
+          // Dynamic frequency waves at hover point
+          const hoverWave = 12 + 38 * (
+            0.4 + 
+            0.35 * Math.sin(time * 2.5 + i * 0.6) + 
+            0.25 * Math.cos(time * 3.8 - i * 0.9)
+          );
+          
+          // Interpolate target height based on hover boost
+          targetHeight = targetHeight * (1 - hoverBoostFactor) + hoverWave * hoverBoostFactor;
+        }
+
+        // Smoothly interpolate current height to target height (damping/lerp)
+        const lerpFactor = isHovered ? 0.25 : 0.15;
+        currentHeights[i] += (targetHeight - currentHeights[i]) * lerpFactor;
+        
+        // Clamp height
+        const height = Math.max(4, Math.min(SVG_HEIGHT, currentHeights[i]));
+        const y = (SVG_HEIGHT - height) / 2;
+
+        rects[i].setAttribute('y', y.toString());
+        rects[i].setAttribute('height', height.toString());
+        
+        // Add dynamic color shift/glow on hover
+        if (isHovered && mouseX >= 0) {
+          const barNormalizedX = i / BAR_COUNT;
+          const distToMouse = Math.abs(barNormalizedX - mouseX);
+          const sigma = 0.15;
+          const factor = Math.exp(-Math.pow(distToMouse, 2) / (2 * Math.pow(sigma, 2)));
+          
+          // Interpolate opacity/brightness of active bars
+          rects[i].style.fill = `oklch(0.769 0.188 70.08 / ${0.5 + 0.5 * factor})`;
+          rects[i].style.filter = factor > 0.3 ? `drop-shadow(0 0 ${4 * factor}px oklch(0.769 0.188 70.08 / 0.8))` : 'none';
+        } else {
+          rects[i].style.fill = '';
+          rects[i].style.filter = '';
+        }
+      }
+
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+  }
+</script>
