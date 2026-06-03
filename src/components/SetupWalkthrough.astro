@@ -8,7 +8,7 @@
       Zero-Configuration <span class="text-amber-400 glow-amber">Provisioning</span>
     </h2>
     <p class="text-sm text-neutral-400">
-      Set up new room clients in less than a minute. SnapDog OS boots a secure captive portal to guide you through network credentials and DAC configurations.
+      Set up new room clients in less than a minute. SnapDog <abbr title="Operating System">OS</abbr> boots a secure captive portal to guide you through network credentials and <abbr title="Digital-to-Analog Converter">DAC</abbr> configurations.
     </p>
   </div>
 
@@ -21,10 +21,10 @@
       <div id="step-info-container" class="min-h-[160px] flex flex-col justify-center">
         <!-- Step 1 -->
         <div class="step-content flex flex-col gap-3 transition-opacity duration-300" data-step="1">
-          <span class="text-xs font-mono text-amber-500 uppercase tracking-widest">Step 01 • Connect AP</span>
+          <span class="text-xs font-mono text-amber-500 uppercase tracking-widest">Step 01 • Connect <abbr title="Access Point">AP</abbr></span>
           <h3 class="text-xl font-semibold text-white">Join the SnapDog Hotspot</h3>
           <p class="text-xs text-neutral-400 leading-relaxed">
-            Flash SnapDog OS onto a microSD card and boot your Raspberry Pi. The client will automatically publish a local Wi-Fi hotspot named <code class="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 font-mono text-amber-400">SnapDog-XXXX</code>. Search for it on your smartphone or computer and connect.
+            Flash SnapDog <abbr title="Operating System">OS</abbr> onto a microSD card and boot your Raspberry Pi. The client will automatically publish a local Wi-Fi hotspot named <code class="px-1.5 py-0.5 rounded bg-white/5 border border-white/10 font-mono text-amber-400">SnapDog-XXXX</code>. Search for it on your smartphone or computer and connect.
           </p>
         </div>
 
@@ -40,9 +40,9 @@
         <!-- Step 3 -->
         <div class="step-content hidden flex flex-col gap-3 transition-opacity duration-300" data-step="3">
           <span class="text-xs font-mono text-amber-500 uppercase tracking-widest">Step 03 • Audio Calibration</span>
-          <h3 class="text-xl font-semibold text-white">Select DAC & Room Name</h3>
+          <h3 class="text-xl font-semibold text-white">Select <abbr title="Digital-to-Analog Converter">DAC</abbr> & Room Name</h3>
           <p class="text-xs text-neutral-400 leading-relaxed">
-            Select your specific audio card/HAT (e.g. IQaudIO DAC, HiFiBerry, or HDMI). Give your client zone a friendly name (e.g. "Bedroom") so the server can automatically identify it.
+            Select your specific audio card/HAT (e.g. IQaudIO <abbr title="Digital-to-Analog Converter">DAC</abbr>, HiFiBerry, or HDMI). Give your client zone a friendly name (e.g. "Bedroom") so the server can automatically identify it.
           </p>
         </div>
 
@@ -60,23 +60,25 @@
       <div class="flex items-center gap-6 mt-4">
         <button
           id="btn-prev"
-          class="p-2 rounded-lg bg-white/[0.02] border border-white/10 text-neutral-400 hover:bg-white/[0.08] hover:text-white cursor-pointer transition-all disabled:opacity-30 disabled:pointer-events-none"
+          class="p-3 w-11 h-11 flex items-center justify-center rounded-lg bg-white/[0.02] border border-white/10 text-neutral-400 hover:bg-white/[0.08] hover:text-white cursor-pointer transition-all disabled:opacity-30 disabled:pointer-events-none"
           disabled
+          aria-label="Go to previous step"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         </button>
 
         <!-- Stepper Dots -->
-        <div class="flex items-center gap-2">
-          <span class="step-dot w-2 h-2 rounded-full bg-amber-500 transition-all duration-300" data-step="1"></span>
-          <span class="step-dot w-1.5 h-1.5 rounded-full bg-white/20 transition-all duration-300" data-step="2"></span>
-          <span class="step-dot w-1.5 h-1.5 rounded-full bg-white/20 transition-all duration-300" data-step="3"></span>
-          <span class="step-dot w-1.5 h-1.5 rounded-full bg-white/20 transition-all duration-300" data-step="4"></span>
+        <div role="tablist" aria-label="Setup progress steps" class="flex items-center gap-2">
+          <span role="tab" aria-selected="true" aria-label="Step 1: Connect to Hotspot" class="step-dot w-2 h-2 rounded-full bg-amber-500 transition-all duration-300 animate-pulse-slow" data-step="1"></span>
+          <span role="tab" aria-selected="false" aria-label="Step 2: Enter Credentials" class="step-dot w-1.5 h-1.5 rounded-full bg-white/20 transition-all duration-300" data-step="2"></span>
+          <span role="tab" aria-selected="false" aria-label="Step 3: Calibrate Hardware" class="step-dot w-1.5 h-1.5 rounded-full bg-white/20 transition-all duration-300" data-step="3"></span>
+          <span role="tab" aria-selected="false" aria-label="Step 4: Success" class="step-dot w-1.5 h-1.5 rounded-full bg-white/20 transition-all duration-300" data-step="4"></span>
         </div>
 
         <button
           id="btn-next"
-          class="px-4 py-2 rounded-lg bg-amber-500 text-black font-semibold hover:bg-amber-400 cursor-pointer transition-all flex items-center gap-2 active:scale-95"
+          class="px-5 py-2.5 min-h-[44px] flex items-center justify-center font-semibold rounded-lg bg-amber-500 text-black hover:bg-amber-400 cursor-pointer transition-all gap-2 active:scale-95"
+          aria-label="Go to next step"
         >
           <span>Next</span>
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -99,7 +101,7 @@
           <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-amber-500/[0.02] blur-2xl rounded-full"></div>
 
           <!-- Mockup Status Bar -->
-          <div class="flex justify-between items-center text-[7px] font-mono text-neutral-500 relative z-20 mb-2">
+          <div class="flex justify-between items-center text-[7px] font-mono text-neutral-400 relative z-20 mb-2">
             <span>9:41 AM</span>
             <div class="flex items-center gap-1">
               <span id="screen-wifi-icon">📶</span>
@@ -114,9 +116,9 @@
             <div class="screen-step flex flex-col gap-4 text-center items-center" data-step="1">
               <div class="text-3xl">📱</div>
               <div class="flex flex-col gap-1 w-full">
-                <span class="text-[9px] uppercase tracking-wider text-neutral-500 font-semibold">Settings &gt; Wi-Fi</span>
+                <span class="text-[9px] uppercase tracking-wider text-neutral-400 font-semibold">Settings &gt; Wi-Fi</span>
                 <div class="w-full rounded-xl bg-white/[0.02] border border-white/5 p-2 text-[10px] font-mono text-left flex flex-col gap-1">
-                  <div class="flex justify-between items-center text-neutral-500">
+                  <div class="flex justify-between items-center text-neutral-400">
                     <span>Other Networks</span>
                   </div>
                   <div class="flex justify-between items-center py-1 border-b border-white/5">
@@ -142,12 +144,12 @@
                 <span class="text-[9px] uppercase font-bold tracking-wider text-amber-500">SnapDog Portal</span>
               </div>
               <div class="flex flex-col gap-2 font-mono text-[9px] mt-2">
-                <label class="text-neutral-500 font-semibold uppercase">SSID</label>
+                <label class="text-neutral-400 font-semibold uppercase"><abbr title="Service Set Identifier">SSID</abbr></label>
                 <div class="rounded-lg bg-white/[0.03] border border-white/10 p-2 text-white flex justify-between">
                   <span>My_Home_WiFi</span>
                   <span class="opacity-40">▼</span>
                 </div>
-                <label class="text-neutral-500 font-semibold uppercase mt-1">Passphrase</label>
+                <label class="text-neutral-400 font-semibold uppercase mt-1">Passphrase</label>
                 <div class="rounded-lg bg-white/[0.03] border border-white/10 p-2 text-neutral-300">
                   <span>••••••••••••</span>
                 </div>
@@ -161,12 +163,12 @@
                 <span class="text-[9px] uppercase font-bold tracking-wider text-amber-500">SnapDog Portal</span>
               </div>
               <div class="flex flex-col gap-2 font-mono text-[9px] mt-2">
-                <label class="text-neutral-500 font-semibold uppercase">Audio Output</label>
+                <label class="text-neutral-400 font-semibold uppercase">Audio Output</label>
                 <div class="rounded-lg bg-white/[0.03] border border-white/10 p-2 text-white flex justify-between">
                   <span>HiFiBerry DAC+ Pro</span>
                   <span class="opacity-40">▼</span>
                 </div>
-                <label class="text-neutral-500 font-semibold uppercase mt-1">Client Name</label>
+                <label class="text-neutral-400 font-semibold uppercase mt-1">Client Name</label>
                 <div class="rounded-lg bg-white/[0.03] border border-white/10 p-2 text-amber-400">
                   <span>Bedroom</span>
                 </div>
@@ -180,9 +182,9 @@
               </div>
               <div class="flex flex-col gap-1 font-mono text-[9px]">
                 <span class="font-bold text-white text-xs">Connected</span>
-                <span class="text-neutral-400 mt-1">IP: 192.168.1.142</span>
-                <span class="text-neutral-500">Zone Name: <span class="text-amber-400">Bedroom</span></span>
-                <span class="text-neutral-600 mt-2">Closed captive portal.</span>
+                <span class="text-neutral-300 mt-1">IP: 192.168.1.142</span>
+                <span class="text-neutral-400">Zone Name: <span class="text-amber-400">Bedroom</span></span>
+                <span class="text-neutral-500 mt-2">Closed captive portal.</span>
               </div>
             </div>
 
@@ -235,15 +237,17 @@
       }
     });
 
-    // 3. Update dots
+    // 3. Update dots & tabs
     stepDots.forEach((dot) => {
       const stepVal = parseInt(dot.getAttribute('data-step') ?? '0', 10);
       if (stepVal === currentStep) {
         dot.classList.remove('w-1.5', 'h-1.5', 'bg-white/20');
         dot.classList.add('w-2', 'h-2', 'bg-amber-500');
+        dot.setAttribute('aria-selected', 'true');
       } else {
         dot.classList.add('w-1.5', 'h-1.5', 'bg-white/20');
         dot.classList.remove('w-2', 'h-2', 'bg-amber-500');
+        dot.setAttribute('aria-selected', 'false');
       }
     });
 
@@ -257,6 +261,10 @@
       if (nextText) {
         nextText.textContent = currentStep === TOTAL_STEPS ? 'Finish' : 'Next';
       }
+      btnNext.setAttribute('aria-label', currentStep === TOTAL_STEPS ? 'Restart guide' : `Go to step ${currentStep + 1}`);
+    }
+    if (btnPrev) {
+      btnPrev.setAttribute('aria-label', currentStep === 1 ? 'Go to previous step' : `Go to step ${currentStep - 1}`);
     }
 
     // 5. Update Wi-Fi icon mockup

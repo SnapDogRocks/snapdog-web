@@ -44,7 +44,7 @@ try {
 
       <!-- Tagline -->
       <p class="text-lg sm:text-xl text-neutral-400 max-w-lg leading-relaxed">
-        Multi-zone audio controller with AirPlay, Spotify, Subsonic, MQTT, and KNX integration.
+        Multi-zone audio controller with AirPlay, Spotify, Subsonic, <abbr title="Message Queuing Telemetry Transport">MQTT</abbr>, and <abbr title="Konnex building automation standard">KNX</abbr> integration.
       </p>
 
       <!-- Interactive Audio Wave -->
@@ -56,10 +56,11 @@ try {
         <!-- Dropdown Selector (replaces DownloadSelector.tsx component) -->
         <div class="flex items-stretch gap-3 w-full max-w-sm col-span-2 sm:col-span-1">
           <div class="flex flex-col py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10 flex-1 min-w-0">
-            <span class="text-[9px] uppercase font-semibold text-neutral-500 tracking-wider">Model</span>
+            <span class="text-[9px] uppercase font-semibold text-neutral-400 tracking-wider">Model</span>
             <select
               id="model-select"
               class="mt-1 bg-transparent text-white text-sm font-semibold tracking-tight outline-none cursor-pointer"
+              aria-label="Select Raspberry Pi Hardware Model"
             >
               <option value="pi5" class="bg-[#0a0a0a]">Raspberry Pi 5</option>
               <option value="pi4" class="bg-[#0a0a0a]" selected>Raspberry Pi 4</option>
@@ -71,21 +72,23 @@ try {
             href="https://updates.snapdog.cc/os/images/snapdog-os-pi4-beta.img.gz"
             class="flex items-center justify-center w-14 rounded-xl bg-amber-500 text-black hover:bg-amber-400 transition-colors shrink-0"
             title="Download image"
+            aria-label="Download SnapDog OS image for selected model"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           </a>
         </div>
 
         <div class="flex flex-col py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10">
-          <span class="text-[9px] uppercase font-semibold text-neutral-500 tracking-wider">Version</span>
+          <span class="text-[9px] uppercase font-semibold text-neutral-400 tracking-wider">Version</span>
           <span class="font-semibold text-white mt-1 tabular-nums tracking-tight text-sm">{version}</span>
         </div>
 
         <a
           href="/docs/introduction"
           class="flex flex-col py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-white/20 transition-all group"
+          aria-label="Read SnapDog setup documentation guides"
         >
-          <span class="text-[9px] uppercase font-semibold text-neutral-500 tracking-wider">Documentation</span>
+          <span class="text-[9px] uppercase font-semibold text-neutral-400 tracking-wider">Documentation</span>
           <span class="font-semibold text-amber-400 mt-1 group-hover:underline tracking-tight text-sm">
             Read guides ↗
           </span>
@@ -96,8 +99,9 @@ try {
           target="_blank"
           rel="noopener noreferrer"
           class="flex flex-col py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-white/20 transition-all group"
+          aria-label="View SnapDog OS source code on GitHub"
         >
-          <span class="text-[9px] uppercase font-semibold text-neutral-500 tracking-wider">Source</span>
+          <span class="text-[9px] uppercase font-semibold text-neutral-400 tracking-wider">Source</span>
           <span class="font-semibold text-amber-400 mt-1 group-hover:underline tracking-tight text-sm">
             GitHub ↗
           </span>
@@ -108,8 +112,9 @@ try {
           target="_blank"
           rel="noopener noreferrer"
           class="flex flex-col py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10 hover:bg-white/[0.06] hover:border-white/20 transition-all group col-span-2 sm:col-span-1"
+          aria-label="View GPL-3.0 license terms"
         >
-          <span class="text-[9px] uppercase font-semibold text-neutral-500 tracking-wider">License</span>
+          <span class="text-[9px] uppercase font-semibold text-neutral-400 tracking-wider">License</span>
           <span class="font-semibold text-amber-400 mt-1 group-hover:underline tracking-tight text-sm">
             GPL-3.0 ↗
           </span>
@@ -126,13 +131,13 @@ try {
     <!-- Main visual presentation sections -->
     <main class="w-full flex flex-col items-center relative z-10">
       
-      <!-- Interactive Signal Routing Visualizer Section (Step 4) -->
+      <!-- Interactive Signal Routing Visualizer Section -->
       <RoutingVisualizer />
 
-      <!-- Bento Features Section (Step 3) -->
+      <!-- Bento Features Section -->
       <BentoGrid />
 
-      <!-- Captive Portal Provisioning Setup Section (Step 5) -->
+      <!-- Captive Portal Provisioning Setup Section -->
       <SetupWalkthrough />
 
       <!-- CTA to Docs -->
@@ -144,6 +149,7 @@ try {
         <a
           href="/docs/introduction"
           class="mt-4 px-8 py-3 rounded-full bg-amber-500 text-black hover:bg-amber-400 font-semibold tracking-wide transition shadow-[0_4px_20px_rgba(245,158,11,0.2)] hover:shadow-[0_4px_25px_rgba(245,158,11,0.3)]"
+          aria-label="Navigate to SnapDog documentation introduction page"
         >
           Go to Documentation
         </a>
@@ -152,12 +158,12 @@ try {
     </main>
 
     <!-- Footer -->
-    <footer class="w-full max-w-5xl py-12 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-neutral-600 relative z-10">
+    <footer class="w-full max-w-5xl py-12 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-neutral-400 relative z-10">
       <p>© 2026 Fabian Schmieder</p>
-      <div class="flex gap-6">
-        <a href="/docs/introduction" class="hover:text-neutral-400">Docs</a>
-        <a href="https://github.com/SnapDogRocks/snapdog-os" target="_blank" rel="noopener noreferrer" class="hover:text-neutral-400">GitHub</a>
-        <a href="https://updates.snapdog.cc/os/images/snapdog-os-pi4-beta.img.gz" class="hover:text-neutral-400">Download OS</a>
+      <div class="flex gap-6 animate-pulse-slow">
+        <a href="/docs/introduction" class="hover:text-neutral-300" aria-label="Read SnapDog documentation">Docs</a>
+        <a href="https://github.com/SnapDogRocks/snapdog-os" target="_blank" rel="noopener noreferrer" class="hover:text-neutral-300" aria-label="View SnapDog GitHub repository">GitHub</a>
+        <a href="https://updates.snapdog.cc/os/images/snapdog-os-pi4-beta.img.gz" class="hover:text-neutral-300" aria-label="Download latest SnapDog OS image">Download OS</a>
       </div>
     </footer>
 
@@ -169,6 +175,7 @@ try {
         select.addEventListener('change', (e) => {
           const model = e.target.value;
           btn.href = `https://updates.snapdog.cc/os/images/snapdog-os-${model}-beta.img.gz`;
+          btn.setAttribute('aria-label', `Download SnapDog OS image for Raspberry Pi ${model.replace('pi', '')}`);
         });
       }
     </script>
