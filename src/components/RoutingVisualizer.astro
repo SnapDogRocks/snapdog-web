@@ -8,38 +8,13 @@
       Real-Time <span class="text-amber-400 glow-amber">Routing</span> & Sync
     </h2>
     <p class="text-sm text-neutral-400">
-      Click sources to change input protocols, or click individual room nodes to connect/disconnect client zones. Watch the synchronized audio stream distribute dynamically.
+      Click active sources on the left to change input routing protocols, or click speaker zones on the right to toggle room sync states.
     </p>
-  </div>
-
-  <!-- Interactive Controls -->
-  <div class="flex flex-wrap gap-2 justify-center font-mono text-[10px] uppercase tracking-wider relative z-20">
-    <button
-      id="src-airplay"
-      class="px-5 py-2.5 min-h-[44px] flex items-center justify-center font-semibold rounded-lg bg-amber-500 text-black border border-amber-500/20 transition-all hover:bg-amber-400 cursor-pointer active:scale-95"
-      data-source="airplay"
-    >
-      AirPlay 2
-    </button>
-    <button
-      id="src-spotify"
-      class="px-5 py-2.5 min-h-[44px] flex items-center justify-center font-semibold rounded-lg bg-white/[0.03] text-neutral-400 border border-white/10 transition-all hover:bg-white/[0.08] hover:text-white cursor-pointer active:scale-95"
-      data-source="spotify"
-    >
-      Spotify Connect
-    </button>
-    <button
-      id="src-mqtt"
-      class="px-5 py-2.5 min-h-[44px] flex items-center justify-center font-semibold rounded-lg bg-white/[0.03] text-neutral-400 border border-white/10 transition-all hover:bg-white/[0.08] hover:text-white cursor-pointer active:scale-95"
-      data-source="mqtt"
-    >
-      <abbr title="Message Queuing Telemetry Transport">MQTT</abbr> / Auxiliary
-    </button>
   </div>
 
   <!-- Visualizer Board -->
   <div class="w-full glass-card shadow-glow-card rounded-2xl p-6 md:p-10 relative overflow-hidden flex flex-col items-center justify-center">
-    <div class="absolute inset-0 bg-radial from-amber-500/[0.01] via-transparent to-transparent"></div>
+    <div class="absolute inset-0 bg-radial from-amber-500/[0.01] via-transparent to-transparent pointer-events-none"></div>
 
     <div class="w-full max-w-2xl aspect-[2/1] relative">
       <svg
@@ -58,21 +33,99 @@
         </g>
 
         <!-- Dynamic Paths (Flowing streams) -->
-        <!-- Source -> Server Path -->
+        <!-- Source -> Server Paths -->
         <path
-          id="path-src-server"
-          d="M 120,150 L 250,150"
+          id="path-src-airplay"
+          d="M 170,50 C 210,50 220,145 250,145"
           fill="none"
-          stroke="url(#grad-amber-flow)"
-          stroke-width="3"
+          stroke="rgba(255,255,255,0.03)"
+          stroke-width="1.5"
           stroke-linecap="round"
-          class="flowing-line"
+          stroke-dasharray="3 3"
         ></path>
+        <path
+          id="path-src-spotify"
+          d="M 170,110 C 210,110 220,145 250,145"
+          fill="none"
+          stroke="rgba(255,255,255,0.03)"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-dasharray="3 3"
+        ></path>
+        <path
+          id="path-src-radio"
+          d="M 170,170 C 210,170 220,145 250,145"
+          fill="none"
+          stroke="rgba(255,255,255,0.03)"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-dasharray="3 3"
+        ></path>
+        <path
+          id="path-src-subsonic"
+          d="M 170,230 C 210,230 220,145 250,145"
+          fill="none"
+          stroke="rgba(255,255,255,0.03)"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-dasharray="3 3"
+        ></path>
+
+        <!-- Integration Wires (Control Connections) -->
+        <!-- REST API -> Core -->
+        <path d="M 220,22 L 270,110" fill="none" stroke="rgba(56, 189, 248, 0.15)" stroke-width="1" stroke-dasharray="2 3"></path>
+        <!-- D-Bus -> Core -->
+        <path d="M 380,22 L 330,110" fill="none" stroke="rgba(192, 132, 252, 0.15)" stroke-width="1" stroke-dasharray="2 3"></path>
+        <!-- MQTT -> Core -->
+        <path d="M 220,268 L 270,180" fill="none" stroke="rgba(251, 113, 133, 0.15)" stroke-width="1" stroke-dasharray="2 3"></path>
+        <!-- KNX -> Core -->
+        <path d="M 380,268 L 330,180" fill="none" stroke="rgba(45, 212, 191, 0.15)" stroke-width="1" stroke-dasharray="2 3"></path>
+
+        <!-- Bidirectional Control Packets (Animate from time to time) -->
+        <!-- REST API packets (Blue) -->
+        <circle r="2" fill="#38bdf8" opacity="0">
+          <animateMotion dur="6s" repeatCount="indefinite" path="M 220,22 L 270,110" keyPoints="0;1;1;1;1" keyTimes="0;0.2;0.5;0.8;1" calcMode="linear" />
+          <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.18;0.2;1" dur="6s" repeatCount="indefinite" />
+        </circle>
+        <circle r="2" fill="#38bdf8" opacity="0">
+          <animateMotion dur="6s" begin="3s" repeatCount="indefinite" path="M 270,110 L 220,22" keyPoints="0;1;1;1;1" keyTimes="0;0.2;0.5;0.8;1" calcMode="linear" />
+          <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.18;0.2;1" dur="6s" begin="3s" repeatCount="indefinite" />
+        </circle>
+
+        <!-- D-Bus packets (Purple) -->
+        <circle r="2" fill="#c084fc" opacity="0">
+          <animateMotion dur="7s" begin="1s" repeatCount="indefinite" path="M 380,22 L 330,110" keyPoints="0;1;1;1;1" keyTimes="0;0.2;0.5;0.8;1" calcMode="linear" />
+          <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.18;0.2;1" dur="7s" begin="1s" repeatCount="indefinite" />
+        </circle>
+        <circle r="2" fill="#c084fc" opacity="0">
+          <animateMotion dur="7s" begin="4.5s" repeatCount="indefinite" path="M 330,110 L 380,22" keyPoints="0;1;1;1;1" keyTimes="0;0.2;0.5;0.8;1" calcMode="linear" />
+          <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.18;0.2;1" dur="7s" begin="4.5s" repeatCount="indefinite" />
+        </circle>
+
+        <!-- MQTT packets (Pink) -->
+        <circle r="2" fill="#fb7185" opacity="0">
+          <animateMotion dur="5.5s" begin="2s" repeatCount="indefinite" path="M 220,268 L 270,180" keyPoints="0;1;1;1;1" keyTimes="0;0.2;0.5;0.8;1" calcMode="linear" />
+          <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.18;0.2;1" dur="5.5s" begin="2s" repeatCount="indefinite" />
+        </circle>
+        <circle r="2" fill="#fb7185" opacity="0">
+          <animateMotion dur="5.5s" begin="4.7s" repeatCount="indefinite" path="M 270,180 L 220,268" keyPoints="0;1;1;1;1" keyTimes="0;0.2;0.5;0.8;1" calcMode="linear" />
+          <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.18;0.2;1" dur="5.5s" begin="4.7s" repeatCount="indefinite" />
+        </circle>
+
+        <!-- KNX packets (Teal) -->
+        <circle r="2" fill="#2dd4bf" opacity="0">
+          <animateMotion dur="6.5s" begin="0.5s" repeatCount="indefinite" path="M 380,268 L 330,180" keyPoints="0;1;1;1;1" keyTimes="0;0.2;0.5;0.8;1" calcMode="linear" />
+          <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.18;0.2;1" dur="6.5s" begin="0.5s" repeatCount="indefinite" />
+        </circle>
+        <circle r="2" fill="#2dd4bf" opacity="0">
+          <animateMotion dur="6.5s" begin="3.8s" repeatCount="indefinite" path="M 330,180 L 380,268" keyPoints="0;1;1;1;1" keyTimes="0;0.2;0.5;0.8;1" calcMode="linear" />
+          <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.18;0.2;1" dur="6.5s" begin="3.8s" repeatCount="indefinite" />
+        </circle>
 
         <!-- Server -> Room Paths -->
         <path
           id="path-room-1"
-          d="M 350,150 C 400,150 420,70 500,70"
+          d="M 350,145 C 400,145 420,60 500,60"
           fill="none"
           stroke="url(#grad-amber-flow)"
           stroke-width="2.5"
@@ -81,7 +134,7 @@
         ></path>
         <path
           id="path-room-2"
-          d="M 350,150 L 500,150"
+          d="M 350,145 L 500,145"
           fill="none"
           stroke="url(#grad-amber-flow)"
           stroke-width="2.5"
@@ -90,7 +143,7 @@
         ></path>
         <path
           id="path-room-3"
-          d="M 350,150 C 400,150 420,230 500,230"
+          d="M 350,145 C 400,145 420,230 500,230"
           fill="none"
           stroke="url(#grad-amber-flow)"
           stroke-width="2.5"
@@ -105,18 +158,136 @@
             <stop offset="50%" stop-color="#fbbf24" stop-opacity="1"></stop>
             <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.3"></stop>
           </linearGradient>
+          <linearGradient id="grad-green-flow" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#22c55e" stop-opacity="0.3"></stop>
+            <stop offset="50%" stop-color="#4ade80" stop-opacity="1"></stop>
+            <stop offset="100%" stop-color="#22c55e" stop-opacity="0.3"></stop>
+          </linearGradient>
+          <linearGradient id="grad-blue-flow" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.3"></stop>
+            <stop offset="50%" stop-color="#38bdf8" stop-opacity="1"></stop>
+            <stop offset="100%" stop-color="#0ea5e9" stop-opacity="0.3"></stop>
+          </linearGradient>
+          <linearGradient id="grad-purple-flow" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#a855f7" stop-opacity="0.3"></stop>
+            <stop offset="50%" stop-color="#c084fc" stop-opacity="1"></stop>
+            <stop offset="100%" stop-color="#a855f7" stop-opacity="0.3"></stop>
+          </linearGradient>
         </defs>
 
-        <!-- Source Node -->
-        <g id="node-source" class="cursor-pointer transform hover:scale-105 transition-transform duration-300">
-          <circle cx="90" cy="150" r="30" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.1)" stroke-width="1.5"></circle>
-          <circle id="src-glow" cx="90" cy="150" r="30" fill="none" stroke="#f59e0b" stroke-width="1.5" class="opacity-30 animate-pulse"></circle>
-          <!-- Source Phone Icon -->
-          <rect x="78" y="132" width="24" height="36" rx="4" ry="4" fill="#0f0f0f" stroke="rgba(255,255,255,0.2)" stroke-width="1"></rect>
-          <line x1="86" y1="135" x2="94" y2="135" stroke="rgba(255,255,255,0.4)" stroke-width="1"></line>
-          <circle cx="90" cy="164" r="1.5" fill="rgba(255,255,255,0.6)"></circle>
-          <!-- Protocol Text -->
-          <text id="src-label" x="90" y="200" fill="#a3a3a3" font-family="monospace" font-size="9" text-anchor="middle" letter-spacing="1">AIRPLAY 2</text>
+        <!-- Source Nodes (Lefthand Side Stack) -->
+        <!-- Source 1: AirPlay 2 -->
+        <g id="node-src-airplay" class="cursor-pointer group focus:outline-none" role="button" tabindex="0" aria-label="Select AirPlay 2 source" aria-pressed="true">
+          <rect x="30" y="34" width="130" height="32" fill="none" pointer-events="all" class="cursor-pointer"></rect>
+          <circle cx="50" cy="50" r="16" fill="#0f0f0f" stroke="#f59e0b" stroke-width="1.5" id="src-circle-airplay" class="transition-all duration-300"></circle>
+          <circle cx="50" cy="50" r="16" fill="none" stroke="#f59e0b" stroke-width="1.5" id="src-glow-airplay" class="opacity-30 animate-pulse transition-all duration-300"></circle>
+          <!-- AirPlay Icon -->
+          <g transform="translate(50, 50)" class="text-amber-500" id="src-icon-airplay">
+            <rect x="-8" y="-9" width="16" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"></rect>
+            <polygon points="-4,6 4,6 0,2" fill="currentColor"></polygon>
+          </g>
+          <text x="75" y="54" fill="#ffffff" font-family="monospace" font-size="9" font-weight="bold" id="src-text-airplay" class="transition-colors duration-300">AIRPLAY 2</text>
+        </g>
+
+        <!-- Source 2: Spotify Connect -->
+        <g id="node-src-spotify" class="cursor-pointer group focus:outline-none" role="button" tabindex="0" aria-label="Select Spotify Connect source" aria-pressed="false">
+          <rect x="30" y="94" width="130" height="32" fill="none" pointer-events="all" class="cursor-pointer"></rect>
+          <circle cx="50" cy="110" r="16" fill="#0f0f0f" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" id="src-circle-spotify" class="transition-all duration-300"></circle>
+          <circle cx="50" cy="110" r="16" fill="none" stroke="#22c55e" stroke-width="1.5" id="src-glow-spotify" class="opacity-0 transition-all duration-300"></circle>
+          <!-- Spotify Icon -->
+          <g transform="translate(50, 110)" class="text-neutral-500" id="src-icon-spotify">
+            <circle cx="0" cy="0" r="8" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+            <path d="M -4,-2 Q 0,-4 4,-2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+            <path d="M -5,1 Q 0,-1 5,1" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"></path>
+            <path d="M -4,4 Q 0,2 4,4" fill="none" stroke="currentColor" stroke-width="0.8" stroke-linecap="round"></path>
+          </g>
+          <text x="75" y="114" fill="#a3a3a3" font-family="monospace" font-size="9" id="src-text-spotify" class="transition-colors duration-300">SPOTIFY</text>
+        </g>
+
+        <!-- Source 3: Internet Radio -->
+        <g id="node-src-radio" class="cursor-pointer group focus:outline-none" role="button" tabindex="0" aria-label="Select Internet Radio source" aria-pressed="false">
+          <rect x="30" y="154" width="130" height="32" fill="none" pointer-events="all" class="cursor-pointer"></rect>
+          <circle cx="50" cy="170" r="16" fill="#0f0f0f" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" id="src-circle-radio" class="transition-all duration-300"></circle>
+          <circle cx="50" cy="170" r="16" fill="none" stroke="#0ea5e9" stroke-width="1.5" id="src-glow-radio" class="opacity-0 transition-all duration-300"></circle>
+          <!-- Radio Tower Icon -->
+          <g transform="translate(50, 170)" class="text-neutral-500" id="src-icon-radio">
+            <line x1="0" y1="-8" x2="0" y2="8" stroke="currentColor" stroke-width="1.2"></line>
+            <polygon points="-5,8 5,8 0,-1" fill="none" stroke="currentColor" stroke-width="1"></polygon>
+            <circle cx="0" cy="-8" r="1.5" fill="currentColor"></circle>
+            <path d="M -4,-11 Q 0,-13 4,-11" fill="none" stroke="currentColor" stroke-width="0.8" stroke-linecap="round"></path>
+            <path d="M -6,-14 Q 0,-17 6,-14" fill="none" stroke="currentColor" stroke-width="0.6" stroke-linecap="round"></path>
+          </g>
+          <text x="75" y="174" fill="#a3a3a3" font-family="monospace" font-size="9" id="src-text-radio" class="transition-colors duration-300">WEB RADIO</text>
+        </g>
+
+        <!-- Source 4: Subsonic -->
+        <g id="node-src-subsonic" class="cursor-pointer group focus:outline-none" role="button" tabindex="0" aria-label="Select Subsonic source" aria-pressed="false">
+          <rect x="30" y="214" width="130" height="32" fill="none" pointer-events="all" class="cursor-pointer"></rect>
+          <circle cx="50" cy="230" r="16" fill="#0f0f0f" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" id="src-circle-subsonic" class="transition-all duration-300"></circle>
+          <circle cx="50" cy="230" r="16" fill="none" stroke="#a855f7" stroke-width="1.5" id="src-glow-subsonic" class="opacity-0 transition-all duration-300"></circle>
+          <!-- Subsonic Cloud Icon -->
+          <g transform="translate(50, 230)" class="text-neutral-500" id="src-icon-subsonic">
+            <path d="M -7,0 Q -9,-5 -5,-6 Q -2,-9 2,-6 Q 7,-6 7,0 Q 9,3 5,4 L -5,4 Q -9,3 -7,0 Z" fill="none" stroke="currentColor" stroke-width="1.2"></path>
+            <circle cx="0" cy="0" r="1.5" fill="currentColor"></circle>
+          </g>
+          <text x="75" y="234" fill="#a3a3a3" font-family="monospace" font-size="9" id="src-text-subsonic" class="transition-colors duration-300">SUBSONIC</text>
+        </g>
+
+        <!-- Integrations (Sleek Glassmorphic Badges) -->
+        <!-- REST API -->
+        <g id="node-integration-api" class="transform hover:scale-105 transition-transform duration-300">
+          <rect x="175" y="-2" width="90" height="24" rx="6" ry="6" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1.2" class="shadow-glow-card"></rect>
+          <!-- REST API Icon (Code Brackets) -->
+          <g transform="translate(190, 10)" class="text-sky-400">
+            <path d="M -4,-3.5 L -7,0 L -4,3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M 4,-3.5 L 7,0 L 4,3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+            <line x1="-1.5" y1="4.5" x2="1.5" y2="-4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></line>
+          </g>
+          <text x="204" y="13" fill="#a3a3a3" font-family="monospace" font-size="8" text-anchor="start" letter-spacing="0.5">REST API</text>
+        </g>
+
+        <!-- D-Bus -->
+        <g id="node-integration-dbus" class="transform hover:scale-105 transition-transform duration-300">
+          <rect x="335" y="-2" width="90" height="24" rx="6" ry="6" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1.2" class="shadow-glow-card"></rect>
+          <!-- D-Bus Icon (IPC Nodes) -->
+          <g transform="translate(350, 10)" class="text-purple-400">
+            <circle cx="-4" cy="-3.5" r="1.5" fill="currentColor"></circle>
+            <circle cx="4" cy="-3.5" r="1.5" fill="currentColor"></circle>
+            <circle cx="0" cy="3.5" r="1.5" fill="currentColor"></circle>
+            <line x1="-4" y1="-3.5" x2="0" y2="3.5" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.5"></line>
+            <line x1="4" y1="-3.5" x2="0" y2="3.5" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.5"></line>
+            <line x1="-4" y1="-3.5" x2="4" y2="-3.5" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.5"></line>
+          </g>
+          <text x="364" y="13" fill="#a3a3a3" font-family="monospace" font-size="8" text-anchor="start" letter-spacing="0.5">D-BUS/MPRIS</text>
+        </g>
+
+        <!-- MQTT -->
+        <g id="node-integration-mqtt" class="transform hover:scale-105 transition-transform duration-300">
+          <rect x="175" y="268" width="90" height="24" rx="6" ry="6" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1.2" class="shadow-glow-card"></rect>
+          <!-- MQTT Icon (Pub-Sub Hub) -->
+          <g transform="translate(190, 280)" class="text-rose-400">
+            <circle cx="0" cy="0" r="1.8" fill="currentColor"></circle>
+            <circle cx="5.5" cy="4" r="1.2" fill="currentColor"></circle>
+            <circle cx="5.5" cy="-4" r="1.2" fill="currentColor"></circle>
+            <circle cx="-5.5" cy="0" r="1.2" fill="currentColor"></circle>
+            <path d="M -4.3,0 L -1.8,0" fill="none" stroke="currentColor" stroke-width="0.8" stroke-linecap="round"></path>
+            <path d="M 1.3,0.9 L 4.3,3.1" fill="none" stroke="currentColor" stroke-width="0.8" stroke-linecap="round"></path>
+            <path d="M 1.3,-0.9 L 4.3,-3.1" fill="none" stroke="currentColor" stroke-width="0.8" stroke-linecap="round"></path>
+          </g>
+          <text x="204" y="283" fill="#a3a3a3" font-family="monospace" font-size="8" text-anchor="start" letter-spacing="0.5">MQTT</text>
+        </g>
+
+        <!-- KNX -->
+        <g id="node-integration-knx" class="transform hover:scale-105 transition-transform duration-300">
+          <rect x="335" y="268" width="90" height="24" rx="6" ry="6" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1.2" class="shadow-glow-card"></rect>
+          <!-- KNX Icon (Smart House) -->
+          <g transform="translate(350, 280)" class="text-teal-400">
+            <path d="M -6.5,-1 L 0,-6.5 L 6.5,-1" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M -4.5,-1 L -4.5,5.5 L 4.5,5.5 L 4.5,-1" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"></path>
+            <circle cx="0" cy="1.5" r="1.2" fill="currentColor"></circle>
+            <line x1="0" y1="1.5" x2="0" y2="5.5" stroke="currentColor" stroke-width="0.8"></line>
+          </g>
+          <text x="364" y="283" fill="#a3a3a3" font-family="monospace" font-size="8" text-anchor="start" letter-spacing="0.5">KNX BUS</text>
         </g>
 
         <!-- SnapDog Server Node -->
@@ -137,44 +308,50 @@
           </g>
           <!-- Status Lamp -->
           <circle cx="340" cy="122" r="3" fill="#22c55e" class="animate-pulse"></circle>
-          <text x="300" y="210" fill="#f59e0b" font-family="monospace" font-weight="bold" font-size="10" text-anchor="middle" letter-spacing="1.5">SNAPDOG CORE</text>
+          <text x="300" y="200" fill="#f59e0b" font-family="monospace" font-weight="bold" font-size="10" text-anchor="middle" letter-spacing="1.5">SNAPDOG CORE</text>
+          <!-- Dynamic Active Input Status -->
+          <text id="core-src-status" x="300" y="212" fill="#e5e5e5" font-family="monospace" font-size="7" text-anchor="middle">INPUT: AIRPLAY 2</text>
           <!-- Parametric EQ tag -->
           <text x="300" y="223" fill="#a3a3a3" font-family="monospace" font-size="7" text-anchor="middle">DSP / 5-BAND EQ ACTIVE</text>
         </g>
 
         <!-- Room 1 (Living Room) Client -->
         <g id="node-room-1" class="cursor-pointer transform hover:scale-105 transition-transform duration-300 focus:outline-none focus:stroke-amber-500" data-room="1" role="button" tabindex="0" aria-label="Toggle Living Room client zone" aria-pressed="true">
-          <circle cx="530" cy="70" r="24" fill="#0f0f0f" stroke="#22c55e" stroke-width="1.5" id="c-circle-1"></circle>
-          <circle cx="530" cy="70" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
+          <rect x="495" y="36" width="70" height="68" fill="none" pointer-events="all" class="cursor-pointer"></rect>
+          <circle cx="530" cy="60" r="24" fill="#0f0f0f" stroke="#22c55e" stroke-width="1.5" id="c-circle-1"></circle>
+          <circle cx="530" cy="60" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
           <!-- Status LED -->
-          <circle cx="530" cy="70" r="3" fill="#22c55e" id="c-led-1"></circle>
+          <circle cx="530" cy="60" r="3" fill="#22c55e" id="c-led-1"></circle>
           <!-- Speaker Icon geometry -->
-          <path d="M 515,67 L 519,67 L 523,63 L 523,77 L 519,73 L 515,73 Z" fill="rgba(255,255,255,0.4)" id="c-icon-1"></path>
-          <path d="M 526,67 C 528,68 528,72 526,73" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-linecap="round" id="c-wave-1"></path>
-          <text x="530" y="112" fill="#e5e5e5" font-family="monospace" font-size="8" text-anchor="middle" letter-spacing="0.5" id="c-text-1">LIVING ROOM</text>
+          <path d="M 515,57 L 519,57 L 523,53 L 523,67 L 519,63 L 515,63 Z" fill="rgba(255,255,255,0.4)" id="c-icon-1"></path>
+          <path d="M 526,57 C 528,58 528,62 526,63" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-linecap="round" id="c-wave-1"></path>
+          <text x="530" y="102" fill="#e5e5e5" font-family="monospace" font-size="8" text-anchor="middle" letter-spacing="0.5" id="c-text-1">LIVING ROOM</text>
         </g>
 
         <!-- Room 2 (Kitchen) Client -->
         <g id="node-room-2" class="cursor-pointer transform hover:scale-105 transition-transform duration-300 focus:outline-none focus:stroke-amber-500" data-room="2" role="button" tabindex="0" aria-label="Toggle Kitchen client zone" aria-pressed="true">
-          <circle cx="530" cy="150" r="24" fill="#0f0f0f" stroke="#22c55e" stroke-width="1.5" id="c-circle-2"></circle>
-          <circle cx="530" cy="150" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
+          <rect x="495" y="116" width="70" height="68" fill="none" pointer-events="all" class="cursor-pointer"></rect>
+          <circle cx="530" cy="140" r="24" fill="#0f0f0f" stroke="#22c55e" stroke-width="1.5" id="c-circle-2"></circle>
+          <circle cx="530" cy="140" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
           <!-- Status LED -->
-          <circle cx="530" cy="150" r="3" fill="#22c55e" id="c-led-2"></circle>
+          <circle cx="530" cy="140" r="3" fill="#22c55e" id="c-led-2"></circle>
           <!-- Speaker Icon geometry -->
-          <path d="M 515,147 L 519,147 L 523,143 L 523,157 L 519,153 L 515,153 Z" fill="rgba(255,255,255,0.4)" id="c-icon-2"></path>
-          <path d="M 526,147 C 528,148 528,152 526,153" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-linecap="round" id="c-wave-2"></path>
-          <text x="530" y="192" fill="#e5e5e5" font-family="monospace" font-size="8" text-anchor="middle" letter-spacing="0.5" id="c-text-2">KITCHEN</text>
+          <path d="M 515,137 L 519,137 L 523,133 L 523,147 L 519,143 L 515,143 Z" fill="rgba(255,255,255,0.4)" id="c-icon-2"></path>
+          <path d="M 526,137 C 528,138 528,142 526,143" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-linecap="round" id="c-wave-2"></path>
+          <text x="530" y="182" fill="#e5e5e5" font-family="monospace" font-size="8" text-anchor="middle" letter-spacing="0.5" id="c-text-2">KITCHEN</text>
         </g>
 
         <!-- Room 3 (Patio) Client -->
         <g id="node-room-3" class="cursor-pointer transform hover:scale-105 transition-transform duration-300 focus:outline-none focus:stroke-amber-500" data-room="3" role="button" tabindex="0" aria-label="Toggle Patio client zone" aria-pressed="false">
-          <circle cx="530" cy="230" r="24" fill="#0f0f0f" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" id="c-circle-3"></circle>
-          <circle cx="530" cy="230" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
+          <rect x="495" y="196" width="70" height="68" fill="none" pointer-events="all" class="cursor-pointer"></rect>
+          <circle cx="530" cy="220" r="24" fill="#0f0f0f" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" id="c-circle-3"></circle>
+          <circle cx="530" cy="220" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
           <!-- Status LED -->
-          <circle cx="530" cy="230" r="3" fill="#ea580c" id="c-led-3"></circle>
+          <circle cx="530" cy="220" r="3" fill="#ea580c" id="c-led-3"></circle>
           <!-- Speaker Icon geometry -->
-          <path d="M 515,227 L 519,227 L 523,223 L 523,237 L 519,233 L 515,233 Z" fill="rgba(255,255,255,0.2)" id="c-icon-3"></path>
-          <text x="530" y="272" fill="#a3a3a3" font-family="monospace" font-size="8" text-anchor="middle" letter-spacing="0.5" id="c-text-3">PATIO (MUTE)</text>
+          <path d="M 515,217 L 519,217 L 523,213 L 523,227 L 519,223 L 515,223 Z" fill="rgba(255,255,255,0.2)" id="c-icon-3"></path>
+          <path d="M 526,217 C 528,218 528,222 526,223" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-linecap="round" id="c-wave-3"></path>
+          <text x="530" y="262" fill="#a3a3a3" font-family="monospace" font-size="8" text-anchor="middle" letter-spacing="0.5" id="c-text-3">PATIO</text>
         </g>
       </svg>
     </div>
@@ -205,15 +382,7 @@
 </style>
 
 <script>
-  // Dynamic behavior for inputs and room selections
-  const airplayBtn = document.getElementById('src-airplay');
-  const spotifyBtn = document.getElementById('src-spotify');
-  const mqttBtn = document.getElementById('src-mqtt');
-  const srcLabel = document.getElementById('src-label');
-  const srcGlow = document.getElementById('src-glow');
-  const inputPath = document.getElementById('path-src-server');
-
-  // Room nodes and paths
+  // Room nodes configuration
   const roomNodes = [
     {
       group: document.getElementById('node-room-1'),
@@ -223,8 +392,7 @@
       icon: document.getElementById('c-icon-1'),
       wave: document.getElementById('c-wave-1'),
       text: document.getElementById('c-text-1'),
-      name: 'LIVING ROOM',
-      active: true
+      name: 'LIVING ROOM'
     },
     {
       group: document.getElementById('node-room-2'),
@@ -234,8 +402,7 @@
       icon: document.getElementById('c-icon-2'),
       wave: document.getElementById('c-wave-2'),
       text: document.getElementById('c-text-2'),
-      name: 'KITCHEN',
-      active: true
+      name: 'KITCHEN'
     },
     {
       group: document.getElementById('node-room-3'),
@@ -245,111 +412,230 @@
       icon: document.getElementById('c-icon-3'),
       wave: document.getElementById('c-wave-3'),
       text: document.getElementById('c-text-3'),
-      name: 'PATIO',
-      active: false
+      name: 'PATIO'
     }
   ];
 
-  // Helper to update button selection styles
-  const selectSource = (source: string) => {
-    const buttons = [airplayBtn, spotifyBtn, mqttBtn];
-    buttons.forEach((btn) => {
-      if (btn) {
-        btn.classList.remove('bg-amber-500', 'text-black', 'font-semibold');
-        btn.classList.add('bg-white/[0.03]', 'text-neutral-400');
+  // Source configuration state
+  const sources: Record<string, {
+    circle: HTMLElement | null;
+    glow: HTMLElement | null;
+    icon: HTMLElement | null;
+    text: HTMLElement | null;
+    path: HTMLElement | null;
+    color: string;
+    label: string;
+    lineClass: string;
+    grad: string;
+  }> = {
+    airplay: {
+      circle: document.getElementById('src-circle-airplay'),
+      glow: document.getElementById('src-glow-airplay'),
+      icon: document.getElementById('src-icon-airplay'),
+      text: document.getElementById('src-text-airplay'),
+      path: document.getElementById('path-src-airplay'),
+      color: '#f59e0b',
+      label: 'AIRPLAY 2',
+      lineClass: 'flowing-line',
+      grad: 'url(#grad-amber-flow)'
+    },
+    spotify: {
+      circle: document.getElementById('src-circle-spotify'),
+      glow: document.getElementById('src-glow-spotify'),
+      icon: document.getElementById('src-icon-spotify'),
+      text: document.getElementById('src-text-spotify'),
+      path: document.getElementById('path-src-spotify'),
+      color: '#22c55e',
+      label: 'SPOTIFY CONNECT',
+      lineClass: 'flowing-line-fast',
+      grad: 'url(#grad-green-flow)'
+    },
+    radio: {
+      circle: document.getElementById('src-circle-radio'),
+      glow: document.getElementById('src-glow-radio'),
+      icon: document.getElementById('src-icon-radio'),
+      text: document.getElementById('src-text-radio'),
+      path: document.getElementById('path-src-radio'),
+      color: '#0ea5e9',
+      label: 'WEB RADIO',
+      lineClass: 'flowing-line',
+      grad: 'url(#grad-blue-flow)'
+    },
+    subsonic: {
+      circle: document.getElementById('src-circle-subsonic'),
+      glow: document.getElementById('src-glow-subsonic'),
+      icon: document.getElementById('src-icon-subsonic'),
+      text: document.getElementById('src-text-subsonic'),
+      path: document.getElementById('path-src-subsonic'),
+      color: '#a855f7',
+      label: 'SUBSONIC PLAY',
+      lineClass: 'flowing-line-slow',
+      grad: 'url(#grad-purple-flow)'
+    }
+  };
+
+  let currentSourceId = 'airplay';
+  let currentRoomIndex = 0;
+
+  const updateVisuals = () => {
+    console.log('updateVisuals called. Source:', currentSourceId, 'Room Index:', currentRoomIndex);
+    const activeSrc = sources[currentSourceId];
+    if (!activeSrc) {
+      console.error('activeSrc not found for:', currentSourceId);
+      return;
+    }
+
+    // 1. Update source nodes and wires
+    Object.keys(sources).forEach((srcId) => {
+      const src = sources[srcId];
+      if (!src) return;
+      const isActive = srcId === currentSourceId;
+      const nodeEl = document.getElementById(`node-src-${srcId}`);
+      nodeEl?.setAttribute('aria-pressed', isActive.toString());
+
+      if (isActive) {
+        if (src.circle) {
+          src.circle.style.stroke = src.color;
+          src.circle.style.fill = 'rgba(255, 255, 255, 0.02)';
+        }
+        if (src.glow) {
+          src.glow.style.opacity = '0.3';
+          src.glow.classList.add('animate-pulse');
+        }
+        if (src.icon) {
+          src.icon.style.color = src.color;
+        }
+        if (src.text) {
+          src.text.style.fill = '#ffffff';
+          src.text.style.fontWeight = 'bold';
+        }
+        if (src.path) {
+          src.path.style.display = 'block';
+          src.path.style.stroke = src.grad;
+          src.path.style.strokeWidth = '3';
+          src.path.className.baseVal = src.lineClass;
+        }
+      } else {
+        if (src.circle) {
+          src.circle.style.stroke = 'rgba(255, 255, 255, 0.08)';
+          src.circle.style.fill = '#0f0f0f';
+        }
+        if (src.glow) {
+          src.glow.style.opacity = '0';
+          src.glow.classList.remove('animate-pulse');
+        }
+        if (src.icon) {
+          src.icon.style.color = 'rgba(255, 255, 255, 0.3)';
+        }
+        if (src.text) {
+          src.text.style.fill = '#737373';
+          src.text.style.fontWeight = 'normal';
+        }
+        if (src.path) {
+          src.path.style.display = 'none'; // Hide inactive source wires
+        }
       }
     });
 
-    let activeBtn = airplayBtn;
-    let label = 'AIRPLAY 2';
-    let lineClass = 'flowing-line';
-    let glowColor = '#f59e0b';
-
-    if (source === 'spotify') {
-      activeBtn = spotifyBtn;
-      label = 'SPOTIFY CONNECT';
-      lineClass = 'flowing-line-fast';
-      glowColor = '#22c55e';
-    } else if (source === 'mqtt') {
-      activeBtn = mqttBtn;
-      label = 'MQTT / AUX';
-      lineClass = 'flowing-line-slow';
-      glowColor = '#38bdf8';
+    // Update snapdog core active source label
+    const statusText = document.getElementById('core-src-status');
+    if (statusText) {
+      statusText.textContent = `INPUT: ${activeSrc.label}`;
     }
 
-    if (activeBtn) {
-      activeBtn.classList.remove('bg-white/[0.03]', 'text-neutral-400');
-      activeBtn.classList.add('bg-amber-500', 'text-black', 'font-semibold');
-    }
+    // 2. Update room/zone nodes and wires
+    roomNodes.forEach((room, idx) => {
+      const isActive = idx === currentRoomIndex;
+      const nodeEl = room.group;
+      nodeEl?.setAttribute('aria-pressed', isActive.toString());
 
-    if (srcLabel) srcLabel.textContent = label;
-    if (srcGlow) {
-      srcGlow.setAttribute('stroke', glowColor);
-    }
+      if (isActive) {
+        if (room.path) {
+          room.path.style.display = 'block';
+          room.path.style.stroke = activeSrc.grad; // Match active source gradient
+          room.path.style.strokeWidth = '3';
+          room.path.className.baseVal = activeSrc.lineClass;
+        }
+        if (room.circle) room.circle.style.stroke = activeSrc.color; // Match active source color
+        if (room.led) room.led.style.fill = activeSrc.color;
+        if (room.icon) {
+          room.icon.style.fill = activeSrc.color;
+          room.icon.style.opacity = '1';
+        }
+        if (room.wave) {
+          room.wave.style.display = 'block';
+          room.wave.style.stroke = activeSrc.color;
+        }
+        if (room.text) {
+          room.text.textContent = room.name;
+          room.text.style.fill = '#ffffff';
+          room.text.style.fontWeight = 'bold';
+        }
+      } else {
+        if (room.path) {
+          room.path.style.display = 'none';
+        }
+        if (room.circle) room.circle.style.stroke = 'rgba(255, 255, 255, 0.1)';
+        if (room.led) room.led.style.fill = '#ea580c'; // Red-orange mute status LED
+        if (room.icon) {
+          room.icon.style.fill = 'rgba(255, 255, 255, 0.2)';
+          room.icon.style.opacity = '0.5';
+        }
+        if (room.wave) room.wave.style.display = 'none';
+        if (room.text) {
+          room.text.textContent = room.name;
+          room.text.style.fill = '#a3a3a3';
+          room.text.style.fontWeight = 'normal';
+        }
+      }
+    });
+  };
 
-    if (inputPath) {
-      inputPath.className.baseVal = lineClass;
+  // Helper listener registration
+  const registerSource = (nodeId: string, id: string) => {
+    const el = document.getElementById(nodeId);
+    if (el) {
+      el.addEventListener('click', () => {
+        console.log('Source clicked:', id);
+        currentSourceId = id;
+        updateVisuals();
+      });
+      el.addEventListener('keydown', (e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          console.log('Source keydown:', id);
+          currentSourceId = id;
+          updateVisuals();
+        }
+      });
     }
   };
 
-  // Attach source listeners
-  airplayBtn?.addEventListener('click', () => selectSource('airplay'));
-  spotifyBtn?.addEventListener('click', () => selectSource('spotify'));
-  mqttBtn?.addEventListener('click', () => selectSource('mqtt'));
+  // Bind source elements
+  registerSource('node-src-airplay', 'airplay');
+  registerSource('node-src-spotify', 'spotify');
+  registerSource('node-src-radio', 'radio');
+  registerSource('node-src-subsonic', 'subsonic');
 
-  // Initial setup for the paths to match client state
-  const updateRoomState = (index: number) => {
-    const room = roomNodes[index];
-    if (!room) return;
-
-    if (room.active) {
-      // Connect path and node aesthetics
-      if (room.path) {
-        room.path.style.display = 'block';
-        room.path.style.stroke = 'url(#grad-amber-flow)';
-      }
-      if (room.circle) room.circle.style.stroke = '#22c55e';
-      if (room.led) room.led.style.fill = '#22c55e';
-      if (room.icon) room.icon.style.fill = 'rgba(255, 255, 255, 0.7)';
-      if (room.wave) room.wave.style.display = 'block';
-      if (room.text) {
-        room.text.textContent = room.name;
-        room.text.style.fill = '#e5e5e5';
-      }
-    } else {
-      // Mute path and node aesthetics
-      if (room.path) {
-        room.path.style.display = 'none';
-      }
-      if (room.circle) room.circle.style.stroke = 'rgba(255, 255, 255, 0.1)';
-      if (room.led) room.led.style.fill = '#ea580c';
-      if (room.icon) room.icon.style.fill = 'rgba(255, 255, 255, 0.2)';
-      if (room.wave) room.wave.style.display = 'none';
-      if (room.text) {
-        room.text.textContent = `${room.name} (MUTE)`;
-        room.text.style.fill = '#a3a3a3';
-      }
-    }
-  };
-
-  // Run initial state updates
-  roomNodes.forEach((_, idx) => updateRoomState(idx));
-
-  // Attach toggle click & keydown events to room nodes
+  // Bind room elements
   roomNodes.forEach((room, idx) => {
-    const toggleActive = () => {
-      room.active = !room.active;
-      updateRoomState(idx);
-    };
-
-    room.group?.addEventListener('click', toggleActive);
+    room.group?.addEventListener('click', () => {
+      console.log('Room clicked:', room.name, idx);
+      currentRoomIndex = idx;
+      updateVisuals();
+    });
     room.group?.addEventListener('keydown', (e) => {
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
-        toggleActive();
+        console.log('Room keydown:', room.name, idx);
+        currentRoomIndex = idx;
+        updateVisuals();
       }
     });
   });
+
+  // Run initial state updates
+  updateVisuals();
 
   // VU Meter Simulation loop (animating the height of the bars in snapdog server node)
   const vuBars = [
@@ -370,22 +656,13 @@
   const updateVUMeter = () => {
     if (!isElementVisible) return;
     time += 0.1;
-    
-    // Check if at least one room is active to bounce the meters, otherwise flatline them
-    const anyRoomActive = roomNodes.some(r => r.active);
 
     vuBars.forEach((bar, idx) => {
       if (bar) {
-        let height = 4; // minimum height
-        if (anyRoomActive) {
-          // Combination of sine waves to simulate audio spectrum analyzer bounce
-          const factor = 0.5 + 0.5 * Math.sin(time + idx * 0.7) * Math.cos(time * 0.5 - idx * 0.3);
-          height = 4 + 30 * factor;
-        } else {
-          // slight tiny ambient flutter
-          height = 4 + 2 * Math.sin(time * 0.2 + idx);
-        }
-        const y = 35 - height; // Y coordinate starts from top, so we shift up
+        // Since we are routing, audio is always active
+        const factor = 0.5 + 0.5 * Math.sin(time + idx * 0.7) * Math.cos(time * 0.5 - idx * 0.3);
+        const height = 4 + 30 * factor;
+        const y = 35 - height;
         bar.setAttribute('y', y.toString());
         bar.setAttribute('height', height.toString());
       }

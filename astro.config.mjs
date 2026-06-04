@@ -25,6 +25,7 @@ export default defineConfig({
             { label: 'Introduction', link: '/docs/introduction' },
             { label: 'Installation', link: '/docs/installation' },
             { label: 'Configuration', link: '/docs/configuration' },
+            { label: 'Licensing', link: '/docs/license' },
           ],
         },
         {
