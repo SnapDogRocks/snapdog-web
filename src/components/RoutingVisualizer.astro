@@ -316,7 +316,7 @@
         </g>
 
         <!-- Room 1 (Living Room) Client -->
-        <g id="node-room-1" class="cursor-pointer transform hover:scale-105 transition-transform duration-300 focus:outline-none focus:stroke-amber-500" data-room="1" role="button" tabindex="0" aria-label="Toggle Living Room client zone" aria-pressed="true">
+        <g id="node-room-1" class="cursor-pointer focus:outline-none" data-room="1" role="button" tabindex="0" aria-label="Toggle Living Room client zone" aria-pressed="true">
           <rect x="495" y="36" width="70" height="68" fill="none" pointer-events="all" class="cursor-pointer"></rect>
           <circle cx="530" cy="60" r="24" fill="#0f0f0f" stroke="#22c55e" stroke-width="1.5" id="c-circle-1"></circle>
           <circle cx="530" cy="60" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
@@ -329,7 +329,7 @@
         </g>
 
         <!-- Room 2 (Kitchen) Client -->
-        <g id="node-room-2" class="cursor-pointer transform hover:scale-105 transition-transform duration-300 focus:outline-none focus:stroke-amber-500" data-room="2" role="button" tabindex="0" aria-label="Toggle Kitchen client zone" aria-pressed="true">
+        <g id="node-room-2" class="cursor-pointer focus:outline-none" data-room="2" role="button" tabindex="0" aria-label="Toggle Kitchen client zone" aria-pressed="true">
           <rect x="495" y="116" width="70" height="68" fill="none" pointer-events="all" class="cursor-pointer"></rect>
           <circle cx="530" cy="140" r="24" fill="#0f0f0f" stroke="#22c55e" stroke-width="1.5" id="c-circle-2"></circle>
           <circle cx="530" cy="140" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
@@ -342,7 +342,7 @@
         </g>
 
         <!-- Room 3 (Patio) Client -->
-        <g id="node-room-3" class="cursor-pointer transform hover:scale-105 transition-transform duration-300 focus:outline-none focus:stroke-amber-500" data-room="3" role="button" tabindex="0" aria-label="Toggle Patio client zone" aria-pressed="false">
+        <g id="node-room-3" class="cursor-pointer focus:outline-none" data-room="3" role="button" tabindex="0" aria-label="Toggle Patio client zone" aria-pressed="false">
           <rect x="495" y="196" width="70" height="68" fill="none" pointer-events="all" class="cursor-pointer"></rect>
           <circle cx="530" cy="220" r="24" fill="#0f0f0f" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" id="c-circle-3"></circle>
           <circle cx="530" cy="220" r="14" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"></circle>
@@ -378,6 +378,30 @@
   .flowing-line-slow {
     stroke-dasharray: 12 12;
     animation: flow-animation 3s linear infinite;
+  }
+
+  /* SVG interactive node enhancements */
+  #routing-svg g:focus {
+    outline: none !important;
+  }
+  #routing-svg g:focus-visible {
+    outline: none !important;
+  }
+  
+  /* Modern accessible focus indicator for circles */
+  #routing-svg g:focus-visible circle:first-of-type {
+    stroke: #fbbf24 !important;
+    stroke-width: 2.5px !important;
+    filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
+  }
+
+  /* Robust hover effects (safely scale and brighten without layout displacement) */
+  #routing-svg g.cursor-pointer {
+    transition: opacity 0.2s ease;
+  }
+  #routing-svg g.cursor-pointer:hover circle:first-of-type {
+    stroke-width: 2.5px !important;
+    filter: brightness(1.2) drop-shadow(0 0 4px currentColor);
   }
 </style>
 
