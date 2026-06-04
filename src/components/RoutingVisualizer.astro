@@ -370,16 +370,6 @@
     animation: flow-animation 1.5s linear infinite;
   }
 
-  .flowing-line-fast {
-    stroke-dasharray: 8 8;
-    animation: flow-animation 0.8s linear infinite;
-  }
-
-  .flowing-line-slow {
-    stroke-dasharray: 12 12;
-    animation: flow-animation 3s linear infinite;
-  }
-
   /* SVG interactive node enhancements */
   #routing-svg g:focus {
     outline: none !important;
@@ -471,7 +461,7 @@
       path: document.getElementById('path-src-spotify'),
       color: '#22c55e',
       label: 'SPOTIFY CONNECT',
-      lineClass: 'flowing-line-fast',
+      lineClass: 'flowing-line',
       grad: 'url(#grad-green-flow)'
     },
     radio: {
@@ -493,7 +483,7 @@
       path: document.getElementById('path-src-subsonic'),
       color: '#a855f7',
       label: 'SUBSONIC PLAY',
-      lineClass: 'flowing-line-slow',
+      lineClass: 'flowing-line',
       grad: 'url(#grad-purple-flow)'
     }
   };
