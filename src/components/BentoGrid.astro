@@ -8,7 +8,7 @@
       Engineered for <span class="text-amber-400 glow-amber">Hi-Fi</span> Performance
     </h2>
     <p class="text-sm sm:text-base text-neutral-400 max-w-xl">
-      SnapDog combines the warmth of physical audio hardware with modern, low-latency synchronizations and smart-home standard interfaces.
+      SnapDog runs on Raspberry Pi hardware to drive dedicated audio DAC HATs, synchronizing bit-perfect streams across your home network with open integrations.
     </p>
   </div>
 
@@ -24,7 +24,7 @@
         </div>
         <h3 class="text-lg font-semibold mt-1">Multi-Room Synchronized Audio</h3>
         <p class="text-xs text-neutral-400 leading-relaxed">
-          Powered by Snapcast's synchronized audio architecture. Distributes bit-perfect audio to dozens of client nodes across your home network with microsecond-level synchronization.
+          Leverages the Snapcast protocol to distribute bit-perfect PCM streams to client nodes over standard Wi-Fi or Ethernet. Network drift is kept under 2ms for seamless synchronization.
         </p>
       </div>
 
@@ -98,7 +98,7 @@
         <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-md w-fit"><abbr title="Digital Signal Processor">DSP</abbr> Engine</span>
         <h3 class="text-lg font-semibold mt-1">Parametric Equalizer</h3>
         <p class="text-xs text-neutral-400 leading-relaxed">
-          Tweak acoustics to match any environment. Multi-band parametric <abbr title="Equalizer">EQ</abbr> curves configurable per zone to calibrate room audio.
+          Calibrate acoustics per zone using multi-band parametric <abbr title="Equalizer">EQ</abbr> curves. Configured directly in the browser to tune your speakers to the room boundaries.
         </p>
       </div>
 
@@ -128,7 +128,7 @@
         <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-sky-500/10 border border-sky-500/20 text-sky-400 rounded-md w-fit"><abbr title="Message Queuing Telemetry Transport">MQTT</abbr></span>
         <h3 class="text-lg font-semibold mt-1">Smart Home Integration</h3>
         <p class="text-xs text-neutral-400 leading-relaxed">
-          Expose zones as standard media players. Seamless zero-configuration discovery via Home Assistant over local <abbr title="Message Queuing Telemetry Transport">MQTT</abbr> brokers.
+          Publishes zone states and controls automatically to Home Assistant. Uses <abbr title="Message Queuing Telemetry Transport">MQTT</abbr> autodiscovery to expose clients as media players without custom configuration.
         </p>
       </div>
 
@@ -156,7 +156,7 @@
         <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-md w-fit">Building Automation</span>
         <h3 class="text-lg font-semibold mt-1"><abbr title="Konnex building automation standard">KNX</abbr> Device Mode</h3>
         <p class="text-xs text-neutral-400 leading-relaxed">
-          Connects directly to your <abbr title="Konnex building automation standard">KNX</abbr> building automation system to trigger playback controls using physical wall switches.
+          Listens to your local <abbr title="Konnex building automation standard">KNX</abbr> IP interface to bind play, pause, and volume controls to physical building automation switches and sensors.
         </p>
       </div>
 
@@ -180,7 +180,7 @@
         <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-md w-fit">Resiliency</span>
         <h3 class="text-lg font-semibold mt-1">Smart Buffer Caching</h3>
         <p class="text-xs text-neutral-400 leading-relaxed">
-          Zero playback dropouts. Pre-caches streams dynamically, absorbing network spikes and protecting audio streams from brief offline interruptions.
+          Dynamic client buffering prevents dropouts caused by Wi-Fi disruptions or local network latency spikes. Configurable pre-cache sizes ensure stable, continuous playback.
         </p>
       </div>
 
@@ -208,7 +208,7 @@
         <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-md w-fit">Operating System</span>
         <h3 class="text-lg font-semibold mt-1">Real-time Embedded <abbr title="Operating System">OS</abbr></h3>
         <p class="text-xs text-neutral-400 leading-relaxed">
-          SnapDog <abbr title="Operating System">OS</abbr> is a tailored, read-only Linux kernel designed for low-jitter audio thread execution. Fast cold boots under 4 seconds, direct hardware access, and absolute stability.
+          A custom, read-only Linux kernel system built for Raspberry Pi. Mounts in RAM to prevent SD card corruption, boots in under 4 seconds, and prioritizes low-jitter audio execution.
         </p>
       </div>
 
