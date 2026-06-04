@@ -291,7 +291,7 @@
         </g>
 
         <!-- SnapDog Server Node -->
-        <g id="node-server" class="transform hover:scale-105 transition-transform duration-300">
+        <g id="node-server" class="cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Toggle audio playback" aria-pressed="true">
           <!-- Outer border -->
           <rect x="250" y="110" width="100" height="80" rx="12" ry="12" fill="#0c0a09" stroke="rgba(255,255,255,0.08)" stroke-width="2" class="shadow-glow-card"></rect>
           <rect x="250" y="110" width="100" height="80" rx="12" ry="12" fill="none" stroke="#f59e0b" stroke-width="1" class="opacity-20"></rect>
@@ -307,12 +307,12 @@
             <rect id="vu-8" x="70" y="2" width="6" height="33" rx="1.5"></rect>
           </g>
           <!-- Status Lamp -->
-          <circle cx="340" cy="122" r="3" fill="#22c55e" class="animate-pulse"></circle>
+          <circle id="core-led" cx="340" cy="122" r="3" fill="#22c55e" class="animate-pulse"></circle>
           <text x="300" y="203" fill="#f59e0b" font-family="monospace" font-weight="bold" font-size="12" text-anchor="middle" letter-spacing="1.5">SNAPDOG CORE</text>
           <!-- Dynamic Active Input Status -->
           <text id="core-src-status" x="300" y="215" fill="#e5e5e5" font-family="monospace" font-size="9" text-anchor="middle">INPUT: AIRPLAY 2</text>
           <!-- Parametric EQ tag -->
-          <text x="300" y="227" fill="#a3a3a3" font-family="monospace" font-size="9" text-anchor="middle">DSP / 5-BAND EQ ACTIVE</text>
+          <text id="core-playback-status" x="300" y="227" fill="#a3a3a3" font-family="monospace" font-size="9" text-anchor="middle">DSP / 5-BAND EQ ACTIVE</text>
         </g>
 
         <!-- Room 1 (Living Room) Client -->
@@ -378,8 +378,9 @@
     outline: none !important;
   }
   
-  /* Modern accessible focus indicator for circles */
-  #routing-svg g:focus-visible circle:first-of-type {
+  /* Modern accessible focus indicator for circles and rects */
+  #routing-svg g:focus-visible circle:first-of-type,
+  #routing-svg g:focus-visible rect:first-of-type {
     stroke: #fbbf24 !important;
     stroke-width: 2.5px !important;
     filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.6));
@@ -389,9 +390,15 @@
   #routing-svg g.cursor-pointer {
     transition: opacity 0.2s ease;
   }
-  #routing-svg g.cursor-pointer:hover circle:first-of-type {
+  #routing-svg g.cursor-pointer:hover circle:first-of-type,
+  #routing-svg g.cursor-pointer:hover rect:first-of-type {
     stroke-width: 2.5px !important;
     filter: brightness(1.2) drop-shadow(0 0 4px currentColor);
+  }
+
+  /* Audio wire flow pause when playback is muted/paused */
+  #routing-svg.paused .flowing-line {
+    animation-play-state: paused !important;
   }
 </style>
 
@@ -490,6 +497,7 @@
 
   let currentSourceId = 'airplay';
   let currentRoomIndex = 0;
+  let isPlaybackActive = true;
 
   const updateVisuals = () => {
     console.log('updateVisuals called. Source:', currentSourceId, 'Room Index:', currentRoomIndex);
@@ -551,10 +559,35 @@
       }
     });
 
-    // Update snapdog core active source label
+    // Update snapdog core active source label & status LED
     const statusText = document.getElementById('core-src-status');
     if (statusText) {
       statusText.textContent = `INPUT: ${activeSrc.label}`;
+    }
+    const coreLed = document.getElementById('core-led');
+    const corePlaybackStatus = document.getElementById('core-playback-status');
+    const coreNode = document.getElementById('node-server');
+
+    if (isPlaybackActive) {
+      if (coreLed) {
+        coreLed.style.fill = '#22c55e';
+        coreLed.classList.add('animate-pulse');
+      }
+      if (corePlaybackStatus) {
+        corePlaybackStatus.textContent = 'DSP / 5-BAND EQ ACTIVE';
+        corePlaybackStatus.style.fill = '#a3a3a3';
+      }
+      coreNode?.setAttribute('aria-pressed', 'true');
+    } else {
+      if (coreLed) {
+        coreLed.style.fill = '#ea580c';
+        coreLed.classList.remove('animate-pulse');
+      }
+      if (corePlaybackStatus) {
+        corePlaybackStatus.textContent = 'PLAYBACK PAUSED';
+        corePlaybackStatus.style.fill = '#ea580c';
+      }
+      coreNode?.setAttribute('aria-pressed', 'false');
     }
 
     // 2. Update room/zone nodes and wires
@@ -648,6 +681,36 @@
     });
   });
 
+  // Bind core element
+  const coreNode = document.getElementById('node-server');
+  if (coreNode) {
+    const togglePlayback = () => {
+      console.log('Core clicked, toggling playback. New state:', !isPlaybackActive);
+      isPlaybackActive = !isPlaybackActive;
+      
+      const svgEl = document.getElementById('routing-svg');
+      if (isPlaybackActive) {
+        svgEl?.classList.remove('paused');
+        if (!animationFrameId && isElementVisible) {
+          updateVUMeter();
+        }
+      } else {
+        svgEl?.classList.add('paused');
+        // trigger one update to flatline and pause loop
+        updateVUMeter();
+      }
+      updateVisuals();
+    };
+
+    coreNode.addEventListener('click', togglePlayback);
+    coreNode.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        togglePlayback();
+      }
+    });
+  }
+
   // Run initial state updates
   updateVisuals();
 
@@ -669,11 +732,23 @@
 
   const updateVUMeter = () => {
     if (!isElementVisible) return;
+
+    if (!isPlaybackActive) {
+      // Flatline the VU bars when playback is paused
+      vuBars.forEach((bar) => {
+        if (bar) {
+          bar.setAttribute('y', '31');
+          bar.setAttribute('height', '4');
+        }
+      });
+      animationFrameId = null;
+      return;
+    }
+
     time += 0.1;
 
     vuBars.forEach((bar, idx) => {
       if (bar) {
-        // Since we are routing, audio is always active
         const factor = 0.5 + 0.5 * Math.sin(time + idx * 0.7) * Math.cos(time * 0.5 - idx * 0.3);
         const height = 4 + 30 * factor;
         const y = 35 - height;
