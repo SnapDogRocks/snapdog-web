@@ -29,29 +29,66 @@
       </div>
 
       <!-- Live Sync Animation -->
-      <div class="relative h-28 flex items-center justify-center mt-4">
-        <!-- Central Hub -->
-        <div class="absolute w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/40 flex items-center justify-center">
-          <div class="w-3 h-3 rounded-full bg-amber-500 animate-ping"></div>
-          <div class="absolute w-3 h-3 rounded-full bg-amber-500"></div>
-        </div>
-        <!-- Pulse Rings -->
-        <div class="absolute w-24 h-24 rounded-full border border-amber-500/10 animate-pulse"></div>
-        <div class="absolute w-40 h-40 rounded-full border border-amber-500/5 animate-pulse" style="animation-delay: 0.5s;"></div>
+      <div class="relative h-28 w-full mt-4 flex items-center justify-center">
+        <svg viewBox="0 0 400 120" class="w-full h-full overflow-visible select-none">
+          <defs>
+            <filter id="glow-green" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <filter id="glow-amber" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <filter id="glow-sky" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
 
-        <!-- Sync Nodes -->
-        <div class="absolute left-6 top-4 flex items-center gap-2 px-2 py-1 rounded-lg bg-white/[0.02] border border-white/5 font-mono text-[9px]">
-          <span class="w-1.5 h-1.5 rounded-full bg-[#22c55e]"></span>
-          <span>Living Room</span>
-        </div>
-        <div class="absolute right-8 top-16 flex items-center gap-2 px-2 py-1 rounded-lg bg-white/[0.02] border border-white/5 font-mono text-[9px]">
-          <span class="w-1.5 h-1.5 rounded-full bg-[#22c55e]"></span>
-          <span>Kitchen</span>
-        </div>
-        <div class="absolute left-16 bottom-2 flex items-center gap-2 px-2 py-1 rounded-lg bg-white/[0.02] border border-white/5 font-mono text-[9px]">
-          <span class="w-1.5 h-1.5 rounded-full bg-[#22c55e]"></span>
-          <span>Patio</span>
-        </div>
+          <!-- Audio Wires -->
+          <!-- Wire 1: to Living Room (Green) -->
+          <path d="M 200,60 Q 150,30 120,27" fill="none" stroke="#22c55e" stroke-width="1.5" opacity="0.15" />
+          <path d="M 200,60 Q 150,30 120,27" fill="none" stroke="#22c55e" stroke-width="1.5" class="animate-flow-green" filter="url(#glow-green)" />
+
+          <!-- Wire 2: to Kitchen (Amber) -->
+          <path d="M 200,60 Q 240,55 290,72" fill="none" stroke="#f59e0b" stroke-width="1.5" opacity="0.15" />
+          <path d="M 200,60 Q 240,55 290,72" fill="none" stroke="#f59e0b" stroke-width="1.5" class="animate-flow-amber" filter="url(#glow-amber)" />
+
+          <!-- Wire 3: to Patio (Sky) -->
+          <path d="M 200,60 Q 170,90 140,97" fill="none" stroke="#0ea5e9" stroke-width="1.5" opacity="0.15" />
+          <path d="M 200,60 Q 170,90 140,97" fill="none" stroke="#0ea5e9" stroke-width="1.5" class="animate-flow-sky" filter="url(#glow-sky)" />
+
+          <!-- Central Hub -->
+          <g transform="translate(200, 60)">
+            <circle cx="0" cy="0" r="16" fill="none" stroke="#f59e0b" stroke-width="1.2" opacity="0.4" class="animate-ping" />
+            <circle cx="0" cy="0" r="12" fill="none" stroke="#f59e0b" stroke-width="1" opacity="0.3" />
+            <circle cx="0" cy="0" r="28" fill="none" stroke="#f59e0b" stroke-width="1" opacity="0.15" class="animate-pulse" />
+            <circle cx="0" cy="0" r="4" fill="#f59e0b" />
+          </g>
+
+          <!-- Sync Nodes -->
+          <!-- Living Room (Green/Left-Top) -->
+          <g transform="translate(30, 15)">
+            <rect x="0" y="0" width="90" height="24" rx="6" ry="6" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="group-hover:stroke-green-500/30 transition-colors" />
+            <circle cx="12" cy="12" r="3" fill="#22c55e" />
+            <text x="24" y="15" fill="#a3a3a3" font-family="monospace" font-size="9px" class="group-hover:fill-white transition-colors">Living Room</text>
+          </g>
+
+          <!-- Kitchen (Amber/Right-Middle) -->
+          <g transform="translate(290, 60)">
+            <rect x="0" y="0" width="70" height="24" rx="6" ry="6" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="group-hover:stroke-amber-500/30 transition-colors" />
+            <circle cx="12" cy="12" r="3" fill="#f59e0b" />
+            <text x="24" y="15" fill="#a3a3a3" font-family="monospace" font-size="9px" class="group-hover:fill-white transition-colors">Kitchen</text>
+          </g>
+
+          <!-- Patio (Sky/Left-Bottom) -->
+          <g transform="translate(80, 85)">
+            <rect x="0" y="0" width="60" height="24" rx="6" ry="6" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="group-hover:stroke-sky-500/30 transition-colors" />
+            <circle cx="12" cy="12" r="3" fill="#0ea5e9" />
+            <text x="24" y="15" fill="#a3a3a3" font-family="monospace" font-size="9px" class="group-hover:fill-white transition-colors">Patio</text>
+          </g>
+        </svg>
       </div>
     </div>
 
@@ -201,3 +238,24 @@
     </div>
   </div>
 </section>
+
+<style>
+  .animate-flow-green {
+    stroke-dasharray: 6 6;
+    animation: flow 1.5s linear infinite;
+  }
+  .animate-flow-amber {
+    stroke-dasharray: 6 6;
+    animation: flow 1.5s linear infinite;
+  }
+  .animate-flow-sky {
+    stroke-dasharray: 6 6;
+    animation: flow 1.5s linear infinite;
+  }
+
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -12;
+    }
+  }
+</style>
