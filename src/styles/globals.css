@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
 @theme {
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Outfit", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
   --color-brand: oklch(0.769 0.188 70.08);
   --color-brand-hover: oklch(0.82 0.19 75);
 }

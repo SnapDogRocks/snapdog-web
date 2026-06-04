@@ -20,15 +20,21 @@ try {
 }
 ---
 
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth font-sans">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <title>SnapDog — Multiroom Audio System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   </head>
   <body class="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-start px-6 relative overflow-x-hidden select-none selection:bg-amber-500/20 selection:text-amber-200">
     
+    <!-- Visually hidden main heading for SEO / Accessibility -->
+    <h1 class="sr-only">SnapDog — Synchronized Multiroom Audio System</h1>
+
     <!-- Background glows -->
     <div class="absolute top-[20%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-[120px] pointer-events-none"></div>
     <div class="absolute top-[60%] left-1/3 w-[500px] h-[500px] bg-amber-500/[0.02] rounded-full blur-[140px] pointer-events-none"></div>
@@ -43,7 +49,7 @@ try {
       </div>
 
       <!-- Tagline -->
-      <p class="text-lg sm:text-xl text-neutral-400 max-w-lg leading-relaxed">
+      <p class="text-lg sm:text-xl text-neutral-300 max-w-lg leading-relaxed font-light">
         Multi-zone audio controller with AirPlay, Spotify, Subsonic, <abbr title="Message Queuing Telemetry Transport">MQTT</abbr>, and <abbr title="Konnex building automation standard">KNX</abbr> integration.
       </p>
 
@@ -139,7 +145,7 @@ try {
 
       <!-- CTA to Docs -->
       <section class="py-24 flex flex-col items-center gap-6 text-center max-w-xl">
-        <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight">Ready to integrate?</h2>
+        <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight font-display text-white">Ready to integrate?</h2>
         <p class="text-xs sm:text-sm text-neutral-400 leading-relaxed">
           SnapDog is open source and runs on standard Raspberry Pi devices. Check out our comprehensive setup guides, hardware recommendations, and REST API documentation to get started.
         </p>
