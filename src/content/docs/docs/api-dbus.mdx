@@ -45,6 +45,46 @@ The `snapdog` server registers an MPRIS2 interface for each configured audio zon
   - `xesam:album` (`String`) — Album title.
 * **`CanPlay` / `CanPause` / `CanSeek` / `CanControl`** (`Boolean`) — Capabilities flags.
 
+### Server Command-Line Examples
+
+<Tabs>
+  <TabItem label="Using playerctl">
+    `playerctl` automatically detects and formats MPRIS2 commands.
+    ```bash
+    # List all active SnapDog server zone players
+    playerctl --list-all | grep snapdog.zone
+
+    # Toggle Play/Pause on Zone 1
+    playerctl -p snapdog.zone1 play-pause
+
+    # Skip to the next track in Zone 2
+    playerctl -p snapdog.zone2 next
+
+    # Retrieve active track title and artist in Zone 1
+    playerctl -p snapdog.zone1 metadata --format "{{title}} - {{artist}}"
+    ```
+  </TabItem>
+
+  <TabItem label="Using busctl">
+    For low-level shell scripting or system diagnostics, use `busctl`.
+    ```bash
+    # Query active playback status of Zone 1
+    busctl --user get-property \
+      org.mpris.MediaPlayer2.snapdog.zone1 \
+      /org/mpris/MediaPlayer2 \
+      org.mpris.MediaPlayer2.Player \
+      PlaybackStatus
+
+    # Send raw Play command to Zone 2
+    busctl --user call \
+      org.mpris.MediaPlayer2.snapdog.zone2 \
+      /org/mpris/MediaPlayer2 \
+      org.mpris.MediaPlayer2.Player \
+      Play
+    ```
+  </TabItem>
+</Tabs>
+
 ---
 
 ## 2. SnapDog Client D-Bus (Player Endpoints)
@@ -55,7 +95,7 @@ The `snapdog-client` player registers an MPRIS2 interface on speaker endpoints, 
 * **Bus Name:** `org.mpris.MediaPlayer2.snapdog_client` (for primary instance).
   - *Multi-Instance:* If running multiple player instances on the same host, subsequent instances bind to `org.mpris.MediaPlayer2.snapdog_client.instance{N}` (e.g., `instance2`).
 * **Object Path:** `/org/mpris/MediaPlayer2`
-* **Bus Type:** Hybrid Bus. The client tries to bind to the **Session Bus** if the `DBUS_SESSION_BUS_ADDRESS` environment variable is defined. If absent (e.g., on a headless Raspberry Pi boot environment), it **automatically falls back to the System Bus**.
+* **Bus Type:** Hybrid Bus. The client binds to the **Session Bus** if `DBUS_SESSION_BUS_ADDRESS` is defined. If absent (e.g., on a headless Raspberry Pi boot environment), it **automatically falls back to the System Bus**.
 
 ### Implemented Methods (`org.mpris.MediaPlayer2.Player`)
 
@@ -72,7 +112,7 @@ The `snapdog-client` player registers an MPRIS2 interface on speaker endpoints, 
 ### Implemented Properties (`org.mpris.MediaPlayer2.Player`)
 
 * **`PlaybackStatus`** (`String`) — `"Playing"` or `"Stopped"`.
-* **`Volume`** (`Double`) — Local soundcard hardware/software volume level `[0.0..1.0]`. Writing to this updates the local mixer gain and notifies the server.
+* **`Volume`** (`Double`) — Local soundcard volume level `[0.0..1.0]`. Writing to this updates the local mixer gain and notifies the server.
 * **`Shuffle`** (`Boolean`) — Read-write flag. Modifying this sends a shuffle toggle command to the server.
 * **`LoopStatus`** (`String`) — Read-write. Returns `"None"`, `"Track"`, or `"Playlist"`. Writing updates the server repeat mode.
 * **`Position`** (`Int64`) — Current playback position in microseconds.
@@ -81,6 +121,37 @@ The `snapdog-client` player registers an MPRIS2 interface on speaker endpoints, 
   - `mpris:length` (`Int64`) — Length in microseconds.
   - `mpris:artUrl` (`String`) — Local file link to pre-cached cover art (`file://<path>`).
   - `xesam:title` / `xesam:artist` / `xesam:album` (`String`) — Metadata details.
+
+### Client Command-Line Examples
+
+<Tabs>
+  <TabItem label="Using playerctl">
+    ```bash
+    # Control the primary local client player
+    playerctl -p snapdog_client play-pause
+
+    # Adjust local speaker volume to 80% (0.8)
+    playerctl -p snapdog_client volume 0.8
+
+    # Query shuffle state on local client
+    playerctl -p snapdog_client metadata --format "{{shuffle}}"
+    ```
+  </TabItem>
+
+  <TabItem label="Using busctl">
+    ```bash
+    # Query Client Player volume status (using System bus fallback)
+    busctl --system get-property \
+      org.mpris.MediaPlayer2.snapdog_client \
+      /org/mpris/MediaPlayer2 \
+      org.mpris.MediaPlayer2.Player \
+      Volume
+
+    # Monitor Client 1 state changes in real time
+    busctl --user monitor org.mpris.MediaPlayer2.snapdog_client
+    ```
+  </TabItem>
+</Tabs>
 
 ---
 
@@ -133,48 +204,3 @@ Under headless Linux servers running SnapDog as a background `systemd` daemon, s
        ```
   </TabItem>
 </Tabs>
-
----
-
-## 5. Command-Line Examples
-
-### Control using `playerctl`
-
-`playerctl` automatically detects MPRIS2 interfaces.
-
-```bash
-# List all active SnapDog server zones and client players
-playerctl --list-all | grep snapdog
-
-# Toggle Play/Pause on Server Zone 1
-playerctl -p snapdog.zone1 play-pause
-
-# Skip to the next track on Client Player 1
-playerctl -p snapdog_client next
-
-# Set volume of Client Player to 80% (0.8)
-playerctl -p snapdog_client volume 0.8
-```
-
-### Control using `busctl`
-
-For low-level scripting or diagnostics:
-
-```bash
-# Query Server Zone 1 playback status
-busctl --user get-property \
-  org.mpris.MediaPlayer2.snapdog.zone1 \
-  /org/mpris/MediaPlayer2 \
-  org.mpris.MediaPlayer2.Player \
-  PlaybackStatus
-
-# Query Client Player volume status (System bus fallback)
-busctl --system get-property \
-  org.mpris.MediaPlayer2.snapdog_client \
-  /org/mpris/MediaPlayer2 \
-  org.mpris.MediaPlayer2.Player \
-  Volume
-
-# Monitor Client 1 state changes in real time
-busctl --user monitor org.mpris.MediaPlayer2.snapdog_client
-```
