@@ -1,65 +1,26 @@
 ---
-title: Installation Guide
-description: Learn how to install the SnapDog server via docker, package managers, or compile from source.
+title: Direct Installation
+description: Install SnapDog directly using package managers, pre-compiled binaries, or compile from source.
 ---
 
 import { Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-**SnapDog** is distributed as a lightweight, single statically-linked binary. It can be deployed on Linux (x86_64, aarch64, armv7) and macOS. Choose the installation method that fits your environment below.
+**SnapDog** is distributed as a lightweight, single statically-linked binary. It can be deployed on Linux (x86_64, aarch64, armv7) and macOS.
 
 ---
 
-## 1. System Requirements & Prerequisites
+## Operating System Requirements
 
-Before setting up SnapDog, ensure your target machine meets the following requirements:
-
-### Operating System
+Ensure your target machine meets the following requirements:
 * **Linux:** Kernel 5.4 or higher. ALSA (Advanced Linux Sound Architecture) is required for local audio output interfaces.
 * **macOS:** macOS 12 (Monterey) or higher.
 * **Windows:** Windows 10/11 or Windows Server 2019+ (supported when running as a background service).
 
-### Network Ports
-SnapDog binds to several ports depending on your configuration. Ensure your firewall permits traffic on these ports:
-* `5555/tcp` — REST API, WebUI, and WebSockets (configurable via `[http].port`).
-* `1704/tcp` — Snapcast streaming endpoint where clients connect.
-* `1705/tcp` — Snapcast JSON-RPC control API (only for external snapcast).
-* `3671/udp` — KNX/IP routing or tunneling communication (if KNX is enabled).
-* `5353/udp` — mDNS/Bonjour discovery advertisement.
-
 ---
 
-## 2. Installation Methods
+## Package Managers
 
 <Tabs>
-  <TabItem label="Docker (Compose)">
-    Docker is the recommended deployment method for home servers or NAS devices (like Unraid or Synology).
-
-    1. Create a `docker-compose.yml` file:
-       ```yaml
-       version: '3.8'
-       services:
-         snapdog:
-           image: ghcr.io/metaneutrons/snapdog:latest
-           container_name: snapdog
-           restart: unless-stopped
-           network_mode: host # Required for mDNS discovery and KNX multicast
-           devices:
-             - "/dev/snd:/dev/snd" # Expose ALSA soundcards for direct playback
-           volumes:
-             - snapdog-data:/var/lib/snapdog
-             - ./snapdog.toml:/etc/snapdog/snapdog.toml:ro
-           environment:
-             - TZ=Europe/Berlin
-
-       volumes:
-         snapdog-data:
-       ```
-    2. Start the container:
-       ```bash
-       docker compose up -d
-       ```
-  </TabItem>
-
   <TabItem label="Arch Linux (AUR)">
     AUR helper tools can be used to install the latest pre-compiled binary or build SnapDog directly from the Arch User Repository.
 
@@ -105,7 +66,7 @@ SnapDog binds to several ports depending on your configuration. Ensure your fire
        sudo systemctl daemon-reload
        sudo systemctl enable --now snapdog
        ```
-  </TabItem>
+    </TabItem>
 
   <TabItem label="Windows Service">
     SnapDog compiles to a native Windows binary and can run as an NT Service.
@@ -121,7 +82,7 @@ SnapDog binds to several ports depending on your configuration. Ensure your fire
 
 ---
 
-## 3. Direct Binary Download
+## Direct Binary Download
 
 If you prefer to install the pre-compiled binaries manually:
 
@@ -135,12 +96,12 @@ If you prefer to install the pre-compiled binaries manually:
 
 ---
 
-## 4. Compiling from Source
+## Compiling from Source
 
 If you want to compile SnapDog with custom target optimizations, you can build it from source using Cargo.
 
 <Aside type="note">
-  Building from source allows choosing specific Snapcast server backends. See the compilation feature flags described in the [Server Mode Selection section](#6-server-mode-selection) below.
+  Building from source allows choosing specific Snapcast server backends. See the compilation feature flags described in the [Server Mode Selection](#server-mode-selection) section below.
 </Aside>
 
 ### Build Dependencies
@@ -162,7 +123,7 @@ Ensure your development machine has the required system libraries installed:
 
 ---
 
-## 5. Post-Installation Service Scripts
+## Post-Installation Service Scripts
 
 To ensure SnapDog starts automatically on boot and restarts in case of failures, configure a service supervisor.
 
@@ -215,12 +176,14 @@ Create `~/Library/LaunchAgents/cc.snapdog.server.plist`:
 
 ---
 
-## 6. Server Mode Selection
+## Server Mode Selection
 
 SnapDog supports two primary Snapcast compilation backends. You can select the backend using Cargo feature flags:
 
 * **`snapcast-embedded` (Default & Recommended):** Integrates the Snapcast server directly into the Rust daemon binary (leveraging our native Rust port of the original C++ Snapcast codebase via the `snapcast-*` crates). This mode is strongly recommended because it manages group synchronization inline, supports proprietary float PCM channels for parametric EQ corrections, and doesn't require maintaining an external binary.
 * **`snapcast-process`:** Spawns and manages a standalone C++ `snapserver` process in the background. Choose this only if you must rely on advanced C++ features or legacy external pipe encoders.
+
+---
 
 ## Next Steps
 
@@ -231,8 +194,8 @@ SnapDog supports two primary Snapcast compilation backends. You can select the b
     href="/docs/configuration"
   />
   <LinkCard
-    title="SnapDog OS Guide"
-    description="Provision dedicated audio receiver hardware using our minimal Buildroot OS image."
-    href="/docs/snapdog-os"
+    title="Docker Container"
+    description="Deploy SnapDog in a containerized environment."
+    href="/docs/install-docker"
   />
 </CardGrid>

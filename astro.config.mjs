@@ -22,28 +22,39 @@ export default defineConfig({
       },
       sidebar: [
         {
-          label: 'Getting Started',
+          label: 'Quick Start',
           items: [
             { label: 'Introduction', link: '/docs/introduction' },
-            { label: 'Installation', link: '/docs/installation' },
+          ],
+        },
+        {
+          label: 'Installation',
+          items: [
+            { label: 'Direct Installation', link: '/docs/install-direct' },
+            { label: 'Docker Container', link: '/docs/install-docker' },
+            { label: 'SnapDog OS', link: '/docs/snapdog-os' },
+          ],
+        },
+        {
+          label: 'User Manual',
+          items: [
             { label: 'Configuration', link: '/docs/configuration' },
             { label: 'CLI Reference', link: '/docs/cli' },
-            { label: 'Licensing', link: '/docs/license' },
           ],
         },
         {
-          label: 'SnapDog OS',
-          items: [
-            { label: 'Overview & Setup', link: '/docs/snapdog-os' },
-          ],
-        },
-        {
-          label: 'Developer Reference',
+          label: 'Developer Manual',
           items: [
             { label: 'REST API', link: '/docs/api-rest' },
             { label: 'WebSocket API', link: '/docs/api-websocket' },
             { label: 'D-Bus API (MPRIS2)', link: '/docs/api-dbus' },
             { label: 'Binary Protocol', link: '/docs/api-binary-protocol' },
+          ],
+        },
+        {
+          label: 'About',
+          items: [
+            { label: 'Licensing', link: '/docs/license' },
           ],
         },
       ],

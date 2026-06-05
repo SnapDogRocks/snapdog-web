@@ -1,0 +1,68 @@
+---
+title: Docker Container Installation
+description: Learn how to deploy SnapDog as a Docker container on Linux or NAS systems.
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+Docker is the recommended deployment method for home servers or Network Attached Storage (NAS) systems (like Unraid, TrueNAS, or Synology).
+
+---
+
+## System Prerequisites
+
+Before running SnapDog inside Docker, make sure you configure your container hosting environment correctly:
+
+### 1. Network Host Mode
+SnapDog relies on **mDNS/Bonjour multicast** for zone discovery and **KNX IP multicast** for smart building integration. Therefore, the container **must** be run in `network_mode: host`. Bridge networks will block multicast traffic unless configured with complex mDNS reflectors.
+
+### 2. Device Access for Audio Output
+If you plan to use local soundcards connected to the host machine for audio output (via ALSA), you must expose `/dev/snd` to the container:
+* Docker CLI flag: `--device /dev/snd:/dev/snd`
+* Compose property: `devices: - "/dev/snd:/dev/snd"`
+
+---
+
+## Docker Compose Setup
+
+1. Create a `docker-compose.yml` file:
+   ```yaml
+   version: '3.8'
+   services:
+     snapdog:
+       image: ghcr.io/metaneutrons/snapdog:latest
+       container_name: snapdog
+       restart: unless-stopped
+       network_mode: host # Required for mDNS discovery and KNX multicast
+       devices:
+         - "/dev/snd:/dev/snd" # Expose ALSA soundcards for direct playback
+       volumes:
+         - snapdog-data:/var/lib/snapdog
+         - ./snapdog.toml:/etc/snapdog/snapdog.toml:ro
+       environment:
+         - TZ=Europe/Berlin
+
+   volumes:
+     snapdog-data:
+   ```
+2. Start the container:
+   ```bash
+   docker compose up -d
+   ```
+
+---
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="Configuration Guide"
+    description="Customize zone topologies, client speaker volumes, and home automation triggers."
+    href="/docs/configuration"
+  />
+  <LinkCard
+    title="Direct Installation"
+    description="Install SnapDog natively using package managers or compile from source."
+    href="/docs/install-direct"
+  />
+</CardGrid>

@@ -14,7 +14,7 @@ This guide documents the command-line interfaces for both the **SnapDog Server (
 The `snapdog` server runs as a daemon that manages audio streams, routes signals to zones, and acts as the central coordinator.
 
 <Aside type="note">
-  For running the server as a background service supervised by systemd or launchd, see the [Installation Guide](/docs/installation#5-post-installation-service-scripts).
+  For running the server as a background service supervised by systemd or launchd, see the [Direct Installation Guide](/docs/install-direct#post-installation-service-scripts).
 </Aside>
 
 ### Required Execution Modes
@@ -165,9 +165,14 @@ The `URL` has the format `<scheme>://<host>[:port]`, where scheme can be `tcp`, 
 
 <CardGrid>
   <LinkCard
-    title="Installation Guide"
-    description="Deploy background services, run docker-compose setups, or build the daemon from source."
-    href="/docs/installation"
+    title="Direct Installation"
+    description="Deploy background services natively or build the daemon from source."
+    href="/docs/install-direct"
+  />
+  <LinkCard
+    title="Docker Container"
+    description="Run SnapDog inside a containerized setup."
+    href="/docs/install-docker"
   />
   <LinkCard
     title="Configuration Guide"
