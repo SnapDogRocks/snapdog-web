@@ -545,7 +545,7 @@
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
-    justify-content: space-evenly !important;
+    justify-content: center !important;
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -556,7 +556,7 @@
     background: rgba(10, 10, 10, 0.97) !important;
     backdrop-filter: blur(24px) !important;
     -webkit-backdrop-filter: blur(24px) !important;
-    padding: 2.5rem 1.5rem 1.5rem 1.5rem !important;
+    padding: 1.5rem !important;
     margin: 0 !important;
     border: none !important;
     overflow: hidden !important; /* Prevent double scrollbars and scrolling overlay */
@@ -592,18 +592,62 @@
     max-height: 60vh !important;
   }
 
-  /* Console fits exactly in remaining vertical space */
+  /* Console fits exactly in remaining vertical space (on mobile/tablet) */
+  dialog[open] #dialog-console-wrapper {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    margin-top: 1rem !important;
+    flex-shrink: 0 !important;
+  }
+
   dialog[open] #arch-console {
     max-width: 3xl !important;
     width: 90vw !important;
-    margin-top: 1rem !important;
-    margin-bottom: 0 !important;
     background: rgba(15, 15, 15, 0.8) !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
     flex-shrink: 0 !important;
     height: 160px !important;
     overflow-y: auto !important;
+  }
+
+  /* Medium screens (tablets / small desktops): enlarge the SVG slightly as it stacks */
+  @media (min-width: 768px) and (max-width: 1279px) {
+    dialog[open] #dialog-svg-wrapper {
+      max-height: 68vh !important;
+    }
+    dialog[open] #system-arch-svg {
+      max-height: 68vh !important;
+    }
+  }
+
+  /* Large wide screens: float the console in the corner for a true HUD console look, and let SVG fill the screen */
+  @media (min-width: 1280px) {
+    dialog[open] #dialog-svg-wrapper {
+      max-height: 88vh !important;
+      max-width: 95vw !important;
+    }
+    dialog[open] #system-arch-svg {
+      max-height: 88vh !important;
+    }
+    dialog[open] #dialog-console-wrapper {
+      position: absolute !important;
+      bottom: 2rem !important;
+      right: 2rem !important;
+      width: 420px !important;
+      margin-top: 0 !important;
+      z-index: 10000 !important;
+      justify-content: flex-end !important;
+    }
+    dialog[open] #arch-console {
+      width: 420px !important;
+      background: rgba(15, 15, 15, 0.75) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
   }
 
   #console-output {
