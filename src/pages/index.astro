@@ -77,6 +77,7 @@ try {
                 <option value="pi5" class="bg-[#0a0a0a]">Raspberry Pi 5 / 500</option>
                 <option value="pi4" class="bg-[#0a0a0a]" selected>Raspberry Pi 4 / 400</option>
                 <option value="pi3" class="bg-[#0a0a0a]">Raspberry Pi 3 / 3+</option>
+                <option value="zero2w" class="bg-[#0a0a0a]">Raspberry Pi Zero 2 W</option>
               </select>
             </div>
             <a
@@ -215,7 +216,8 @@ try {
         select.addEventListener('change', (e) => {
           const model = e.target.value;
           btn.href = `https://updates.snapdog.cc/os/images/snapdog-os-${model}-beta.img.gz`;
-          btn.setAttribute('aria-label', `Download SnapDog OS image for Raspberry Pi ${model.replace('pi', '')}`);
+          const displayName = model === 'zero2w' ? 'Zero 2 W' : model.replace('pi', '');
+          btn.setAttribute('aria-label', `Download SnapDog OS image for Raspberry Pi ${displayName}`);
         });
       }
     </script>
