@@ -630,13 +630,17 @@
     "sink-room3": ["flow-subsonic-p3", "flow-radio-p3", "flow-p3-srv", "flow-srv-room3"]
   };
 
-  // Wrap layout logic inside astro:page-load to handle client-side view transition SPA routers
-  document.addEventListener("astro:page-load", () => {
+  // Wrap layout logic inside a transition-safe function
+  const init = () => {
     const svg = document.getElementById("system-arch-svg");
     const consoleOutput = document.getElementById("console-output");
     const container = document.querySelector(".architecture-diagram-container");
 
     if (!svg || !consoleOutput || !container) return;
+
+    // Avoid duplicate initialization if script runs multiple times
+    if (container.dataset.initialized === "true") return;
+    container.dataset.initialized = "true";
 
     // Add event listeners on nodes
     Object.keys(metadata).forEach(nodeId => {
@@ -677,8 +681,8 @@
 
     // Zoom to Sheet Fullscreen Toggle Logic
     const zoomBtn = document.getElementById("zoom-btn");
-    const expandIcon = document.getElementById("expand-icon");
-    const collapseIcon = document.getElementById("collapse-icon");
+    const expandIcon = document.getElementById("expand-icon") as HTMLElement;
+    const collapseIcon = document.getElementById("collapse-icon") as HTMLElement;
 
     if (zoomBtn && expandIcon && collapseIcon) {
       // Set initial styles explicitly to prevent build/CSS reset overlaps
@@ -749,5 +753,11 @@
     }, { threshold: 0.1 });
     
     observer.observe(container);
-  });
+  };
+
+  // Run on initial page load
+  init();
+
+  // Run on page transition (if Astro view transitions are used in Starlight)
+  document.addEventListener("astro:page-load", init);
 </script>
