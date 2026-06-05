@@ -13,10 +13,10 @@
     title="Zoom to sheet (Fullscreen)"
     aria-label="Zoom to sheet"
   >
-    <svg id="expand-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4.5 h-4.5">
+    <svg id="expand-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4.5 h-4.5" style="display: block;">
       <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
     </svg>
-    <svg id="collapse-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4.5 h-4.5 hidden">
+    <svg id="collapse-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4.5 h-4.5" style="display: none;">
       <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7"/>
     </svg>
   </button>
@@ -630,11 +630,14 @@
     "sink-room3": ["flow-subsonic-p3", "flow-radio-p3", "flow-p3-srv", "flow-srv-room3"]
   };
 
-  const svg = document.getElementById("system-arch-svg");
-  const consoleOutput = document.getElementById("console-output");
-  const container = document.querySelector(".architecture-diagram-container");
+  // Wrap layout logic inside astro:page-load to handle client-side view transition SPA routers
+  document.addEventListener("astro:page-load", () => {
+    const svg = document.getElementById("system-arch-svg");
+    const consoleOutput = document.getElementById("console-output");
+    const container = document.querySelector(".architecture-diagram-container");
 
-  if (svg && consoleOutput) {
+    if (!svg || !consoleOutput || !container) return;
+
     // Add event listeners on nodes
     Object.keys(metadata).forEach(nodeId => {
       const node = svg.getElementById(nodeId);
@@ -671,49 +674,58 @@
         });
       }
     });
-  }
 
-  // Zoom to Sheet Fullscreen Toggle Logic
-  const zoomBtn = document.getElementById("zoom-btn");
-  const expandIcon = document.getElementById("expand-icon");
-  const collapseIcon = document.getElementById("collapse-icon");
+    // Zoom to Sheet Fullscreen Toggle Logic
+    const zoomBtn = document.getElementById("zoom-btn");
+    const expandIcon = document.getElementById("expand-icon");
+    const collapseIcon = document.getElementById("collapse-icon");
 
-  if (zoomBtn && container && expandIcon && collapseIcon) {
-    const toggleFullscreen = () => {
-      const isFullscreen = container.classList.toggle("fullscreen-active");
-      if (isFullscreen) {
-        expandIcon.classList.add("hidden");
-        collapseIcon.classList.remove("hidden");
-        document.body.style.overflow = "hidden";
-      } else {
-        expandIcon.classList.remove("hidden");
-        collapseIcon.classList.add("hidden");
-        document.body.style.overflow = "";
-      }
-    };
+    if (zoomBtn && expandIcon && collapseIcon) {
+      // Set initial styles explicitly to prevent build/CSS reset overlaps
+      expandIcon.style.display = "block";
+      collapseIcon.style.display = "none";
 
-    zoomBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleFullscreen();
-    });
+      const toggleFullscreen = () => {
+        const isFullscreen = container.classList.toggle("fullscreen-active");
+        if (isFullscreen) {
+          expandIcon.style.display = "none";
+          collapseIcon.style.display = "block";
+          document.body.style.overflow = "hidden";
+        } else {
+          expandIcon.style.display = "block";
+          collapseIcon.style.display = "none";
+          document.body.style.overflow = "";
+        }
+      };
 
-    // Light dismiss: Close when clicking empty space on the backdrop/container itself
-    container.addEventListener("click", (e) => {
-      if (container.classList.contains("fullscreen-active") && e.target === container) {
+      zoomBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
         toggleFullscreen();
-      }
-    });
+      });
 
-    // Close on Escape key
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && container.classList.contains("fullscreen-active")) {
-        toggleFullscreen();
-      }
-    });
-  }
+      // Light dismiss: Close when clicking empty space on the backdrop/container itself
+      container.addEventListener("click", (e) => {
+        if (container.classList.contains("fullscreen-active") && e.target === container) {
+          toggleFullscreen();
+        }
+      });
 
-  // IntersectionObserver to pause all SVG animations when offscreen
-  if (container && svg) {
+      // Close on Escape key (cleaning up any registered handlers to avoid memory leaks)
+      if (window["__archEscHandler"]) {
+        document.removeEventListener("keydown", window["__archEscHandler"]);
+      }
+      
+      const escHandler = (e) => {
+        if (e.key === "Escape" && container.classList.contains("fullscreen-active")) {
+          toggleFullscreen();
+        }
+      };
+      
+      window["__archEscHandler"] = escHandler;
+      document.addEventListener("keydown", escHandler);
+    }
+
+    // IntersectionObserver to pause all SVG animations when offscreen
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -737,5 +749,5 @@
     }, { threshold: 0.1 });
     
     observer.observe(container);
-  }
+  });
 </script>
