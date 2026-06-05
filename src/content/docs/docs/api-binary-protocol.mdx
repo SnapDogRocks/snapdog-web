@@ -3,7 +3,7 @@ title: Custom Binary Protocol
 description: Extension framing and payload schemas for custom SnapDog client-server interactions.
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 SnapDog client boards (`snapdog-client` and SnapDog OS) communicate with the server daemon over an extended binary protocol built on top of Snapcast. Standard Snapcast clients ignore these proprietary message headers, while SnapDog players parse and act upon them.
 
@@ -30,6 +30,10 @@ SnapDog extends the protocol using message type IDs `10` through `15`:
 
 ### Type 10 & 11: Equalizer Coefficients (`EqConfig`)
 Used to configure the hardware DSP filters. Both the user EQ (`Type 10`) and speaker correction profiles (`Type 11`) share this JSON schema.
+
+<Aside type="note">
+  These coefficients can be updated dynamically via the REST API. See the [REST Client EQ Reference](/docs/api-rest#7-client-side-dsp-speaker-correction) for details.
+</Aside>
 
 * **Payload Format:** JSON
 * **Maximum EQ Bands:** 10
@@ -209,3 +213,18 @@ Pushed to clients to render album art thumbnails on color player screens.
 
 * **Payload Format:** Binary
 * **Payload Content:** Raw image binary buffer (JPEG or PNG bytes) with no headers or wrapper frames. Clients can immediately decode and draw the buffer to video buffers.
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="REST API Reference"
+    description="Control client-side EQ, volume margins, and speaker correction profiles dynamically."
+    href="/docs/api-rest"
+  />
+  <LinkCard
+    title="WebSocket API"
+    description="Listen to real-time client connected and disconnected event signals."
+    href="/docs/api-websocket"
+  />
+</CardGrid>

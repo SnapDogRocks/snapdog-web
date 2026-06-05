@@ -3,7 +3,7 @@ title: SnapDog OS
 description: Dedicated minimal operating system for SnapDog audio receivers.
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 **SnapDog OS** is a custom, minimal Buildroot-based Linux distribution that turns a Raspberry Pi with an I2S soundcard (DAC) into a dedicated, appliance-like audio receiver. It boots in seconds, connects to your network automatically, and requires zero command-line configuration.
 
@@ -42,7 +42,11 @@ SnapDog OS is compiled as a 64-bit (`aarch64`) image running a minimal Linux 6.6
    * **Password:** `snapdog123`
 3. Connect to the setup Wi-Fi using your phone or laptop.
 4. Your device will automatically open a **Captive Portal** configuration wizard.
-5. Enter your home Wi-Fi details, select your SnapDog server (auto-discovered via mDNS), and select your I2S DAC model. Click **Save**—the Pi will reboot and join your home network.
+   5. Enter your home Wi-Fi details, select your SnapDog server (auto-discovered via mDNS), and select your I2S DAC model. Click **Save**—the Pi will reboot and join your home network.
+
+<Aside type="note">
+  For manual client targeting, setting audio latency offsets, or forcing ALSA soundcard modes using the command-line utility directly, consult the [CLI Reference](/docs/cli#2-snapdog-client-snapdog-client).
+</Aside>
 
 ---
 
@@ -80,3 +84,18 @@ System updates use standard `.raucb` signed bundles:
 ### Security Hardening
 * **No Default Access:** SSH is disabled by default. When enabled, it is restricted to public-key authentication only (keys uploaded via Web UI).
 * **Root Password:** Challege-gated root password setups, easily managed through `snapdog-ctrl`.
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="CLI Reference"
+    description="Check command-line switches, volume mixer flags, and soundcard overrides for speaker boards."
+    href="/docs/cli#2-snapdog-client-snapdog-client"
+  />
+  <LinkCard
+    title="Installation Guide"
+    description="Deploy the core SnapDog server daemon to distribute audio streams to your Pi receivers."
+    href="/docs/installation"
+  />
+</CardGrid>

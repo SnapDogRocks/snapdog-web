@@ -3,7 +3,7 @@ title: Installation Guide
 description: Learn how to install the SnapDog server via docker, package managers, or compile from source.
 ---
 
-import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+import { Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 **SnapDog** is distributed as a lightweight, single statically-linked binary. It can be deployed on Linux (x86_64, aarch64, armv7) and macOS. Choose the installation method that fits your environment below.
 
@@ -139,6 +139,10 @@ If you prefer to install the pre-compiled binaries manually:
 
 If you want to compile SnapDog with custom target optimizations, you can build it from source using Cargo.
 
+<Aside type="note">
+  Building from source allows choosing specific Snapcast server backends. See the compilation feature flags described in the [Server Mode Selection section](#6-server-mode-selection) below.
+</Aside>
+
 ### Build Dependencies
 Ensure your development machine has the required system libraries installed:
 * **Debian/Ubuntu:** `sudo apt install build-essential pkg-config clang libasound2-dev libavahi-compat-libdnssd-dev`
@@ -217,3 +221,18 @@ SnapDog supports two primary Snapcast compilation backends. You can select the b
 
 * **`snapcast-embedded` (Default & Recommended):** Integrates the Snapcast server directly into the Rust daemon binary (leveraging our native Rust port of the original C++ Snapcast codebase via the `snapcast-*` crates). This mode is strongly recommended because it manages group synchronization inline, supports proprietary float PCM channels for parametric EQ corrections, and doesn't require maintaining an external binary.
 * **`snapcast-process`:** Spawns and manages a standalone C++ `snapserver` process in the background. Choose this only if you must rely on advanced C++ features or legacy external pipe encoders.
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="Configuration Guide"
+    description="Customize zone topologies, client speaker volumes, and home automation triggers."
+    href="/docs/configuration"
+  />
+  <LinkCard
+    title="SnapDog OS Guide"
+    description="Provision dedicated audio receiver hardware using our minimal Buildroot OS image."
+    href="/docs/snapdog-os"
+  />
+</CardGrid>

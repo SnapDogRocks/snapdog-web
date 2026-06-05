@@ -3,15 +3,19 @@ title: CLI Reference
 description: Detailed command-line interface arguments, switches, and usage examples for both the SnapDog server and snapdog-client.
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 This guide documents the command-line interfaces for both the **SnapDog Server (`snapdog`)** and the **SnapDog Client (`snapdog-client`)**.
 
 ---
 
-## 1. SnapDog Server (`snapdog`)
+## 1. SnapDog Server
 
 The `snapdog` server runs as a daemon that manages audio streams, routes signals to zones, and acts as the central coordinator.
+
+<Aside type="note">
+  For running the server as a background service supervised by systemd or launchd, see the [Installation Guide](/docs/installation#5-post-installation-service-scripts).
+</Aside>
 
 ### Required Execution Modes
 
@@ -77,7 +81,7 @@ If neither `--config` nor `--knx-device` is specified, the server prints the hel
 
 ---
 
-## 2. SnapDog Client (`snapdog-client`)
+## 2. SnapDog Client
 
 The `snapdog-client` player runs on speaker endpoints, connecting back to a SnapDog server to pull and play synchronized PCM audio.
 
@@ -156,3 +160,18 @@ The `URL` has the format `<scheme>://<host>[:port]`, where scheme can be `tcp`, 
     ```
   </TabItem>
 </Tabs>
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="Installation Guide"
+    description="Deploy background services, run docker-compose setups, or build the daemon from source."
+    href="/docs/installation"
+  />
+  <LinkCard
+    title="Configuration Guide"
+    description="Customize zone names, specify speaker hardware metrics, and map smart home triggers."
+    href="/docs/configuration"
+  />
+</CardGrid>

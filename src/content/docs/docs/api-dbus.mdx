@@ -3,7 +3,7 @@ title: D-Bus API (MPRIS2)
 description: Controlling SnapDog audio zones and client speaker players via standard Linux MPRIS2 media interfaces.
 ---
 
-import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Aside, Tabs, TabItem, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 On Linux deployments, both the **SnapDog Server** and **SnapDog Client** register standard **MPRIS2** (Media Player Remote Interoperability Specification) interfaces on the D-Bus bus. This allows media keys, system tray controllers, lock screens, and home automation tools to query and control playback natively.
 
@@ -96,6 +96,10 @@ The `snapdog-client` player registers an MPRIS2 interface on speaker endpoints, 
   - *Multi-Instance:* If running multiple player instances on the same host, subsequent instances bind to `org.mpris.MediaPlayer2.snapdog_client.instance{N}` (e.g., `instance2`).
 * **Object Path:** `/org/mpris/MediaPlayer2`
 * **Bus Type:** Hybrid Bus. The client binds to the **Session Bus** if `DBUS_SESSION_BUS_ADDRESS` is defined. If absent (e.g., on a headless Raspberry Pi boot environment), it **automatically falls back to the System Bus**.
+
+<Aside type="note">
+  For running the client as a daemonized background service under systemd, see the [Installation Guide](/docs/installation#5-post-installation-service-scripts).
+</Aside>
 
 ### Implemented Methods (`org.mpris.MediaPlayer2.Player`)
 
@@ -204,3 +208,18 @@ Under headless Linux servers running SnapDog as a background `systemd` daemon, s
        ```
   </TabItem>
 </Tabs>
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="CLI Reference"
+    description="Check command-line startup parameters, ALSA soundcard lists, and mixer modes."
+    href="/docs/cli"
+  />
+  <LinkCard
+    title="REST API Reference"
+    description="Invoke playback commands, adjust volumes, and query detailed zone state attributes."
+    href="/docs/api-rest"
+  />
+</CardGrid>

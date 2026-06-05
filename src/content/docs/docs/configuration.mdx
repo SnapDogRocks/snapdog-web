@@ -3,7 +3,7 @@ title: Configuration Guide
 description: In-depth reference for every option inside the snapdog.toml configuration file.
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 SnapDog is configured using a single `snapdog.toml` file. The server parses this file at startup (defaults to `/etc/snapdog/snapdog.toml`, or specified via the `--config` CLI argument).
 
@@ -64,6 +64,10 @@ Configures the REST API, WebSocket notifications, and static WebUI hosting.
   If configured, activates bearer token authentication. All requests to `/api/v1/*` and the `/ws` socket require the `Authorization: Bearer <key>` header.
 * **`api_docs`** (Boolean, default: `true`)
   Exposes the embedded **Scalar API Reference** UI dynamically at `http://<host>:<port>/docs`. Only applicable if the binary was compiled with the `api-docs` feature flag.
+
+<Aside type="note">
+  For detail specifications of the Scalar interactive console and multi-language code generators, see the [REST API Reference](/docs/api-rest#2-interactive-scalar-console).
+</Aside>
 
 ### `[snapcast]`
 Manages the embedded Snapcast synchronizer backend.
@@ -202,3 +206,18 @@ Defines global internet radio streams.
   Streaming source stream URL (supports direct links, M3U/PLS, and HLS).
 * **`cover`** (String, optional)
   URL to a cover art image to display when this station is playing.
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="CLI Reference"
+    description="Check server startup options, port overrides, and local soundcard driver setups."
+    href="/docs/cli"
+  />
+  <LinkCard
+    title="REST API Reference"
+    description="Query system endpoints, trigger playback, adjust mixers, and configure DSP equalizer nodes."
+    href="/docs/api-rest"
+  />
+</CardGrid>

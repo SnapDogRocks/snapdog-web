@@ -3,6 +3,8 @@ title: WebSocket API
 description: Real-time event notifications and state synchronization over WebSockets.
 ---
 
+import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
+
 SnapDog publishes real-time state changes to connected clients over a WebSocket interface. This allows user interfaces to sync instantly without polling HTTP endpoints.
 
 ---
@@ -23,6 +25,10 @@ ws://<device-ip>:5555/ws?token=<your-configured-api-key>
 ```
 
 Connections with invalid or missing tokens are immediately rejected with a `401 Unauthorized` HTTP handshake response.
+
+<Aside type="note">
+  Token verification uses the same security key array defined in your HTTP settings. See the [Configuration Guide](/docs/configuration#http) for details.
+</Aside>
 
 ### Connection Lifecycle
 * **Heartbeat:** The server does not require custom client ping frames, but standard WebSocket pings are responded to automatically.
@@ -84,3 +90,18 @@ Fired when a speaker client drops connection.
   "mac": "02:42:ac:11:00:10"
 }
 ```
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="REST API"
+    description="Invoke playback commands, adjust volumes, and browse Subsonic/Radio media tracks."
+    href="/docs/api-rest"
+  />
+  <LinkCard
+    title="Binary Protocol"
+    description="Review how DSP equalizer coefficients and cover art images are streamed to client hardware."
+    href="/docs/api-binary-protocol"
+  />
+</CardGrid>

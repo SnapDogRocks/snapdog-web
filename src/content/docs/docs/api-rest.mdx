@@ -3,7 +3,7 @@ title: REST API Reference
 description: Complete reference for SnapDog HTTP control endpoints, parameter structures, and security.
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
 The SnapDog REST API is hosted on port `5555` by default (configurable via `[http].port` in `snapdog.toml`). All requests and responses utilize the `application/json` Content-Type.
 
@@ -17,6 +17,10 @@ If token security is activated in `snapdog.toml` (via `[http].api_keys`), all cl
 Authorization: Bearer <your-configured-api-key>
 Accept: application/json
 ```
+
+<Aside type="note">
+  Token authentication requires configuring the `api_keys` array under the `[http]` section of your configuration. See the [Configuration Guide](/docs/configuration#http) for details.
+</Aside>
 
 ### Authentication Errors
 Requests with missing, malformed, or invalid tokens return a `401 Unauthorized` status:
@@ -181,6 +185,10 @@ Skip tracks inside the current active playlist.
 ### Retrieve Full Track Metadata
 Returns all tags of the currently playing stream.
 
+<Aside type="tip">
+  To receive real-time playback state updates without polling, establish a connection to the [WebSocket API](/docs/api-websocket#zone_changed).
+</Aside>
+
 * **Method:** `GET`
 * **Endpoint:** `/api/v1/zones/{zone_index}/track/metadata`
 * **Response `200 OK`:**
@@ -291,6 +299,19 @@ Configures auto-off triggers when motion sensors report room occupancy states.
   * `/api/v1/zones/{zone_index}/presence/timeout` — Duration in seconds of no motion before turning off the zone (JSON u16).
   * `/api/v1/zones/{zone_index}/presence/timer` — Returns active countdown status (JSON bool).
 
+### Zone Property Shortcuts
+Helper endpoints to fetch specific zone configuration properties individually.
+
+* **Method:** `GET`
+* **Endpoints:**
+  * `/api/v1/zones/{zone_index}/name` — Returns the zone display name as a JSON String.
+  * `/api/v1/zones/{zone_index}/icon` — Returns the zone icon tag as a JSON String.
+  * `/api/v1/zones/{zone_index}/playback` — Returns the active playback status (`"playing"`, `"paused"`, or `"stopped"`) as a JSON String.
+  * `/api/v1/zones/{zone_index}/playlist/name` — Returns the active playlist name as a JSON String.
+  * `/api/v1/zones/{zone_index}/playlist/info` — Returns the playlist details object (id, name, track count).
+  * `/api/v1/zones/{zone_index}/playlist/count` — Returns the number of tracks in the active playlist.
+  * `/api/v1/zones/{zone_index}/clients` — Returns an array of client speaker indices currently assigned to this zone.
+
 ---
 
 ## 5. DSP & Zone Equalizer
@@ -389,6 +410,30 @@ Assigns a client speaker to a different audio zone.
 If the target client is a native **SnapDog Client**, the server will trigger a custom fade-out command to the client hardware prior to migrating it. The server blocks and sleeps for the fade duration (configured in `[audio].zone_switch_fade_ms`) to ensure a smooth transition with no audio cracks, then transfers the client to the new zone stream.
 </Aside>
 
+### Client Properties and Status
+Additional helper endpoints to fetch or update properties and state for a specific speaker client.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/clients/count`
+* **Response `200 OK`:** Returns the total number of configured clients as a JSON integer.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/clients/{client_index}`
+* **Response `200 OK`:** Returns the full `ClientInfo` object for the specified index.
+
+* **Method:** `GET` | `PUT`
+* **Endpoint:** `/api/v1/clients/{client_index}/name`
+* **Request Body (PUT):** JSON string with the new friendly name.
+* **Response `200 OK`:** Returns the updated client name.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/clients/{client_index}/icon`
+* **Response `200 OK`:** Returns the client's visual icon tag as a JSON string.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/clients/{client_index}/connected`
+* **Response `200 OK`:** Returns a JSON boolean indicating if the client is currently online and streaming.
+
 ---
 
 ## 7. Client-Side DSP & Speaker Correction
@@ -475,3 +520,105 @@ Activates or deactivates the physical button programming state (equivalent to pr
     "message": "KNX device mode not active"
   }
   ```
+
+---
+
+## 10. Media & Subsonic Playlists
+
+SnapDog integrates with internet radio streams and Subsonic-compatible servers (e.g. Navidrome, Gonic). These endpoints allow retrieving and browsing playlists, tracks, and associated cover art.
+
+### List Unified Playlists
+Returns a list of all playlists available, combining the local Radio streams list (index `0`) and all Subsonic server playlists (indices `1` and higher).
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/media/playlists`
+* **Response `200 OK`:**
+  ```json
+  [
+    {
+      "id": 0,
+      "name": "Radio",
+      "song_count": 12,
+      "duration": 0,
+      "cover_art": "/assets/radio-cover.png"
+    },
+    {
+      "id": 1,
+      "name": "My Acoustic Playlist",
+      "song_count": 5,
+      "duration": 1200,
+      "cover_art": "/api/v1/media/playlists/1/cover"
+    }
+  ]
+  ```
+
+### Get Playlist Details
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/media/playlists/{playlist_index}`
+* **Response `200 OK`:**
+  ```json
+  {
+    "id": 1,
+    "name": "My Acoustic Playlist",
+    "tracks": 5
+  }
+  ```
+
+### Get Playlist Cover Art
+Returns the cover image binary (PNG/JPEG/GIF) for the specified playlist.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/media/playlists/{playlist_index}/cover`
+* **Response `200 OK`:** Raw image bytes (`Content-Type: image/*`).
+
+### List Tracks in Playlist
+Returns the list of tracks belonging to the specified unified playlist index.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/media/playlists/{playlist_index}/tracks`
+* **Response `200 OK`:**
+  ```json
+  [
+    {
+      "id": "subsonic_track_101",
+      "title": "Acoustic Song",
+      "artist": "The Band",
+      "album": "Unplugged",
+      "duration": 240,
+      "track": 1,
+      "cover_art": "/api/v1/media/playlists/1/tracks/0/cover"
+    }
+  ]
+  ```
+
+### Get Track Details
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/media/playlists/{playlist_index}/tracks/{track_index}`
+* **Response `200 OK`:** *(Returns the track object depicted in the list above)*
+
+### Get Track Cover Art
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/media/playlists/{playlist_index}/tracks/{track_index}/cover`
+* **Response `200 OK`:** Raw image bytes (`Content-Type: image/*`).
+
+---
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard
+    title="WebSocket API"
+    description="Subscribe to real-time playback state changes and speaker connection events."
+    href="/docs/api-websocket"
+  />
+  <LinkCard
+    title="Configuration Guide"
+    description="Configure zones, speaker MAC addresses, and smart home integrations in snapdog.toml."
+    href="/docs/configuration"
+  />
+  <LinkCard
+    title="CLI Reference"
+    description="Check command-line switches, manual overrides, and systemd service scripts."
+    href="/docs/cli"
+  />
+</CardGrid>
