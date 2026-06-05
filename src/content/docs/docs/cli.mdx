@@ -1,17 +1,21 @@
 ---
 title: CLI Reference
-description: Detailed command-line interface arguments, switches, and usage examples for the SnapDog server.
+description: Detailed command-line interface arguments, switches, and usage examples for both the SnapDog server and snapdog-client.
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
-The **SnapDog** server runs as a background daemon process. While its primary settings are defined in a `snapdog.toml` configuration file, the binary supports various command-line arguments to override configurations dynamically at startup.
+This guide documents the command-line interfaces for both the **SnapDog Server (`snapdog`)** and the **SnapDog Client (`snapdog-client`)**.
 
 ---
 
-## 1. Required Execution Modes
+## 1. SnapDog Server (`snapdog`)
 
-At startup, the `snapdog` binary requires you to declare its primary configuration mode. You **must** specify either `--config` or `--knx-device` to run the server.
+The `snapdog` server runs as a daemon that manages audio streams, routes signals to zones, and acts as the central coordinator.
+
+### Required Execution Modes
+
+At startup, the server requires you to declare its primary configuration mode. You **must** specify either `--config` or `--knx-device`.
 
 * **Configuration File Mode:** Standard operation using a TOML file.
   ```bash
@@ -23,57 +27,83 @@ At startup, the `snapdog` binary requires you to declare its primary configurati
   ```
 
 <Aside type="danger">
-If neither `--config` nor `--knx-device` is specified, the application will print the help guide to `stdout` and exit immediately with status code `1`.
+If neither `--config` nor `--knx-device` is specified, the server prints the help guide and exits immediately with status code `1`.
 </Aside>
 
----
-
-## 2. Command-Line Arguments Reference
-
-The following switches can be passed to the `snapdog` server binary:
-
-### Configuration & Mode Switches
+### Server Arguments Reference
 
 | Option | Shorthand | Type | Description |
 | :--- | :--- | :--- | :--- |
 | `--config <PATH>` | `-c` | String (Path) | Path to the TOML configuration file. |
 | `--knx-device` | — | Flag | Enables KNX Device mode, causing the server to register as an ETS-programmable device. |
-| `--knx-address <ADDR>` | — | String | The KNX physical/individual address (e.g. `1.1.100`) to advertise in ETS. Defaults to `15.15.255`. *(Requires `--knx-device`)* |
-| `--knx-prog-mode` | — | Flag | Starts the server with KNX programming mode active immediately, turning on the programming LED. *(Requires `--knx-device`)* |
-
-### Network & HTTP Overrides
-
-| Option | Shorthand | Type | Description |
-| :--- | :--- | :--- | :--- |
+| `--knx-address <ADDR>` | — | String | The KNX physical address (e.g. `1.1.100`) to advertise in ETS. Defaults to `15.15.255`. *(Requires `--knx-device`)* |
+| `--knx-prog-mode` | — | Flag | Starts the server with KNX programming mode active immediately. *(Requires `--knx-device`)* |
 | `--port <PORT>` | `-p` | Integer | Overrides the HTTP API / WebUI listening port (TOML: `[http].port`). |
 | `--bind <IP>` | `-b` | String | Overrides the network address to bind to (e.g. `0.0.0.0` or `::`). |
 | `--tls-cert <PATH>` | — | String (Path) | Path to a PEM certificate chain to enable HTTPS/TLS. |
 | `--tls-key <PATH>` | — | String (Path) | Path to an unencrypted PEM private key for HTTPS/TLS. |
-
-### Audio & Resampling Overrides
-
-| Option | Shorthand | Type | Description |
-| :--- | :--- | :--- | :--- |
 | `--codec <CODEC>` | — | String | Resampling compression codec. Options: `pcm`, `flac`, `f32lz4`, `f32lz4e`. |
 | `--sample-rate <HZ>` | — | Integer | Output sample resampling frequency (e.g., `44100`, `48000`, `96000`). |
 | `--bit-depth <BITS>` | — | Integer | Output audio PCM bit depth. Options: `16`, `24`, `32`. |
 | `--streaming-port <PORT>` | — | Integer | Port for client speaker connections (TOML: `[snapcast].streaming_port`). |
-
-### Diagnostics & System
-
-| Option | Shorthand | Type | Description |
-| :--- | :--- | :--- | :--- |
 | `--name <NAME>` | — | String | Overrides the server name advertised to `mDNS` / Spotify / MQTT. |
 | `--log-level <LEVEL>` | `-l` | String | Log level verbosity. Options: `trace`, `debug`, `info`, `warn`, `error`. |
 | `--service` | — | Flag | Runs the binary as a native NT Service. *(Windows builds only)* |
-| `--help` | `-h` | Flag | Prints help and usage details. |
-| `--version` | `-V` | Flag | Prints version information. |
 
 ---
 
-## 3. Practical Usage Examples
+## 2. SnapDog Client (`snapdog-client`)
 
-Here are common launch configurations for the SnapDog daemon:
+The `snapdog-client` player runs on speaker endpoints, connecting back to a SnapDog server to pull and play synchronized PCM audio.
+
+### Server Connection URL
+
+The client takes an optional positional argument specifying the server connection string:
+```bash
+snapdog-client [URL]
+```
+The `URL` has the format `<scheme>://<host>[:port]`, where scheme can be `tcp`, `ws` (WebSockets), or `wss` (Secure WebSockets).
+* **mDNS Discovery (Default):** If the URL argument is omitted, the client searches for a local server automatically using `tcp://_snapdog._tcp`.
+* **Direct TCP Socket:** Connects directly to the stream socket (e.g. `tcp://192.168.1.50:1704`).
+* **WebSocket Stream:** Connects over HTTP WebSockets (e.g. `ws://192.168.1.50:1780` or secure `wss://myname.cc`).
+
+### Client Arguments Reference
+
+| Option | Shorthand | Type | Description |
+| :--- | :--- | :--- | :--- |
+| `[URL]` | — | Positional | Connection URL. Defaults to `tcp://_snapdog._tcp` (mDNS). |
+| `--instance <ID>` | `-i` | Integer | Instance ID when running multiple client players on the same host (default: `1`). |
+| `--hostID <ID>` | — | String | Unique host identifier. Defaults to the network card's MAC address. |
+| `--soundcard <NAME>` | `-s` | String | PCM audio output device name or index. Defaults to `default`. |
+| `--list` | `-l` | Flag | Lists all available local PCM soundcard output devices and exits. |
+| `--test-tone` | — | Flag | Plays a brief audio test tone and exits to verify soundcard output. |
+| `--latency <MS>` | — | Integer | Manual latency offset in milliseconds to align with laggy hardware (default: `0`). |
+| `--sampleformat <FMT>` | — | String | Force resampler parameters in format `<rate>:<bits>:<channels>` (e.g., `48000:16:*`). |
+| `--player <BACKEND>` | — | String | Audio player backend and optional arguments in format `<name>[:<params>\|?]` (e.g. `alsa`). |
+| `--mixer <MODE>` | — | String | Volume mixer mode. Options: `software` (default), `hardware:<ctrl>`, `midi:<params>`, or `none`. |
+| `--cert <PATH>` | — | String (Path) | Client certificate file (PEM format) for secure connections. |
+| `--cert-key <PATH>` | — | String (Path) | Client private key file (PEM format) for secure connections. |
+| `--key-password <PW>` | — | String | Password for encrypted private keys. |
+| `--server-cert <PATH>`| — | String (Path) | CA certificate file to verify the server certificate. |
+| `--encryption-psk <KEY>`| — | String | Pre-shared key for stream decryption when using `f32lz4e`. |
+| `--daemon [PRIORITY]` | `-d` | Integer | Run in the background (daemonized) with optional process priority `[-20..19]`. *(Unix only)* |
+| `--user <USER[:GROUP]>`| — | String | System user and group to run as when daemonized. *(Unix only)* |
+| `--logsink <SINK>` | — | String | Log sink output target: `null`, `system`, `stdout`, `stderr`, or `file:<path>`. |
+| `--logfilter <FILTER>`| — | String | Log tag levels filter (default: `*:info`, e.g. `*:debug`). |
+
+<Aside type="tip">
+**Mixer Modes:**
+* `software` (Default): Digital volume scaling of the incoming PCM buffer.
+* `hardware:<control>`: Calls ALSA's mixer interface to set physical soundcard gain (e.g. `--mixer hardware:Master` or `--mixer hardware:Speaker`).
+* `midi:<interface>:<ch>`: Maps incoming volume levels to a MIDI CC control message (typically CC7).
+* `none`: Disables volume adjustments on the client.
+</Aside>
+
+---
+
+## 3. Configuration & Boot Examples
+
+### Server Examples
 
 <Tabs>
   <TabItem label="Standard Daemon Mode">
@@ -96,11 +126,37 @@ Here are common launch configurations for the SnapDog daemon:
     snapdog --knx-device --knx-address 1.1.25 --knx-prog-mode
     ```
   </TabItem>
+</Tabs>
 
-  <TabItem label="Audiophile Override">
-    Temporarily launch with high-fidelity studio resampling and FLAC stream compression parameters, bypassing TOML settings:
+### Client Examples
+
+<Tabs>
+  <TabItem label="Standard Auto-Discovery">
+    Start playing. Searches network for a SnapDog server automatically:
     ```bash
-    snapdog --config snapdog.toml --sample-rate 96000 --bit-depth 24 --codec flac
+    snapdog-client
+    ```
+  </TabItem>
+
+  <TabItem label="Hardware Mixer Control">
+    Directly target a server IP and utilize ALSA physical card mixers to control volume:
+    ```bash
+    snapdog-client --soundcard "hw:CARD=DAC,DEV=0" --mixer "hardware:Digital" tcp://192.168.1.100:1704
+    ```
+  </TabItem>
+
+  <TabItem label="Diagnostics Check">
+    List all local audio output interfaces, run a test sound, and exit:
+    ```bash
+    snapdog-client --list
+    snapdog-client --soundcard "hw:1" --test-tone
+    ```
+  </TabItem>
+
+  <TabItem label="Secure WebSockets & PSK">
+    Connect to a secure cloud server instance, verifying certificates and decrypting the audio stream with a pre-shared key:
+    ```bash
+    snapdog-client --server-cert /etc/ssl/certs/ca.pem --encryption-psk "my_secret_key" wss://music.example.com
     ```
   </TabItem>
 </Tabs>
