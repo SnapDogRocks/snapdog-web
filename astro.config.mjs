@@ -21,12 +21,7 @@ export default defineConfig({
         github: 'https://github.com/SnapDogRocks/snapdog',
       },
       sidebar: [
-        {
-          label: 'Quick Start',
-          items: [
-            { label: 'Introduction', link: '/docs/introduction' },
-          ],
-        },
+        { label: 'Introduction', link: '/docs/introduction' },
         {
           label: 'Installation',
           items: [
@@ -51,12 +46,7 @@ export default defineConfig({
             { label: 'Binary Protocol', link: '/docs/api-binary-protocol' },
           ],
         },
-        {
-          label: 'About',
-          items: [
-            { label: 'Licensing', link: '/docs/license' },
-          ],
-        },
+        { label: 'Licensing', link: '/docs/license' },
       ],
       customCss: [
         './src/styles/globals.css',
