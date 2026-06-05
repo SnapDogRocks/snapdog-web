@@ -215,7 +215,8 @@ try {
       if (select && btn) {
         select.addEventListener('change', (e) => {
           const model = e.target.value;
-          btn.href = `https://updates.snapdog.cc/os/images/snapdog-os-${model}-beta.img.gz`;
+          const downloadModel = model === 'zero2w' ? 'pi3' : model;
+          btn.href = `https://updates.snapdog.cc/os/images/snapdog-os-${downloadModel}-beta.img.gz`;
           const displayName = model === 'zero2w' ? 'Zero 2 W' : model.replace('pi', '');
           btn.setAttribute('aria-label', `Download SnapDog OS image for Raspberry Pi ${displayName}`);
         });
