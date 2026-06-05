@@ -1,0 +1,645 @@
+---
+// ArchitectureDiagram.astro
+// Premium, interactive SVG systems architecture diagram for SnapDog docs
+---
+
+<div class="architecture-diagram-container my-8 w-full glass-card rounded-2xl border border-neutral-200/10 dark:border-white/10 p-4 sm:p-6 md:p-8 relative overflow-hidden flex flex-col items-center">
+  <div class="absolute inset-0 bg-radial from-amber-500/[0.02] via-transparent to-transparent pointer-events-none"></div>
+
+  <!-- SVG Board -->
+  <div class="w-full max-w-3xl aspect-[8/6] relative">
+    <svg
+      id="system-arch-svg"
+      viewBox="0 0 800 600"
+      class="w-full h-full overflow-visible select-none"
+    >
+      <defs>
+        <!-- Amber flow gradient -->
+        <linearGradient id="flow-amber" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.2"></stop>
+          <stop offset="50%" stop-color="#fbbf24" stop-opacity="1"></stop>
+          <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.2"></stop>
+        </linearGradient>
+        
+        <!-- Audio stream thick output gradient -->
+        <linearGradient id="flow-audio" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.8"></stop>
+          <stop offset="100%" stop-color="#d97706" stop-opacity="0.2"></stop>
+        </linearGradient>
+
+        <!-- Drop shadow glows -->
+        <filter id="glow-amber-filter" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="4" result="blur"></feGaussianBlur>
+          <feComposite in="SourceGraphic" in2="blur" operator="over"></feComposite>
+        </filter>
+      </defs>
+
+      <!-- Background Grid Guides (Subtle) -->
+      <g stroke="currentColor" class="text-neutral-200/5 dark:text-white/5" stroke-width="1">
+        <line x1="0" y1="100" x2="800" y2="100"></line>
+        <line x1="0" y1="200" x2="800" y2="200"></line>
+        <line x1="0" y1="300" x2="800" y2="300"></line>
+        <line x1="0" y1="400" x2="800" y2="400"></line>
+        <line x1="0" y1="500" x2="800" y2="500"></line>
+        <line x1="200" y1="0" x2="200" y2="600"></line>
+        <line x1="400" y1="0" x2="400" y2="600"></line>
+        <line x1="600" y1="0" x2="600" y2="600"></line>
+      </g>
+
+      <!-- ==================== LAYER 1: INPUT SOURCES (LEFT) ==================== -->
+      <!-- Group Title -->
+      <text x="30" y="40" fill="currentColor" class="text-neutral-500 font-mono text-[10px] tracking-wider uppercase font-semibold">Input Feeds</text>
+      
+      <!-- Source 1: AirPlay 2 -->
+      <g id="src-airplay" class="src-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect AirPlay 2 input source">
+        <rect x="25" y="60" width="140" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="50" cy="83" r="12" fill="#171717" stroke="#fbbf24" stroke-width="1.5" class="status-led"></circle>
+        <!-- AirPlay Icon -->
+        <g transform="translate(50, 83) scale(0.8)" class="text-amber-400">
+          <rect x="-8" y="-9" width="16" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"></rect>
+          <polygon points="-4,6 4,6 0,2" fill="currentColor"></polygon>
+        </g>
+        <text x="72" y="81" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">AirPlay 2</text>
+        <text x="72" y="93" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Local Apple Feed</text>
+      </g>
+
+      <!-- Source 2: Spotify Connect -->
+      <g id="src-spotify" class="src-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect Spotify Connect input source">
+        <rect x="25" y="126" width="140" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="50" cy="149" r="12" fill="#171717" stroke="#22c55e" stroke-width="1.5" class="status-led"></circle>
+        <!-- Spotify Icon -->
+        <g transform="translate(50, 149) scale(0.8)" class="text-green-500">
+          <circle cx="0" cy="0" r="7" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+          <path d="M -3.5,-1.5 Q 0,-3 3.5,-1.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+          <path d="M -2.5,1 Q 0,-0.5 2.5,1" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"></path>
+        </g>
+        <text x="72" y="147" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">Spotify Connect</text>
+        <text x="72" y="159" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">via librespot</text>
+      </g>
+
+      <!-- Source 3: Subsonic / Navidrome -->
+      <g id="src-subsonic" class="src-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect Subsonic media server source">
+        <rect x="25" y="192" width="140" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="50" cy="215" r="12" fill="#171717" stroke="#a855f7" stroke-width="1.5" class="status-led"></circle>
+        <!-- Cloud / Server Icon -->
+        <g transform="translate(50, 215) scale(0.8)" class="text-purple-400">
+          <path d="M-6,3 A3.5,3.5 0 0,1 -4,-3.5 A4.5,4.5 0 0,1 4,-2 A3.5,3.5 0 0,1 6,3 Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"></path>
+        </g>
+        <text x="72" y="213" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">Subsonic Server</text>
+        <text x="72" y="225" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Navidrome Library</text>
+      </g>
+
+      <!-- Source 4: Internet Radio -->
+      <g id="src-radio" class="src-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect Internet Radio source">
+        <rect x="25" y="258" width="140" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="50" cy="281" r="12" fill="#171717" stroke="#0ea5e9" stroke-width="1.5" class="status-led"></circle>
+        <!-- Signal / Radio Tower Icon -->
+        <g transform="translate(50, 281) scale(0.8)" class="text-sky-400">
+          <circle cx="0" cy="2" r="2" fill="currentColor"></circle>
+          <path d="M -3,-1 A 4,4 0 0,1 3,-1" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"></path>
+          <path d="M -5,-4 A 7,7 0 0,1 5,-4" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"></path>
+        </g>
+        <text x="72" y="279" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">Internet Radio</text>
+        <text x="72" y="291" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Direct ICY Streams</text>
+      </g>
+
+      <!-- ==================== LAYER 2: ZONE ENGINE (TOP CENTER) ==================== -->
+      <!-- Engine Outer Container -->
+      <g id="engine-container">
+        <rect x="210" y="20" width="380" height="230" rx="12" fill="rgba(255,255,255,0.01)" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"></rect>
+        <rect x="225" y="30" width="10" height="10" rx="2" fill="#fbbf24" class="animate-pulse"></rect>
+        <text x="242" y="39" fill="currentColor" class="text-neutral-200 font-sans text-xs font-bold uppercase tracking-wider">Zone Engine (Tokio Tasks)</text>
+      </g>
+
+      <!-- ZonePlayer 1 (Living Room) -->
+      <g id="player-1" class="player-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect ZonePlayer 1">
+        <rect x="230" y="60" width="100" height="170" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/40"></rect>
+        <text x="240" y="76" fill="currentColor" class="text-neutral-200 font-sans text-[10px] font-bold">ZonePlayer 1</text>
+        <text x="240" y="87" fill="#fbbf24" class="font-mono text-[8px] uppercase tracking-wide">Living Room</text>
+
+        <!-- Pipeline Stack inside Player 1 -->
+        <!-- RCV Block -->
+        <g class="pipe-stage" id="p1-rcv">
+          <rect x="240" y="98" width="80" height="22" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="280" y="112" text-anchor="middle" fill="currentColor" class="text-neutral-400 font-mono text-[9px]">[ RECEIVER ]</text>
+        </g>
+        <!-- DEC Block -->
+        <g class="pipe-stage" id="p1-dec">
+          <rect x="240" y="128" width="80" height="22" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="280" y="142" text-anchor="middle" fill="currentColor" class="text-neutral-400 font-mono text-[9px]">[ DECODER ]</text>
+        </g>
+        <!-- DSP Block -->
+        <g class="pipe-stage" id="p1-dsp">
+          <rect x="240" y="158" width="80" height="22" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="280" y="172" text-anchor="middle" fill="currentColor" class="text-neutral-400 font-mono text-[9px]">[ DSP / EQ ]</text>
+        </g>
+        <!-- WTR Block -->
+        <g class="pipe-stage" id="p1-wtr">
+          <rect x="240" y="188" width="80" height="22" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="280" y="202" text-anchor="middle" fill="currentColor" class="text-neutral-400 font-mono text-[9px]">[ WRITER ]</text>
+        </g>
+      </g>
+
+      <!-- ZonePlayer 2 (Kitchen) -->
+      <g id="player-2" class="player-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect ZonePlayer 2">
+        <rect x="350" y="60" width="100" height="170" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/40"></rect>
+        <text x="360" y="76" fill="currentColor" class="text-neutral-200 font-sans text-[10px] font-bold">ZonePlayer 2</text>
+        <text x="360" y="87" fill="#fbbf24" class="font-mono text-[8px] uppercase tracking-wide">Kitchen</text>
+
+        <!-- Pipeline Stack inside Player 2 -->
+        <!-- RCV Block -->
+        <g class="pipe-stage" id="p2-rcv">
+          <rect x="360" y="98" width="80" height="22" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="400" y="112" text-anchor="middle" fill="currentColor" class="text-neutral-400 font-mono text-[9px]">[ RECEIVER ]</text>
+        </g>
+        <!-- DEC Block -->
+        <g class="pipe-stage" id="p2-dec">
+          <rect x="360" y="128" width="80" height="22" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="400" y="142" text-anchor="middle" fill="currentColor" class="text-neutral-400 font-mono text-[9px]">[ DECODER ]</text>
+        </g>
+        <!-- DSP Block -->
+        <g class="pipe-stage" id="p2-dsp">
+          <rect x="360" y="158" width="80" height="22" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="400" y="172" text-anchor="middle" fill="currentColor" class="text-neutral-400 font-mono text-[9px]">[ DSP / EQ ]</text>
+        </g>
+        <!-- WTR Block -->
+        <g class="pipe-stage" id="p2-wtr">
+          <rect x="360" y="188" width="80" height="22" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="400" y="202" text-anchor="middle" fill="currentColor" class="text-neutral-400 font-mono text-[9px]">[ WRITER ]</text>
+        </g>
+      </g>
+
+      <!-- ZonePlayer N (Patio) -->
+      <g id="player-3" class="player-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect ZonePlayer N">
+        <rect x="470" y="60" width="100" height="170" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1.5" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/40"></rect>
+        <text x="480" y="76" fill="currentColor" class="text-neutral-200 font-sans text-[10px] font-bold">ZonePlayer N</text>
+        <text x="480" y="87" fill="#fbbf24" class="font-mono text-[8px] uppercase tracking-wide">Patio</text>
+
+        <!-- Pipeline Stack inside Player N -->
+        <!-- RCV Block -->
+        <g class="pipe-stage" id="p3-rcv">
+          <rect x="480" y="98" width="80" height="22" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="520" y="112" text-anchor="middle" fill="currentColor" class="text-neutral-400 font-mono text-[9px]">[ RECEIVER ]</text>
+        </g>
+        <!-- DEC Block -->
+        <g class="pipe-stage" id="p3-dec">
+          <rect x="480" y="128" width="80" height="22" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="520" y="142" text-anchor="middle" fill="currentColor" class="text-neutral-400 font-mono text-[9px]">[ DECODER ]</text>
+        </g>
+        <!-- DSP Block -->
+        <g class="pipe-stage" id="p3-dsp">
+          <rect x="480" y="158" width="80" height="22" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="520" y="172" text-anchor="middle" fill="currentColor" class="text-neutral-400 font-mono text-[9px]">[ DSP / EQ ]</text>
+        </g>
+        <!-- WTR Block -->
+        <g class="pipe-stage" id="p3-wtr">
+          <rect x="480" y="188" width="80" height="22" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="520" y="202" text-anchor="middle" fill="currentColor" class="text-neutral-400 font-mono text-[9px]">[ WRITER ]</text>
+        </g>
+      </g>
+
+
+      <!-- ==================== LAYER 3: EMBEDDED SNAPCAST SERVER (MIDDLE CENTER) ==================== -->
+      <!-- Snapcast Server Outer Box -->
+      <g id="snapcast-server" class="cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect Embedded Snapcast Server">
+        <rect x="210" y="310" width="380" height="120" rx="12" fill="rgba(255,255,255,0.01)" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" class="transition-all duration-300 hover:fill-white/[0.03] hover:stroke-amber-500/30"></rect>
+        <circle cx="230" cy="330" r="5" fill="#10b981" class="animate-pulse"></circle>
+        <text x="242" y="334" fill="currentColor" class="text-neutral-200 font-sans text-xs font-bold uppercase tracking-wider">Embedded Snapcast Server</text>
+
+        <!-- Components inside Snapcast Server -->
+        <!-- Stream Buffers -->
+        <g id="srv-buffers" class="srv-comp">
+          <rect x="225" y="350" width="105" height="60" rx="6" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="277" y="375" text-anchor="middle" fill="currentColor" class="text-neutral-200 font-sans text-[10px] font-bold">Stream Buffers</text>
+          <text x="277" y="390" text-anchor="middle" fill="currentColor" class="text-neutral-500 font-mono text-[8px]">(Per-Zone Queues)</text>
+        </g>
+
+        <!-- Lossless Encoders -->
+        <g id="srv-encoders" class="srv-comp">
+          <rect x="347" y="350" width="105" height="60" rx="6" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="400" y="375" text-anchor="middle" fill="currentColor" class="text-neutral-200 font-sans text-[10px] font-bold">FLAC / F32LZ4</text>
+          <text x="400" y="390" text-anchor="middle" fill="currentColor" class="text-neutral-500 font-mono text-[8px]">Lossless Encoders</text>
+        </g>
+
+        <!-- Group Sync Coordinator -->
+        <g id="srv-sync" class="srv-comp">
+          <rect x="470" y="350" width="105" height="60" rx="6" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.05)" stroke-width="1"></rect>
+          <text x="522" y="375" text-anchor="middle" fill="currentColor" class="text-neutral-200 font-sans text-[10px] font-bold">Latency Sync</text>
+          <text x="522" y="390" text-anchor="middle" fill="currentColor" class="text-neutral-500 font-mono text-[8px]">Group Coordinator</text>
+        </g>
+      </g>
+
+
+      <!-- ==================== LAYER 4: SMART HOME & CONTROL BRIDGES (RIGHT) ==================== -->
+      <!-- Group Title -->
+      <text x="770" y="40" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[10px] tracking-wider uppercase font-semibold">Bridges & APIs</text>
+
+      <!-- Bridge 1: REST API & WebUI -->
+      <g id="bridge-rest" class="bridge-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect REST API and Web UI Bridge">
+        <rect x="635" y="60" width="140" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="750" cy="83" r="12" fill="#171717" stroke="#38bdf8" stroke-width="1.5" class="status-led"></circle>
+        <!-- Code / Web Icon -->
+        <g transform="translate(750, 83) scale(0.8)" class="text-sky-400">
+          <path d="M-6,-3 L-2,1 L-6,5 M6,-3 L2,1 L6,5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </g>
+        <text x="728" y="81" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">REST API & WebUI</text>
+        <text x="728" y="93" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Axum Engine</text>
+      </g>
+
+      <!-- Bridge 2: WebSocket API -->
+      <g id="bridge-ws" class="bridge-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect WebSocket API Sync Bridge">
+        <rect x="635" y="126" width="140" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="750" cy="149" r="12" fill="#171717" stroke="#0ea5e9" stroke-width="1.5" class="status-led"></circle>
+        <!-- Sync Icon -->
+        <g transform="translate(750, 149) scale(0.8)" class="text-sky-500">
+          <path d="M-5,-1 A5,5 0 0,1 5,-1 M5,2 A5,5 0 0,1 -5,2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+          <polygon points="5,-4 8,-1 5,2" fill="currentColor" transform="scale(0.8) translate(3, -2)"></polygon>
+        </g>
+        <text x="728" y="147" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">WebSocket API</text>
+        <text x="728" y="159" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Real-Time Sync</text>
+      </g>
+
+      <!-- Bridge 3: D-Bus (MPRIS2) -->
+      <g id="bridge-dbus" class="bridge-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect D-Bus MPRIS2 API Bridge">
+        <rect x="635" y="192" width="140" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="750" cy="215" r="12" fill="#171717" stroke="#a855f7" stroke-width="1.5" class="status-led"></circle>
+        <!-- DBus topology node icon -->
+        <g transform="translate(750, 215) scale(0.8)" class="text-purple-400">
+          <circle cx="-4" cy="-3" r="2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+          <circle cx="4" cy="-3" r="2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+          <circle cx="0" cy="4" r="2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
+          <line x1="-3" y1="-1" x2="-1" y2="2" stroke="currentColor" stroke-width="1"></line>
+          <line x1="3" y1="-1" x2="1" y2="2" stroke="currentColor" stroke-width="1"></line>
+        </g>
+        <text x="728" y="213" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">D-Bus (MPRIS2)</text>
+        <text x="728" y="225" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Linux Desktop Control</text>
+      </g>
+
+      <!-- Bridge 4: MQTT Bridge -->
+      <g id="bridge-mqtt" class="bridge-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect MQTT Smart Home Bridge">
+        <rect x="635" y="246" width="140" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="750" cy="269" r="12" fill="#171717" stroke="#fb7185" stroke-width="1.5" class="status-led"></circle>
+        <!-- Broker hub icon -->
+        <g transform="translate(750, 269) scale(0.8)" class="text-rose-400">
+          <circle cx="0" cy="0" r="3" fill="currentColor"></circle>
+          <line x1="-6" y1="-5" x2="-2" y2="-2" stroke="currentColor" stroke-width="1.2"></line>
+          <line x1="6" y1="-5" x2="2" y2="-2" stroke="currentColor" stroke-width="1.2"></line>
+          <line x1="0" y1="6" x2="0" y2="3" stroke="currentColor" stroke-width="1.2"></line>
+        </g>
+        <text x="728" y="267" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">MQTT Bridge</text>
+        <text x="728" y="279" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Home Assistant</text>
+      </g>
+
+      <!-- Bridge 5: KNX Bridge -->
+      <g id="bridge-knx" class="bridge-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect KNX Smart Building Bridge">
+        <rect x="635" y="300" width="140" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="750" cy="323" r="12" fill="#171717" stroke="#2dd4bf" stroke-width="1.5" class="status-led"></circle>
+        <!-- House outline with switch wire icon -->
+        <g transform="translate(750, 323) scale(0.8)" class="text-teal-400">
+          <path d="M-6,4 L-6,-2 L0,-7 L6,-2 L6,4 Z" fill="none" stroke="currentColor" stroke-width="1.2"></path>
+          <line x1="-3" y1="1" x2="3" y2="1" stroke="currentColor" stroke-width="1.2"></line>
+        </g>
+        <text x="728" y="321" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">KNX Bridge</text>
+        <text x="728" y="333" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Building Multicast</text>
+      </g>
+
+
+      <!-- ==================== LAYER 5: AUDIO SINKS (BOTTOM) ==================== -->
+      <!-- Group Title -->
+      <text x="220" y="475" fill="currentColor" class="text-neutral-500 font-mono text-[10px] tracking-wider uppercase font-semibold">snapclients (Headless Audio Receivers)</text>
+
+      <!-- Sink 1: Living Room -->
+      <g id="sink-room1" class="sink-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect snapclient Living Room">
+        <rect x="230" y="490" width="100" height="50" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="250" cy="515" r="10" fill="#171717" stroke="#fbbf24" stroke-width="1.5" class="status-led"></circle>
+        <!-- Speaker Icon -->
+        <g transform="translate(250, 515) scale(0.7)" class="text-amber-400">
+          <path d="M-6,-3 L-3,-3 L1,-6 L1,6 L-3,3 L-6,3 Z" fill="currentColor"></path>
+          <path d="M4,-3 C5.5,-1.5 5.5,1.5 4,3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+        </g>
+        <text x="270" y="514" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">Living Room</text>
+        <text x="270" y="526" fill="currentColor" class="text-neutral-500 font-mono text-[8px]">(snapclient 1)</text>
+      </g>
+
+      <!-- Sink 2: Kitchen -->
+      <g id="sink-room2" class="sink-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect snapclient Kitchen">
+        <rect x="350" y="490" width="100" height="50" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="370" cy="515" r="10" fill="#171717" stroke="#fbbf24" stroke-width="1.5" class="status-led"></circle>
+        <!-- Speaker Icon -->
+        <g transform="translate(370, 515) scale(0.7)" class="text-amber-400">
+          <path d="M-6,-3 L-3,-3 L1,-6 L1,6 L-3,3 L-6,3 Z" fill="currentColor"></path>
+          <path d="M4,-3 C5.5,-1.5 5.5,1.5 4,3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+        </g>
+        <text x="390" y="514" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">Kitchen</text>
+        <text x="390" y="526" fill="currentColor" class="text-neutral-500 font-mono text-[8px]">(snapclient 2)</text>
+      </g>
+
+      <!-- Sink 3: Patio -->
+      <g id="sink-room3" class="sink-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect snapclient Patio">
+        <rect x="470" y="490" width="100" height="50" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="490" cy="515" r="10" fill="#171717" stroke="#fbbf24" stroke-width="1.5" class="status-led"></circle>
+        <!-- Speaker Icon -->
+        <g transform="translate(490, 515) scale(0.7)" class="text-amber-400">
+          <path d="M-6,-3 L-3,-3 L1,-6 L1,6 L-3,3 L-6,3 Z" fill="currentColor"></path>
+          <path d="M4,-3 C5.5,-1.5 5.5,1.5 4,3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
+        </g>
+        <text x="510" y="514" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">Patio Zone</text>
+        <text x="510" y="526" fill="currentColor" class="text-neutral-500 font-mono text-[8px]">(snapclient N)</text>
+      </g>
+
+
+      <!-- ==================== FLOW PATHS (DASH ARRAY PIPES) ==================== -->
+      <!-- Input -> Player paths -->
+      <path id="flow-airplay-p1" d="M 165,83 C 200,83 200,109 240,109" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 4" opacity="0.3" class="flow-line"></path>
+      <path id="flow-spotify-p2" d="M 165,149 C 230,149 230,109 360,109" fill="none" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="3 4" opacity="0.3" class="flow-line"></path>
+      <path id="flow-subsonic-p3" d="M 165,215 C 300,215 300,139 480,139" fill="none" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="3 4" opacity="0.3" class="flow-line"></path>
+      <path id="flow-radio-p3" d="M 165,281 C 310,281 310,139 480,139" fill="none" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="3 4" opacity="0.3" class="flow-line"></path>
+
+      <!-- Player -> Server Stream lines -->
+      <path id="flow-p1-srv" d="M 280,210 Q 280,260 277,350" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3" class="flow-line"></path>
+      <path id="flow-p2-srv" d="M 400,210 Q 400,280 285,350" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3" class="flow-line"></path>
+      <path id="flow-p3-srv" d="M 520,210 Q 520,260 293,350" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.3" class="flow-line"></path>
+
+      <!-- Server -> Sinks flows (Lossless Audio Distribution) -->
+      <path id="flow-srv-room1" d="M 400,410 C 400,450 280,450 280,490" fill="none" stroke="url(#flow-audio)" stroke-width="3" class="flowing-line"></path>
+      <path id="flow-srv-room2" d="M 400,410 Q 400,450 400,490" fill="none" stroke="url(#flow-audio)" stroke-width="3" class="flowing-line"></path>
+      <path id="flow-srv-room3" d="M 400,410 C 400,450 520,450 520,490" fill="none" stroke="url(#flow-audio)" stroke-width="3" class="flowing-line"></path>
+
+      <!-- Control / Data packet circles (Right Stack) -->
+      <!-- REST Packets (Blue) -->
+      <path id="ctrl-rest" d="M 635,83 L 590,83" fill="none" stroke="rgba(56, 189, 248, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
+      <circle r="2" fill="#38bdf8" opacity="0" class="packet">
+        <animateMotion dur="5s" repeatCount="indefinite" path="M 635,83 L 590,83" keyPoints="0;1;1;1" keyTimes="0;0.25;0.5;1" calcMode="linear" />
+        <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.22;0.25;1" dur="5s" repeatCount="indefinite" />
+      </circle>
+      <!-- WebSocket state packets (Blue back out) -->
+      <path id="ctrl-ws" d="M 590,149 L 635,149" fill="none" stroke="rgba(14, 165, 233, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
+      <circle r="2" fill="#0ea5e9" opacity="0" class="packet">
+        <animateMotion dur="4.5s" repeatCount="indefinite" path="M 590,149 L 635,149" keyPoints="0;1;1;1" keyTimes="0;0.25;0.5;1" calcMode="linear" />
+        <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.22;0.25;1" dur="4.5s" repeatCount="indefinite" />
+      </circle>
+      <!-- D-Bus Packets (Purple) -->
+      <path id="ctrl-dbus" d="M 635,215 L 590,215" fill="none" stroke="rgba(168, 85, 247, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
+      <circle r="2" fill="#c084fc" opacity="0" class="packet">
+        <animateMotion dur="6s" begin="1s" repeatCount="indefinite" path="M 635,215 L 590,215" keyPoints="0;1;1;1" keyTimes="0;0.25;0.5;1" calcMode="linear" />
+        <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.22;0.25;1" dur="6s" begin="1s" repeatCount="indefinite" />
+      </circle>
+      <!-- MQTT Packets (Pink) -->
+      <path id="ctrl-mqtt" d="M 635,269 C 610,269 610,330 590,330" fill="none" stroke="rgba(251, 113, 133, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
+      <circle r="2" fill="#fb7185" opacity="0" class="packet">
+        <animateMotion dur="5.5s" begin="2s" repeatCount="indefinite" path="M 635,269 C 610,269 610,330 590,330" keyPoints="0;1;1;1" keyTimes="0;0.3;0.6;1" calcMode="linear" />
+        <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.27;0.3;1" dur="5.5s" begin="2s" repeatCount="indefinite" />
+      </circle>
+      <!-- KNX Packets (Teal) -->
+      <path id="ctrl-knx" d="M 635,323 C 610,323 610,370 590,370" fill="none" stroke="rgba(45, 212, 191, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
+      <circle r="2" fill="#2dd4bf" opacity="0" class="packet">
+        <animateMotion dur="6.5s" begin="0.5s" repeatCount="indefinite" path="M 635,323 C 610,323 610,370 590,370" keyPoints="0;1;1;1" keyTimes="0;0.3;0.6;1" calcMode="linear" />
+        <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.27;0.3;1" dur="6.5s" begin="0.5s" repeatCount="indefinite" />
+      </circle>
+
+    </svg>
+  </div>
+
+  <!-- Interactive Telemetry Console / Details Info Box -->
+  <div id="arch-console" class="w-full max-w-xl bg-neutral-900/60 dark:bg-black/60 border border-neutral-200/10 dark:border-white/10 rounded-xl p-4 mt-6 text-left font-mono text-[11px] leading-relaxed relative min-h-[96px] transition-all duration-300">
+    <div class="flex items-center justify-between border-b border-white/5 pb-2 mb-2">
+      <span class="text-neutral-500 font-bold uppercase tracking-wider">System Monitor Log</span>
+      <span class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+        <span class="text-emerald-500 font-semibold text-[10px]">CONNECTED</span>
+      </span>
+    </div>
+    <div id="console-output" class="text-neutral-300">
+      Hover over any component block in the diagram to inspect its real-time telemetry parameters, active Rust crates, and internal audio routing pipeline configurations.
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  /* SVG Component styling */
+  .src-node rect,
+  .player-node rect,
+  .bridge-node rect,
+  .sink-node rect {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  
+  .src-node:hover rect,
+  .src-node:focus-visible rect,
+  .player-node:hover rect,
+  .player-node:focus-visible rect,
+  .bridge-node:hover rect,
+  .bridge-node:focus-visible rect,
+  .sink-node:hover rect,
+  .sink-node:focus-visible rect {
+    fill: rgba(245, 158, 11, 0.05) !important;
+    stroke: #fbbf24 !important;
+    filter: url(#glow-amber-filter);
+  }
+
+  .pipe-stage rect {
+    transition: all 0.2s ease;
+  }
+  .pipe-stage:hover rect {
+    fill: rgba(251, 191, 36, 0.15) !important;
+    stroke: #fbbf24/50 !important;
+  }
+  .pipe-stage:hover text {
+    fill: #ffffff !important;
+  }
+
+  /* Flow line dashes animating */
+  .flowing-line {
+    stroke-dasharray: 20 10;
+    animation: flowAudio 1.5s linear infinite;
+  }
+
+  .flow-line-active {
+    stroke-dasharray: 6 4 !important;
+    animation: flowLineActive 0.8s linear infinite !important;
+    stroke-width: 2px !important;
+    opacity: 0.95 !important;
+  }
+
+  @keyframes flowAudio {
+    0% {
+      stroke-dashoffset: 60;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes flowLineActive {
+    0% {
+      stroke-dashoffset: 20;
+    }
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* Glassmorphism card overrides */
+  .glass-card {
+    background: rgba(10, 10, 10, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+</style>
+
+<script>
+  // Interactive metadata console data
+  const metadata = {
+    "src-airplay": {
+      title: "AirPlay 2 Receiver Source",
+      text: "Module: receiver/airplay.rs\n- Listens on TCP sockets for iOS/macOS audio mirroring streams.\n- Instantiates a background loop that decodes raw audio packets.\n- Writes decoded samples directly into the ZonePlayer stream queue, overriding any lower priority play states."
+    },
+    "src-spotify": {
+      title: "Spotify Connect Source",
+      text: "Module: receiver/spotify.rs\n- Embedded librespot backend.\n- Acts as an official Spotify Connect device on the local network.\n- Pulls audio streams directly from Spotify CDN servers and passes raw PCM samples to the target ZonePlayer task."
+    },
+    "src-subsonic": {
+      title: "Subsonic / Navidrome Source",
+      text: "Module: subsonic/mod.rs\n- Streams audio library directories over HTTP.\n- ZonePlayer decodes these streams dynamically via the symphonia crate.\n- Pre-caches audio buffers to assure seamless, gapless playback on transition nodes."
+    },
+    "src-radio": {
+      title: "Internet Radio Source",
+      text: "Module: audio/icy.rs\n- Direct stream URL player.\n- Fetches HTTP web radio streams and reads inline ICY metadata streams (extracting song titles/artists dynamically).\n- Feeds compressed audio channels to the symphonia decoder module."
+    },
+    "player-1": {
+      title: "ZonePlayer 1 - Living Room (Tokio Task)",
+      text: "Module: player/runner.rs\n- Independent async loop running as a tokio task.\n- Decodes inputs, applies biquad EQ parametric filters, and handles speaker cabinet correction profiles.\n- Streams processed output to the Snapcast Server buffer."
+    },
+    "player-2": {
+      title: "ZonePlayer 2 - Kitchen (Tokio Task)",
+      text: "Module: player/runner.rs\n- Dedicated audio runner. Applies parametric volume mixing and DSP correction to Kitchen speakers.\n- Resamples input streams to matching target sample rates (44.1kHz or 48kHz)."
+    },
+    "player-3": {
+      title: "ZonePlayer N - Patio Zone (Tokio Task)",
+      text: "Module: player/runner.rs\n- Handles the outdoor speaker zone. Integrates specific latency offset values (+45ms) to offset geographical echo when synchronized."
+    },
+    "snapcast-server": {
+      title: "Embedded Snapcast Server",
+      text: "Module: snapcast/embedded.rs & mod.rs\n- Central multi-room distribution server.\n- Aggregates stream buffers, encodes raw float PCM to FLAC or F32LZ4, and distributes packets to room snapclient sinks over TCP ports (1704)."
+    },
+    "bridge-rest": {
+      title: "REST API & WebUI",
+      text: "Module: api/routes/\n- Powered by Axum framework.\n- Handles client player control requests (play/pause, seek, volume, EQ changes).\n- Integrates OpenAPI auto-generated spec sandbox (Scalar UI)."
+    },
+    "bridge-ws": {
+      title: "WebSocket State Sync API",
+      text: "Module: api/routes/websocket\n- Broadcasts playback state mutations, volume changes, metadata objects, and client presence status to connected web frontends instantaneously."
+    },
+    "bridge-dbus": {
+      title: "D-Bus API (MPRIS2 Interface)",
+      text: "Module: dbus/mod.rs\n- Registers individual zones as D-Bus objects.\n- Implements standard MPRIS2 interfaces allowing system-level integration (e.g. control widgets, desktop keyboard keys, playerctl commands)."
+    },
+    "bridge-mqtt": {
+      title: "MQTT Smart Home Bridge",
+      text: "Module: mqtt/mod.rs\n- Subscribes to command topics and publishes telemetry status updates.\n- Implements zero-configuration Home Assistant integration for smart home dashboards."
+    },
+    "bridge-knx": {
+      title: "KNX IP Multicast Bridge",
+      text: "Module: knx/mod.rs\n- Communicates over local physical KNX smart building buses.\n- Maps bus telegrams (group addresses) to player commands, allowing standard light switches to toggle audio playback."
+    },
+    "sink-room1": {
+      title: "snapclient - Living Room",
+      text: "Binary: snapdog-client / snapclients\n- Headless receiver connected to the server over TCP socket stream.\n- Receives compressed FLAC packets, decodes, and outputs to target sound card driver."
+    },
+    "sink-room2": {
+      title: "snapclient - Kitchen",
+      text: "Binary: snapdog-client\n- head-end audio sink board. Operates a hardware volume mixer via ALSA controls to prevent digital resolution clipping."
+    },
+    "sink-room3": {
+      title: "snapclient - Patio Zone",
+      text: "Binary: snapdog-client\n- हेड-एंड audio sink. Synchronizes stream playback clock locally based on server sync calculations to achieve zero echo."
+    }
+  };
+
+  const flowMappings = {
+    "src-airplay": ["flow-airplay-p1", "flow-p1-srv", "flow-srv-room1"],
+    "src-spotify": ["flow-spotify-p2", "flow-p2-srv", "flow-srv-room2"],
+    "src-subsonic": ["flow-subsonic-p3", "flow-p3-srv", "flow-srv-room3"],
+    "src-radio": ["flow-radio-p3", "flow-p3-srv", "flow-srv-room3"],
+    "player-1": ["flow-airplay-p1", "flow-p1-srv", "flow-srv-room1"],
+    "player-2": ["flow-spotify-p2", "flow-p2-srv", "flow-srv-room2"],
+    "player-3": ["flow-subsonic-p3", "flow-radio-p3", "flow-p3-srv", "flow-srv-room3"],
+    "snapcast-server": [
+      "flow-p1-srv", "flow-p2-srv", "flow-p3-srv",
+      "flow-srv-room1", "flow-srv-room2", "flow-srv-room3"
+    ],
+    "sink-room1": ["flow-airplay-p1", "flow-p1-srv", "flow-srv-room1"],
+    "sink-room2": ["flow-spotify-p2", "flow-p2-srv", "flow-srv-room2"],
+    "sink-room3": ["flow-subsonic-p3", "flow-radio-p3", "flow-p3-srv", "flow-srv-room3"]
+  };
+
+  const svg = document.getElementById("system-arch-svg");
+  const consoleOutput = document.getElementById("console-output");
+
+  if (svg && consoleOutput) {
+    // Add event listeners on nodes
+    Object.keys(metadata).forEach(nodeId => {
+      const node = svg.getElementById(nodeId);
+      if (node) {
+        // Hover start
+        node.addEventListener("mouseenter", () => {
+          // Update console
+          const data = metadata[nodeId];
+          consoleOutput.innerHTML = `<strong>${data.title}</strong>\n${data.text}`.replace(/\n/g, "<br/>");
+          
+          // Trigger related flow lines glow
+          const activeFlows = flowMappings[nodeId] || [];
+          activeFlows.forEach(flowId => {
+            const line = svg.getElementById(flowId);
+            if (line) {
+              line.classList.add("flow-line-active");
+            }
+          });
+        });
+
+        // Hover end
+        node.addEventListener("mouseleave", () => {
+          // Reset console
+          consoleOutput.innerHTML = "Hover over any component block in the diagram to inspect its real-time telemetry parameters, active Rust crates, and internal audio routing pipeline configurations.";
+          
+          // Clear active flow lines
+          const activeFlows = flowMappings[nodeId] || [];
+          activeFlows.forEach(flowId => {
+            const line = svg.getElementById(flowId);
+            if (line) {
+              line.classList.remove("flow-line-active");
+            }
+          });
+        });
+      }
+    });
+  }
+
+  // IntersectionObserver to pause all SVG animations when offscreen
+  const container = document.querySelector(".architecture-diagram-container");
+  if (container && svg) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Resume animations
+          svg.style.opacity = "1";
+          svg.querySelectorAll("animate, animateMotion").forEach((anim) => {
+            try {
+              (anim as any).beginElement();
+            } catch (e) {}
+          });
+        } else {
+          // Pause animations (saves CPU)
+          svg.style.opacity = "0.7";
+          svg.querySelectorAll("animate, animateMotion").forEach((anim) => {
+            try {
+              (anim as any).endElement();
+            } catch (e) {}
+          });
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    observer.observe(container);
+  }
+</script>

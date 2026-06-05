@@ -4,6 +4,7 @@ description: Welcome to the SnapDog documentation.
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
+import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
 
 **SnapDog** is a premium, open-source multi-room synchronized audio controller that runs as a single binary on Linux and macOS. It embeds a completely rewritten [Snapcast](https://github.com/badaix/snapcast) compatible server in pure Rust, runs AirPlay and Spotify Connect receivers per zone, streams from Subsonic/Navidrome media servers, plays internet radio, and bridges everything tightly to MQTT and KNX.
 
@@ -13,35 +14,8 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 SnapDog is built with standard Rust async concurrency using `tokio` and structured logging using `tracing`.
 
-```mermaid
-graph TD
-    subgraph SnapDog [SnapDog Core System]
-        direction TB
-        subgraph Players [Zone Engine]
-            direction LR
-            zp1["ZonePlayer 1 (Tokio Task)"]
-            zp2["ZonePlayer 2 (Tokio Task)"]
-            zp3["ZonePlayer N (Tokio Task)"]
-        end
+<ArchitectureDiagram />
 
-        snapcast["Embedded Snapcast Server<br/>(Per-Zone Streams & Encoders)"]
-        
-        Players ===>|Encoded PCM Streams| snapcast
-
-        subgraph Bridges [Interfaces & Bridges]
-            direction LR
-            airplay["AirPlay 2 Receivers"]
-            rest["REST API & WebUI"]
-            mqtt["MQTT Bridge"]
-            knx["KNX Bridge"]
-        end
-        
-        snapcast -.->|Control / State Sync| Bridges
-    end
-
-    snapclients["snapclients (per room sinks)"]
-    snapcast ===>|Multi-Room Lossless Audio| snapclients
-```
 
 ### The ZonePlayer
 Each audio zone is run by a dedicated, independent `ZonePlayer` task. The player owns the entire audio pipeline:
