@@ -13,34 +13,34 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 SnapDog is built with standard Rust async concurrency using `tokio` and structured logging using `tracing`.
 
-```
-┌─────────────────────────────────────────────────────┐
-│                     SnapDog                         │
-│                                                     │
-│  ┌───────────┐  ┌───────────┐  ┌───────────┐        │
-│  │ ZonePlayer│  │ ZonePlayer│  │ ZonePlayer│  ...   │
-│  │ (tokio)   │  │ (tokio)   │  │ (tokio)   │        │
-│  └────┬──────┘  └────┬──────┘  └────┬──────┘        │
-│       │              │              │               │
-│  ┌────┴──────────────┴──────────────┴─────┐         │
-│  │        Embedded Snapcast Server        │         │
-│  │      (per-zone streams + encoders)     │         │
-│  └───────────────────┬────────────────────┘         │
-│                      │                              │
-│  ┌─────────┐  ┌──────┴────┐  ┌──────────┐           │
-│  │ AirPlay │  │  REST API │  │   MQTT   │           │
-│  │receivers│  │  + WebUI  │  │  bridge  │           │
-│  └─────────┘  └───────────┘  └──────────┘           │
-│                                    ┌──────────┐     │
-│                                    │   KNX    │     │
-│                                    │  bridge  │     │
-│                                    └──────────┘     │
-└─────────────────────────────────────────────────────┘
-         │                   
-    ┌────┴──────┐        
-    │snapclients│        
-    │(per room) │        
-    └───────────┘        
+```mermaid
+graph TD
+    subgraph SnapDog [SnapDog Core System]
+        direction TB
+        subgraph Players [Zone Engine]
+            direction LR
+            zp1["ZonePlayer 1 (Tokio Task)"]
+            zp2["ZonePlayer 2 (Tokio Task)"]
+            zp3["ZonePlayer N (Tokio Task)"]
+        end
+
+        snapcast["Embedded Snapcast Server<br/>(Per-Zone Streams & Encoders)"]
+        
+        Players ===>|Encoded PCM Streams| snapcast
+
+        subgraph Bridges [Interfaces & Bridges]
+            direction LR
+            airplay["AirPlay 2 Receivers"]
+            rest["REST API & WebUI"]
+            mqtt["MQTT Bridge"]
+            knx["KNX Bridge"]
+        end
+        
+        snapcast -.->|Control / State Sync| Bridges
+    end
+
+    snapclients["snapclients (per room sinks)"]
+    snapcast ===>|Multi-Room Lossless Audio| snapclients
 ```
 
 ### The ZonePlayer
@@ -66,5 +66,26 @@ Each audio zone is run by a dedicated, independent `ZonePlayer` task. The player
   </Card>
   <Card title="SnapDog OS" icon="laptop">
     A custom, minimal Buildroot Linux image that turns any Raspberry Pi into a dedicated high-fidelity receiver.
+  </Card>
+</CardGrid>
+
+---
+
+## Next Steps
+
+Explore the following guides to set up, configure, and control your SnapDog multi-room system:
+
+<CardGrid>
+  <Card title="Installation Guide" icon="right-arrow">
+    Deploy the SnapDog daemon via Docker, native packages, or compile from source. Read the [Installation Guide](/docs/installation).
+  </Card>
+  <Card title="Configuration Reference" icon="right-arrow">
+    Configure zones, client speakers, and smart home bridges in `snapdog.toml`. Read the [Configuration Guide](/docs/configuration).
+  </Card>
+  <Card title="SnapDog OS" icon="right-arrow">
+    Turn a Raspberry Pi into a dedicated, zero-config high-fidelity audio receiver. Read the [SnapDog OS Guide](/docs/snapdog-os).
+  </Card>
+  <Card title="Developer Reference" icon="right-arrow">
+    Integrate client applications via REST, WebSockets, D-Bus, or the binary protocol. Read the [REST API Reference](/docs/api-rest).
   </Card>
 </CardGrid>

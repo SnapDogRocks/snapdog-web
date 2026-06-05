@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
+import mermaid from 'astro-mermaid';
 
 // https://astro.build/config
 export default defineConfig({
@@ -10,6 +11,7 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   integrations: [
+    mermaid({ autoTheme: true }),
     starlight({
       title: 'SnapDog',
       logo: {
