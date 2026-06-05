@@ -418,7 +418,7 @@
   <!-- Inline Console Wrapper -->
   <div id="inline-console-wrapper" class="w-full max-w-xl flex justify-center">
     <!-- Interactive Telemetry Console / Details Info Box -->
-    <div id="arch-console" class="w-full max-w-xl bg-neutral-900/60 dark:bg-black/60 border border-neutral-200/10 dark:border-white/10 rounded-xl p-4 mt-6 text-left font-mono text-[11px] leading-relaxed relative min-h-[96px] transition-all duration-300">
+    <div id="arch-console" class="w-full max-w-xl bg-neutral-900/60 dark:bg-black/60 border border-neutral-200/10 dark:border-white/10 rounded-xl p-4 mt-6 text-left font-mono text-[11px] leading-relaxed relative h-[160px] overflow-y-auto transition-all duration-300">
       <div class="flex items-center justify-between border-b border-white/5 pb-2 mb-2">
         <span class="text-neutral-500 font-bold uppercase tracking-wider">System Monitor Log</span>
         <span class="flex items-center gap-1.5">
@@ -426,7 +426,7 @@
           <span class="text-emerald-500 font-semibold text-[10px]">CONNECTED</span>
         </span>
       </div>
-      <div id="console-output" class="text-neutral-300">
+      <div id="console-output" class="text-neutral-300 transition-opacity duration-100 ease-in-out">
         Hover over any component block in the diagram to inspect its real-time telemetry parameters, active Rust crates, and internal audio routing pipeline configurations.
       </div>
     </div>
@@ -602,8 +602,16 @@
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
     flex-shrink: 0 !important;
+    height: 160px !important;
     max-height: 22vh !important;
     overflow-y: auto !important;
+  }
+
+  #console-output {
+    transition: opacity 100ms ease-in-out;
+  }
+  #console-output.opacity-0 {
+    opacity: 0;
   }
 </style>
 
@@ -705,6 +713,18 @@
     if (container.dataset.initialized === "true") return;
     container.dataset.initialized = "true";
 
+    let consoleTimeout = null;
+    const defaultText = "Hover over any component block in the diagram to inspect its real-time telemetry parameters, active Rust crates, and internal audio routing pipeline configurations.";
+
+    const setConsoleText = (htmlContent) => {
+      if (consoleTimeout) clearTimeout(consoleTimeout);
+      consoleOutput.classList.add("opacity-0");
+      consoleTimeout = setTimeout(() => {
+        consoleOutput.innerHTML = htmlContent;
+        consoleOutput.classList.remove("opacity-0");
+      }, 100);
+    };
+
     // Add event listeners on nodes
     Object.keys(metadata).forEach(nodeId => {
       const node = svg.getElementById(nodeId);
@@ -713,7 +733,8 @@
         node.addEventListener("mouseenter", () => {
           // Update console
           const data = metadata[nodeId];
-          consoleOutput.innerHTML = `<strong>${data.title}</strong>\n${data.text}`.replace(/\n/g, "<br/>");
+          const newHtml = `<strong>${data.title}</strong>\n${data.text}`.replace(/\n/g, "<br/>");
+          setConsoleText(newHtml);
           
           // Trigger related flow lines glow
           const activeFlows = flowMappings[nodeId] || [];
@@ -728,7 +749,7 @@
         // Hover end
         node.addEventListener("mouseleave", () => {
           // Reset console
-          consoleOutput.innerHTML = "Hover over any component block in the diagram to inspect its real-time telemetry parameters, active Rust crates, and internal audio routing pipeline configurations.";
+          setConsoleText(defaultText);
           
           // Clear active flow lines
           const activeFlows = flowMappings[nodeId] || [];
