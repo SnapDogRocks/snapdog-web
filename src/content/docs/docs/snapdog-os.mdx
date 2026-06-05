@@ -16,17 +16,28 @@ import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 ## Supported Hardware
 
 SnapDog OS is compiled as a 64-bit (`aarch64`) image running a minimal Linux 6.6 LTS kernel. The following boards are fully supported:
-* **Raspberry Pi 5**
-* **Raspberry Pi 4**
-* **Raspberry Pi 3**
+* **Raspberry Pi 5 / 500**
+* **Raspberry Pi 4 / 400**
+* **Raspberry Pi 3 / 3+**
 * **Raspberry Pi Zero 2 W**
 
 ---
 
 ## 1. Installation & First Boot
 
+### Download SnapDog OS
+Select and download the custom system image for your Raspberry Pi board:
+
+| Hardware Board Model | Target Architecture | Latest Stable Image |
+|---|---|---|
+| **Raspberry Pi 5 / 500** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi5-beta.img.gz) |
+| **Raspberry Pi 4 / 400 / Zero 2 W** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi4-beta.img.gz) |
+| **Raspberry Pi 3 / 3+** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi3-beta.img.gz) |
+
+*Note: The Raspberry Pi 4 image is fully compatible with the Raspberry Pi Zero 2 W.*
+
 ### Flashing the Image
-1. Download the latest `.img.gz` image for your board from [Releases](https://github.com/SnapDogRocks/snapdog-os/releases).
+1. Download the appropriate image file from the table above.
 2. Open **Raspberry Pi Imager**.
 3. Under **OS**, choose **"Use custom"** and select the downloaded `.img.gz` file.
 4. Select your SD card and write.

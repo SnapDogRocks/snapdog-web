@@ -19,6 +19,7 @@ export default defineConfig({
       },
       components: {
         SiteTitle: './src/components/CustomSiteTitle.astro',
+        Footer: './src/components/CustomFooter.astro',
       },
       social: {
         github: 'https://github.com/SnapDogRocks/snapdog',
