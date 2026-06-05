@@ -1,113 +1,103 @@
 ---
 title: D-Bus API (MPRIS2)
-description: Controlling SnapDog audio zones via standard Linux MPRIS2 media interfaces.
+description: Controlling SnapDog audio zones and client speaker players via standard Linux MPRIS2 media interfaces.
 ---
 
 import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
-On Linux deployments, SnapDog registers a standard **MPRIS2** (Media Player Remote Interoperability Specification) interface on the D-Bus session bus for each configured audio zone. This allows media keys, system tray widgets, lock screen controls, and home automation daemons to query, monitor, and control playback natively.
+On Linux deployments, both the **SnapDog Server** and **SnapDog Client** register standard **MPRIS2** (Media Player Remote Interoperability Specification) interfaces on the D-Bus bus. This allows media keys, system tray controllers, lock screens, and home automation tools to query and control playback natively.
 
 ---
 
-## 1. Interface & Bus Naming
+## 1. SnapDog Server D-Bus (Audio Zones)
 
-Each audio zone operates as a standalone media player device exposed on the session bus.
+The `snapdog` server registers an MPRIS2 interface for each configured audio zone, exposing each zone as a separate media player device.
 
+### Interface & Bus Details
 * **Bus Name:** `org.mpris.MediaPlayer2.snapdog.zone{N}` (where `{N}` is the 1-based index of the zone).
 * **Object Path:** `/org/mpris/MediaPlayer2`
-* **Implemented Interfaces:**
-  * `org.mpris.MediaPlayer2` — Root player properties and commands.
-  * `org.mpris.MediaPlayer2.Player` — Core playback operations, properties, and methods.
+* **Bus Type:** Session Bus (requires session address setup).
+
+### Implemented Methods (`org.mpris.MediaPlayer2.Player`)
+
+| Method | Arguments | Description |
+| :--- | :--- | :--- |
+| **`Play()`** | — | Resumes playback on the zone. |
+| **`Pause()`** | — | Pauses playback. |
+| **`PlayPause()`** | — | Toggles the active play/pause state. |
+| **`Stop()`** | — | Stops playback and releases zone audio buffers. |
+| **`Next()`** | — | Skips to the next track in the queue. |
+| **`Previous()`** | — | Skips to the previous track or restarts the song. |
+| **`Seek(Offset)`** | `Offset` (`Int64` microseconds) | Seeks relative to the current play position. |
+| **`SetPosition(Id, Pos)`**| `Id` (`ObjectPath`), `Pos` (`Int64` us) | Seeks to an absolute position. |
+
+### Implemented Properties (`org.mpris.MediaPlayer2.Player`)
+
+* **`PlaybackStatus`** (`String`) — `"Playing"`, `"Paused"`, or `"Stopped"`.
+* **`Volume`** (`Double`) — Volume level between `0.0` (mute) and `1.0` (100%).
+* **`Position`** (`Int64`) — Current play position in microseconds.
+* **`Metadata`** (`Dict`) — Standard Xesam metadata tags:
+  - `mpris:trackid` (`ObjectPath`) — `/org/mpris/MediaPlayer2/snapdog/zone{id}/track`.
+  - `mpris:length` (`Int64`) — Track length in microseconds.
+  - `mpris:artUrl` (`String`) — HTTP cover art link (e.g. `http://<host>:<port>/api/v1/zones/{id}/cover`).
+  - `xesam:title` (`String`) — Track or stream title.
+  - `xesam:artist` (`Array of Strings`) — Artist array.
+  - `xesam:album` (`String`) — Album title.
+* **`CanPlay` / `CanPause` / `CanSeek` / `CanControl`** (`Boolean`) — Capabilities flags.
 
 ---
 
-## 2. Interface Properties
+## 2. SnapDog Client D-Bus (Player Endpoints)
 
-### Root Interface (`org.mpris.MediaPlayer2`)
+The `snapdog-client` player registers an MPRIS2 interface on speaker endpoints, mapping controls locally on the player board.
 
-Exposes player capabilities and naming information.
+### Interface & Bus Details
+* **Bus Name:** `org.mpris.MediaPlayer2.snapdog_client` (for primary instance).
+  - *Multi-Instance:* If running multiple player instances on the same host, subsequent instances bind to `org.mpris.MediaPlayer2.snapdog_client.instance{N}` (e.g., `instance2`).
+* **Object Path:** `/org/mpris/MediaPlayer2`
+* **Bus Type:** Hybrid Bus. The client tries to bind to the **Session Bus** if the `DBUS_SESSION_BUS_ADDRESS` environment variable is defined. If absent (e.g., on a headless Raspberry Pi boot environment), it **automatically falls back to the System Bus**.
 
-| Property | Type | Access | Description |
-| :--- | :--- | :--- | :--- |
-| **`Identity`** | `String` | Read-only | Name of the instance (formatted as `SnapDog — {ZoneName}`). |
-| **`CanQuit`** | `Boolean` | Read-only | Returns `false` (the daemon is managed by system supervisors). |
-| **`CanRaise`** | `Boolean` | Read-only | Returns `false` (SnapDog does not have a native graphical window to raise). |
-| **`HasTrackList`** | `Boolean` | Read-only | Returns `false` (playlist queue management is handled via the REST API). |
-| **`SupportedUriSchemes`**| `Array of Strings` | Read-only | Returns empty list (URIs are resolved server-side). |
-| **`SupportedMimeTypes`**| `Array of Strings` | Read-only | Returns empty list. |
+### Implemented Methods (`org.mpris.MediaPlayer2.Player`)
 
-### Player Interface (`org.mpris.MediaPlayer2.Player`)
+| Method | Arguments | Description |
+| :--- | :--- | :--- |
+| **`Play()`** | — | Sends a custom control payload instructing the server to play. |
+| **`Pause()`** | — | Instructs the server to pause. |
+| **`PlayPause()`** | — | Toggles playback locally. |
+| **`Stop()`** | — | Stops playback. |
+| **`Next()`** | — | Skips to the next track. |
+| **`Previous()`** | — | Skips to the previous track. |
+| **`Seek(Offset)`** | `Offset` (`Int64` microseconds) | Sends seek offset command to the server. |
 
-Exposes the active playback state, volume levels, and track metadata.
+### Implemented Properties (`org.mpris.MediaPlayer2.Player`)
 
-| Property | Type | Access | Description |
-| :--- | :--- | :--- | :--- |
-| **`PlaybackStatus`** | `String` | Read-only | Playback state: `"Playing"`, `"Paused"`, or `"Stopped"`. |
-| **`Volume`** | `Double` | Read-write | Volume level scaled between `0.0` (mute) and `1.0` (100% volume). |
-| **`Position`** | `Int64` | Read-only | Current playback position in **microseconds** (10⁻⁶ seconds). |
-| **`LoopStatus`** | `String` | Read-write | Loop mode: `"None"`, `"Track"`, or `"Playlist"`. |
-| **`Metadata`** | `Dict (a{sv})` | Read-only | Dictionary of track metadata (title, artist, cover art URL). |
-| **`CanPlay`** | `Boolean` | Read-only | Returns `true`. |
-| **`CanPause`** | `Boolean` | Read-only | Returns `true`. |
-| **`CanSeek`** | `Boolean` | Read-only | Returns `true` if the active source supports seeking. |
-| **`CanGoNext`** | `Boolean` | Read-only | Returns `true` if the queue has remaining tracks. |
-| **`CanGoPrevious`**| `Boolean` | Read-only | Returns `true` if there are previous tracks in history. |
-| **`CanControl`** | `Boolean` | Read-only | Returns `true`. |
-
----
-
-## 3. Metadata Dictionary Schema
-
-The `Metadata` property returns a dictionary mapping standard Xesam tags:
-
-* **`mpris:trackid`** (`Object Path`) — Unique URI identifier for the active track.
-* **`mpris:length`** (`Int64`) — Total track duration in **microseconds**.
-* **`mpris:artUrl`** (`String`) — Cover art URL, served dynamically by the HTTP API (e.g. `http://<host>:<port>/api/v1/zones/{id}/cover`).
-* **`xesam:title`** (`String`) — Title of the active song or radio station name.
-* **`xesam:artist`** (`Array of Strings`) — List of contributing artists.
-* **`xesam:album`** (`String`) — Album title.
+* **`PlaybackStatus`** (`String`) — `"Playing"` or `"Stopped"`.
+* **`Volume`** (`Double`) — Local soundcard hardware/software volume level `[0.0..1.0]`. Writing to this updates the local mixer gain and notifies the server.
+* **`Shuffle`** (`Boolean`) — Read-write flag. Modifying this sends a shuffle toggle command to the server.
+* **`LoopStatus`** (`String`) — Read-write. Returns `"None"`, `"Track"`, or `"Playlist"`. Writing updates the server repeat mode.
+* **`Position`** (`Int64`) — Current playback position in microseconds.
+* **`Metadata`** (`Dict`) — Standard Xesam metadata tags:
+  - `mpris:trackid` (`ObjectPath`) — `/org/snapdog/track`.
+  - `mpris:length` (`Int64`) — Length in microseconds.
+  - `mpris:artUrl` (`String`) — Local file link to pre-cached cover art (`file://<path>`).
+  - `xesam:title` / `xesam:artist` / `xesam:album` (`String`) — Metadata details.
 
 ---
 
-## 4. Implemented Methods
+## 3. D-Bus Signals
 
-Methods are invoked on the `/org/mpris/MediaPlayer2` object path.
-
-### Root Methods (`org.mpris.MediaPlayer2`)
-
-* **`Quit()`** — No-op (does not stop the SnapDog service).
-* **`Raise()`** — No-op.
-
-### Player Methods (`org.mpris.MediaPlayer2.Player`)
-
-| Method | Arguments | Returns | Description |
-| :--- | :--- | :--- | :--- |
-| **`Play()`** | — | — | Starts or resumes playback. |
-| **`Pause()`** | — | — | Pauses playback. |
-| **`PlayPause()`** | — | — | Toggles the playback state. |
-| **`Stop()`** | — | — | Stops playback and releases audio buffers. |
-| **`Next()`** | — | — | Skips to the next track. |
-| **`Previous()`** | — | — | Skips to the previous track or restarts the current track. |
-| **`Seek(Offset)`** | `Offset` (`Int64`) | — | Seeks relative to the current position by `Offset` microseconds. |
-| **`SetPosition(Id, Pos)`**| `TrackId` (`Object Path`), `Position` (`Int64`) | — | Seeks to the absolute position in microseconds. |
-| **`OpenUri(Uri)`** | `Uri` (`String`) | — | No-op. |
-
----
-
-## 5. D-Bus Signals
+Both the server and client players emit standard signals:
 
 * **`Seeked(Position)`** (`Int64`)
-  Fired under the `org.mpris.MediaPlayer2.Player` interface when an absolute or relative seek operation completes successfully. The payload contains the new position in microseconds.
+  Fired under the `org.mpris.MediaPlayer2.Player` interface when a seek operation completes. The payload contains the new position in microseconds.
 * **`PropertiesChanged(Interface, Changed, Invalidated)`**
-  Standard D-Bus notification fired under `org.freedesktop.DBus.Properties` whenever properties like `PlaybackStatus`, `Metadata`, or `Volume` change. Listening client widgets update their UI states reactively based on this signal.
+  Standard D-Bus notification fired under `org.freedesktop.DBus.Properties` whenever properties like `PlaybackStatus`, `Metadata`, `Shuffle`, or `Volume` change. Listening client widgets update their UI states reactively based on this signal.
 
 ---
 
-## 6. Headless Linux Deployments & Systemd
+## 4. Headless Server & Systemd Service Setup
 
-MPRIS2 players are required by standard to bind to the **D-Bus Session Bus**, which is typically started automatically when a desktop session logs in. Under headless Linux servers running SnapDog as a `systemd` system service, the binary will fail to locate a session bus and log a connection error.
-
-Use one of the following strategies to run SnapDog with D-Bus support on headless systems:
+Under headless Linux servers running SnapDog as a background `systemd` daemon, services will fail to locate a session bus by default. Use one of the following methods to establish D-Bus sessions:
 
 <Tabs>
   <TabItem label="Systemd User Service">
@@ -146,48 +136,45 @@ Use one of the following strategies to run SnapDog with D-Bus support on headles
 
 ---
 
-## 7. Command-Line Examples
+## 5. Command-Line Examples
 
 ### Control using `playerctl`
 
-`playerctl` is the recommended CLI wrapper for MPRIS2 integrations.
+`playerctl` automatically detects MPRIS2 interfaces.
 
 ```bash
-# List all active SnapDog zone players
+# List all active SnapDog server zones and client players
 playerctl --list-all | grep snapdog
 
-# Toggle Play/Pause on Zone 1
+# Toggle Play/Pause on Server Zone 1
 playerctl -p snapdog.zone1 play-pause
 
-# Skip to the next track on Zone 2
-playerctl -p snapdog.zone2 next
+# Skip to the next track on Client Player 1
+playerctl -p snapdog_client next
 
-# Set volume of Zone 1 to 80% (0.8)
-playerctl -p snapdog.zone1 volume 0.8
-
-# Retrieve title and artist of active track on Zone 1
-playerctl -p snapdog.zone1 metadata --format "{{title}} - {{artist}}"
+# Set volume of Client Player to 80% (0.8)
+playerctl -p snapdog_client volume 0.8
 ```
 
 ### Control using `busctl`
 
-For low-level shell scripting or system diagnostics, use `busctl`.
+For low-level scripting or diagnostics:
 
 ```bash
-# Query active playback status
+# Query Server Zone 1 playback status
 busctl --user get-property \
   org.mpris.MediaPlayer2.snapdog.zone1 \
   /org/mpris/MediaPlayer2 \
   org.mpris.MediaPlayer2.Player \
   PlaybackStatus
 
-# Send raw Play command to Zone 2
-busctl --user call \
-  org.mpris.MediaPlayer2.snapdog.zone2 \
+# Query Client Player volume status (System bus fallback)
+busctl --system get-property \
+  org.mpris.MediaPlayer2.snapdog_client \
   /org/mpris/MediaPlayer2 \
   org.mpris.MediaPlayer2.Player \
-  Play
+  Volume
 
-# Monitor state-change signals in real time
-busctl --user monitor org.mpris.MediaPlayer2.snapdog.zone1
+# Monitor Client 1 state changes in real time
+busctl --user monitor org.mpris.MediaPlayer2.snapdog_client
 ```
