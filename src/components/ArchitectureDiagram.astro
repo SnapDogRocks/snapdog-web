@@ -325,41 +325,44 @@
 
       <!-- Sink 1: Living Room -->
       <g id="sink-room1" class="sink-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect snapclient Living Room">
-        <rect x="230" y="490" width="100" height="50" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
-        <circle cx="250" cy="515" r="10" fill="#171717" stroke="#fbbf24" stroke-width="1.5" class="status-led"></circle>
+        <rect x="230" y="490" width="100" height="64" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="250" cy="522" r="10" fill="#171717" stroke="#fbbf24" stroke-width="1.5" class="status-led"></circle>
         <!-- Speaker Icon -->
-        <g transform="translate(250, 515) scale(0.7)" class="text-amber-400">
+        <g transform="translate(250, 522) scale(0.7)" class="text-amber-400">
           <path d="M-6,-3 L-3,-3 L1,-6 L1,6 L-3,3 L-6,3 Z" fill="currentColor"></path>
           <path d="M4,-3 C5.5,-1.5 5.5,1.5 4,3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
         </g>
         <text x="270" y="514" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">Living Room</text>
         <text x="270" y="526" fill="currentColor" class="text-neutral-500 font-mono text-[8px]">(snapclient 1)</text>
+        <text x="270" y="538" fill="#fbbf24" class="font-mono text-[7px] font-bold tracking-wider">EQ / SPINORAMA</text>
       </g>
 
       <!-- Sink 2: Kitchen -->
       <g id="sink-room2" class="sink-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect snapclient Kitchen">
-        <rect x="350" y="490" width="100" height="50" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
-        <circle cx="370" cy="515" r="10" fill="#171717" stroke="#fbbf24" stroke-width="1.5" class="status-led"></circle>
+        <rect x="350" y="490" width="100" height="64" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="370" cy="522" r="10" fill="#171717" stroke="#fbbf24" stroke-width="1.5" class="status-led"></circle>
         <!-- Speaker Icon -->
-        <g transform="translate(370, 515) scale(0.7)" class="text-amber-400">
+        <g transform="translate(370, 522) scale(0.7)" class="text-amber-400">
           <path d="M-6,-3 L-3,-3 L1,-6 L1,6 L-3,3 L-6,3 Z" fill="currentColor"></path>
           <path d="M4,-3 C5.5,-1.5 5.5,1.5 4,3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
         </g>
         <text x="390" y="514" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">Kitchen</text>
         <text x="390" y="526" fill="currentColor" class="text-neutral-500 font-mono text-[8px]">(snapclient 2)</text>
+        <text x="390" y="538" fill="#fbbf24" class="font-mono text-[7px] font-bold tracking-wider">EQ / SPINORAMA</text>
       </g>
 
       <!-- Sink 3: Patio -->
       <g id="sink-room3" class="sink-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect snapclient Patio">
-        <rect x="470" y="490" width="100" height="50" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
-        <circle cx="490" cy="515" r="10" fill="#171717" stroke="#fbbf24" stroke-width="1.5" class="status-led"></circle>
+        <rect x="470" y="490" width="100" height="64" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="490" cy="522" r="10" fill="#171717" stroke="#fbbf24" stroke-width="1.5" class="status-led"></circle>
         <!-- Speaker Icon -->
-        <g transform="translate(490, 515) scale(0.7)" class="text-amber-400">
+        <g transform="translate(490, 522) scale(0.7)" class="text-amber-400">
           <path d="M-6,-3 L-3,-3 L1,-6 L1,6 L-3,3 L-6,3 Z" fill="currentColor"></path>
           <path d="M4,-3 C5.5,-1.5 5.5,1.5 4,3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
         </g>
         <text x="510" y="514" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">Patio Zone</text>
         <text x="510" y="526" fill="currentColor" class="text-neutral-500 font-mono text-[8px]">(snapclient N)</text>
+        <text x="510" y="538" fill="#fbbf24" class="font-mono text-[7px] font-bold tracking-wider">EQ / SPINORAMA</text>
       </g>
 
 
@@ -601,15 +604,15 @@
     },
     "sink-room1": {
       title: "snapclient - Living Room",
-      text: "Binary: snapdog-client / snapclients\n- Headless receiver connected to the server over TCP socket stream.\n- Receives compressed FLAC packets, decodes, and outputs to target sound card driver."
+      text: "Binary: snapdog-client / snapclients\n- Headless receiver running local 10-band Parametric EQ.\n- Integrates Spinorama speaker correction profiles to optimize acoustic response.\n- Receives compressed FLAC packets, decodes, and outputs to target sound card driver."
     },
     "sink-room2": {
       title: "snapclient - Kitchen",
-      text: "Binary: snapdog-client\n- head-end audio sink board. Operates a hardware volume mixer via ALSA controls to prevent digital resolution clipping."
+      text: "Binary: snapdog-client\n- Local audio player running DSP calibration (client EQ + Spinorama speaker profiling).\n- Operates a hardware volume mixer via ALSA controls to prevent digital resolution clipping."
     },
     "sink-room3": {
       title: "snapclient - Patio Zone",
-      text: "Binary: snapdog-client\n- हेड-एंड audio sink. Synchronizes stream playback clock locally based on server sync calculations to achieve zero echo."
+      text: "Binary: snapdog-client\n- Head-end audio sink running client EQ + Spinorama correction.\n- Synchronizes stream playback clock locally based on server sync calculations to achieve zero echo."
     }
   };
 
