@@ -50,6 +50,31 @@ If neither `--config` nor `--knx-device` is specified, the server prints the hel
 | `--log-level <LEVEL>` | `-l` | String | Log level verbosity. Options: `trace`, `debug`, `info`, `warn`, `error`. |
 | `--service` | — | Flag | Runs the binary as a native NT Service. *(Windows builds only)* |
 
+### Server Boot Examples
+
+<Tabs>
+  <TabItem label="Standard Daemon Mode">
+    Launch the server on Linux or macOS with a specific configuration file:
+    ```bash
+    snapdog --config /etc/snapdog/snapdog.toml
+    ```
+  </TabItem>
+
+  <TabItem label="Debugging & Port Override">
+    Temporarily override the web server port and increase logging verbosity to debug connection issues:
+    ```bash
+    snapdog --config ~/.config/snapdog.toml --port 8080 --log-level debug
+    ```
+  </TabItem>
+
+  <TabItem label="KNX Integration Bootstrapping">
+    Launch in device mode to let an integrator assign a physical address (e.g., `1.1.25`) and program the server using the `.knxprod` file:
+    ```bash
+    snapdog --knx-device --knx-address 1.1.25 --knx-prog-mode
+    ```
+  </TabItem>
+</Tabs>
+
 ---
 
 ## 2. SnapDog Client (`snapdog-client`)
@@ -99,36 +124,7 @@ The `URL` has the format `<scheme>://<host>[:port]`, where scheme can be `tcp`, 
 * `none`: Disables volume adjustments on the client.
 </Aside>
 
----
-
-## 3. Configuration & Boot Examples
-
-### Server Examples
-
-<Tabs>
-  <TabItem label="Standard Daemon Mode">
-    Launch the server on Linux or macOS with a specific configuration file:
-    ```bash
-    snapdog --config /etc/snapdog/snapdog.toml
-    ```
-  </TabItem>
-
-  <TabItem label="Debugging & Port Override">
-    Temporarily override the web server port and increase logging verbosity to debug connection issues:
-    ```bash
-    snapdog --config ~/.config/snapdog.toml --port 8080 --log-level debug
-    ```
-  </TabItem>
-
-  <TabItem label="KNX Integration Bootstrapping">
-    Launch in device mode to let an integrator assign a physical address (e.g., `1.1.25`) and program the server using the `.knxprod` file:
-    ```bash
-    snapdog --knx-device --knx-address 1.1.25 --knx-prog-mode
-    ```
-  </TabItem>
-</Tabs>
-
-### Client Examples
+### Client Boot Examples
 
 <Tabs>
   <TabItem label="Standard Auto-Discovery">
