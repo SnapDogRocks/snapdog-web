@@ -704,9 +704,10 @@
   const init = () => {
     const svg = document.getElementById("system-arch-svg");
     const consoleOutput = document.getElementById("console-output");
+    const archConsole = document.getElementById("arch-console");
     const container = document.querySelector(".architecture-diagram-container");
 
-    if (!svg || !consoleOutput || !container) return;
+    if (!svg || !consoleOutput || !archConsole || !container) return;
 
     // Avoid duplicate initialization if script runs multiple times
     if (container.dataset.initialized === "true") return;
@@ -775,7 +776,7 @@
       const openDialog = () => {
         // Move SVG and Console into the top-layer dialog wrapper nodes
         dialogSvgWrapper.appendChild(svg);
-        dialogConsoleWrapper.appendChild(consoleOutput);
+        dialogConsoleWrapper.appendChild(archConsole);
         dialog.showModal();
         document.body.style.overflow = "hidden";
       };
@@ -783,7 +784,7 @@
       const closeDialog = () => {
         // Move SVG and Console back to their inline positions
         inlineSvgWrapper.appendChild(svg);
-        inlineConsoleWrapper.appendChild(consoleOutput);
+        inlineConsoleWrapper.appendChild(archConsole);
         dialog.close();
         document.body.style.overflow = "";
       };
@@ -809,7 +810,7 @@
       dialog.addEventListener("close", () => {
         if (svg.parentElement !== inlineSvgWrapper) {
           inlineSvgWrapper.appendChild(svg);
-          inlineConsoleWrapper.appendChild(consoleOutput);
+          inlineConsoleWrapper.appendChild(archConsole);
           document.body.style.overflow = "";
         }
       });
