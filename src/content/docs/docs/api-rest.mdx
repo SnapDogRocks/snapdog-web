@@ -37,7 +37,15 @@ If SnapDog is compiled with the `api-docs` feature flag and `api_docs = true` is
 * **Scalar Interactive Console:** `http://<device-ip>:5555/docs`
 * **Raw OpenAPI Specification:** `http://<device-ip>:5555/api-docs/openapi.json`
 
-This visual console provides sandbox forms to execute endpoints directly against live hardware.
+### Console Capabilities
+
+The embedded **Scalar** interface provides a modern developer playground with several key features:
+
+* **Drift-Free Specifications:** The OpenAPI registry is generated at build/compile time using Rust's `utoipa` crate. This guarantees the console endpoints and payload schemas are always 100% in sync with the active server version.
+* **Sandbox Testing:** You can test requests and execute endpoints directly against live hardware from your browser.
+* **Authentication Helper:** If API key security is enabled, click the **Authorize** lock button in the Scalar header and input your token. Scalar automatically injects the matching `Authorization: Bearer <key>` header into sandbox requests.
+* **Multi-Language Code Generator:** Select any endpoint to generate copy-pasteable client integration snippets in `cURL`, `JavaScript`, `Python`, `Rust`, `Go`, `PHP`, and more.
+* **Fuzzy Search:** Press `/` within the console to trigger fuzzy search indexing across all endpoints, tags, and request schemas.
 
 ---
 
