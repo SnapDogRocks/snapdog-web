@@ -1,0 +1,36 @@
+---
+title: System Architecture
+description: Learn about SnapDog's core systems architecture and the ZonePlayer pipeline.
+---
+
+import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
+
+SnapDog is designed for ultra-low latency, lossless multi-room synchronization, and robust smart home automation. The entire system is built in pure Rust around an asynchronous event loop powered by `tokio` and structured diagnostics using `tracing`.
+
+---
+
+## Interactive Architecture Diagram
+
+Use the interactive diagram below to explore the data flow, control signals, and component code layouts. Hover over any block to inspect its telemetry status and source references, or click **Explore Architecture** in the top-right corner to open the fullscreen HUD console.
+
+<div class="not-content">
+  <ArchitectureDiagram />
+</div>
+
+---
+
+## Core Systems & Pipelines
+
+### The ZonePlayer Engine
+Each audio zone runs as an isolated, concurrent `tokio` task known as a `ZonePlayer`. It handles the complete lifecycle of audio streaming, decoding, and digital signal processing (DSP) independently:
+
+* **Stream Decoding:** Reads and decodes compressed formats on-the-fly using `symphonia` (a pure Rust decoder suite) supporting MP3, FLAC, AAC, and OGG/Vorbis.
+* **Stream Preemption (AirPlay 2 / Spotify):** ZonePlayers host embedded network receivers (Shairplay & Librespot) that automatically preempt active HTTP decodes when a user starts casting.
+* **Hardware-Accelerated DSP:** Raw float PCM samples are piped through a parametric equalizer (N-band cascade biquads) and a speaker correction database applying cabinet Spinorama profile parameters.
+* **Lossless Encoding & Writing:** Processed samples are compressed (using FLAC or F32LZ4) and queued into the server buffers.
+
+### The Embedded Snapcast Server
+Instead of wrapping external binaries, SnapDog integrates a rewritten, high-performance Snapcast server ([snapcast-rs](https://github.com/metaneutrons/snapcast-rs)):
+* **Frame Syncing:** Align audio packets using microsecond-accurate NTP clock timestamps shared over control sockets.
+* **Dynamic Resampling:** Automatically handles drift correction by tracking client soundcard playback positions and adjust resampling ratios dynamically.
+* **Lossless compression:** Distributes native FLAC/LZ4 streams dynamically depending on network performance.

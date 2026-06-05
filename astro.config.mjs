@@ -17,11 +17,15 @@ export default defineConfig({
       logo: {
         src: './src/assets/logo.svg',
       },
+      components: {
+        SiteTitle: './src/components/CustomSiteTitle.astro',
+      },
       social: {
         github: 'https://github.com/SnapDogRocks/snapdog',
       },
       sidebar: [
         { label: 'Introduction', link: '/docs/introduction' },
+        { label: 'System Architecture', link: '/docs/architecture' },
         {
           label: 'Installation',
           items: [

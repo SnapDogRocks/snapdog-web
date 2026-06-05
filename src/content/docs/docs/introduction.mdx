@@ -4,25 +4,16 @@ description: Welcome to the SnapDog documentation.
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
-import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
 
 **SnapDog** is a premium, open-source multi-room synchronized audio controller that runs as a single binary on Linux, macOS, and Windows. It embeds a completely rewritten [Snapcast](https://github.com/badaix/snapcast) compatible server in pure Rust, runs AirPlay and Spotify Connect receivers per zone, streams from Subsonic/Navidrome media servers, plays internet radio, and bridges everything tightly to MQTT and KNX.
 
 ---
 
-## Core Architecture
+## Architecture Overview
 
-SnapDog is built with standard Rust async concurrency using `tokio` and structured logging using `tracing`.
+SnapDog's core is designed for low latency, lossless synchronization, and robust smart home integrations. 
 
-<ArchitectureDiagram />
-
-
-### The ZonePlayer
-Each audio zone is run by a dedicated, independent `ZonePlayer` task. The player owns the entire audio pipeline:
-* **Decoding:** Reads streams from Subsonic, Internet Radio, or arbitrary URLs using `symphonia` (pure Rust decoder).
-* **AirPlay 2 / Spotify Connect:** Dedicated background receivers preempt any active decode pipeline and stream directly to the zone.
-* **DSP Processing:** Applies parametric EQ (N-band biquads) and Spinorama speaker correction profiles to the raw float PCM stream.
-* **Snapcast Writer:** Encodes the resampled PCM stream into FLAC or F32LZ4 and writes it to the Snapcast server stream source.
+* Explore our [System Architecture Guide](/docs/architecture) for an interactive, animated diagram detailing the async `tokio` runtime pipelines, ZonePlayer decoders, and D-Bus/MQTT bridges.
 
 ---
 
@@ -30,7 +21,7 @@ Each audio zone is run by a dedicated, independent `ZonePlayer` task. The player
 
 <CardGrid>
   <Card title="Embedded Snapcast Server" icon="rocket">
-    Reimplemented in pure Rust via `snapcast-rs`. Supports lossless sync playback across multiple rooms.
+    Reimplemented in pure Rust via [snapcast-rs](https://github.com/metaneutrons/snapcast-rs). Supports lossless sync playback across multiple rooms.
   </Card>
   <Card title="Built-in DSP & EQ" icon="setting">
     Per-zone parametric equalizer and Spinorama speaker correction profile database (over 1,000+ speakers).
