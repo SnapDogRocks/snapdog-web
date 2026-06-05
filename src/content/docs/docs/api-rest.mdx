@@ -168,6 +168,10 @@ Volume can be adjusted absolutely (`0` to `100`) or relative to the current leve
   * `/api/v1/zones/{zone_index}/stop`
 * **Response `200 OK`:** Returns nothing on success, or an error if playback fails.
 
+<Aside type="note">
+  Some stream and decoder failures occur after the command has already been accepted. Clients should listen for the WebSocket [`playback_error`](/docs/api-websocket#playback_error) event to surface late DNS, HTTP, cache, container, or decoder failures to users.
+</Aside>
+
 ### Track Navigation
 Skip tracks inside the current active playlist.
 

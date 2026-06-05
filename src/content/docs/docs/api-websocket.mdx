@@ -31,8 +31,9 @@ Connections with invalid or missing tokens are immediately rejected with a `401 
 </Aside>
 
 ### Connection Lifecycle
-* **Heartbeat:** The server does not require custom client ping frames, but standard WebSocket pings are responded to automatically.
-* **Initial State Broadcast:** Immediately upon successful connection, the server pushes a complete list of all zones and connected clients to the WebSocket client to populate UI states.
+* **Heartbeat:** The server sends standard WebSocket ping frames periodically and responds to client pings automatically.
+* **State bootstrap:** Fetch the initial zone/client state through the REST API, then apply WebSocket events as deltas. This avoids losing state when a client reconnects after being offline.
+* **Shutdown:** When the server is shutting down, clients may receive a normal close frame with code `1001` (`Going Away`).
 
 ---
 
@@ -40,24 +41,58 @@ Connections with invalid or missing tokens are immediately rejected with a `401 
 
 All WebSocket messages are JSON objects containing a `"type"` string that identifies the event.
 
+### Event Summary
+
+| Event | Purpose |
+|---|---|
+| `zone_changed` | Full zone playback, source, metadata, playlist navigation, and zone volume update. |
+| `zone_volume_changed` | Lightweight zone volume/mute update. |
+| `zone_progress` | Periodic position and optional buffer progress update. |
+| `client_state_changed` | Client connection, volume, mute, zone assignment, or SnapDog capability update. |
+| `zone_presence_changed` | Presence detection and auto-off timer update. |
+| `zone_eq_changed` | Zone equalizer configuration update. |
+| `playback_error` | Decoder, stream, network, cache, or unsupported audio failure for a zone. |
+
 ### `zone_changed`
-Fired whenever a zone's playback state, active source, track, or position changes.
+Fired whenever a zone's playback state, active source, track metadata, playlist position, navigation availability, volume, or mute state changes.
 
 ```json
 {
   "type": "zone_changed",
   "zone": 1,
   "playback": "playing",
-  "source": "subsonic",
+  "source": "subsonic_playlist",
+  "shuffle": false,
+  "repeat": "off",
   "title": "Acoustic Song",
   "artist": "The Band",
   "album": "Unplugged",
+  "album_artist": "The Band",
+  "genre": "Folk",
+  "year": 2026,
+  "track_number": 3,
+  "disc_number": 1,
   "duration_ms": 240000,
   "position_ms": 12400,
+  "seekable": true,
+  "cover_url": "/api/v1/zones/1/cover",
+  "bitrate_kbps": 320,
+  "content_type": "audio/flac",
+  "track_index": 2,
+  "track_count": 12,
+  "playlist": 1,
+  "playlist_name": "Acoustic Evening",
+  "playlist_total": 4,
+  "can_playlist_next": true,
+  "can_playlist_prev": false,
+  "can_next": true,
+  "can_prev": true,
   "volume": 75,
   "muted": false
 }
 ```
+
+When `playback` is `"playing"` or new track metadata arrives, clients should clear any previously displayed `playback_error` for that zone.
 
 ### `zone_volume_changed`
 Fired when a zone's master volume or mute state is altered.
@@ -71,25 +106,85 @@ Fired when a zone's master volume or mute state is altered.
 }
 ```
 
-### `client_connected`
-Fired when a physical speaker client connects to the audio streaming port.
+### `zone_progress`
+Fired periodically while playback is active. `buffered_ms` is included when the stream supports buffer progress reporting.
 
 ```json
 {
-  "type": "client_connected",
-  "mac": "02:42:ac:11:00:10"
+  "type": "zone_progress",
+  "zone": 1,
+  "position_ms": 42150,
+  "duration_ms": 240000,
+  "buffered_ms": 90000
 }
 ```
 
-### `client_disconnected`
-Fired when a speaker client drops connection.
+### `client_state_changed`
+Fired when a Snapcast/SnapDog client changes connection state, volume, mute state, assigned zone, or SnapDog capability.
 
 ```json
 {
-  "type": "client_disconnected",
-  "mac": "02:42:ac:11:00:10"
+  "type": "client_state_changed",
+  "client": 3,
+  "volume": 55,
+  "muted": false,
+  "connected": true,
+  "zone": 1,
+  "is_snapdog": true
 }
 ```
+
+### `zone_presence_changed`
+Fired when presence detection, presence-triggered playback enablement, or the auto-off timer state changes.
+
+```json
+{
+  "type": "zone_presence_changed",
+  "zone": 1,
+  "presence": true,
+  "enabled": true,
+  "timer_active": false
+}
+```
+
+### `zone_eq_changed`
+Fired when a zone equalizer is enabled, disabled, edited, or assigned a preset.
+
+```json
+{
+  "type": "zone_eq_changed",
+  "zone": 1,
+  "enabled": true,
+  "bands": [
+    {
+      "freq": 1000.0,
+      "gain": 2.5,
+      "q": 1.0,
+      "type": "peaking"
+    }
+  ],
+  "preset": "voice"
+}
+```
+
+### `playback_error`
+Fired when a zone fails during streaming or decoding. Examples include DNS failures, HTTP timeouts, unsupported HLS encryption, invalid audio containers, unreadable cached files, or decoder probe failures.
+
+```json
+{
+  "type": "playback_error",
+  "zone": 1,
+  "message": "Failed to probe audio format",
+  "details": "invalid data found in stream",
+  "recoverable": false
+}
+```
+
+When a `playback_error` arrives, clients should mark the zone as stopped/idle, clear active track artwork/metadata for that zone, and display the `message`. The optional `details` field is intended for expandable technical diagnostics. Clear the displayed error when the user dismisses it, when a later `zone_changed` event reports `"playback": "playing"`, or when new track metadata is received for the zone.
+
+<Aside type="caution">
+  A playback command can return `200 OK` before the decoder discovers a late stream failure. Always subscribe to `playback_error` if your client needs accurate user-facing failure reporting.
+</Aside>
 
 ## Next Steps
 
