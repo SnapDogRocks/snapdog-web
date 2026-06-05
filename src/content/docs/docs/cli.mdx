@@ -1,0 +1,106 @@
+---
+title: CLI Reference
+description: Detailed command-line interface arguments, switches, and usage examples for the SnapDog server.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+The **SnapDog** server runs as a background daemon process. While its primary settings are defined in a `snapdog.toml` configuration file, the binary supports various command-line arguments to override configurations dynamically at startup.
+
+---
+
+## 1. Required Execution Modes
+
+At startup, the `snapdog` binary requires you to declare its primary configuration mode. You **must** specify either `--config` or `--knx-device` to run the server.
+
+* **Configuration File Mode:** Standard operation using a TOML file.
+  ```bash
+  snapdog --config /path/to/snapdog.toml
+  ```
+* **KNX Device Mode:** Bootstraps with standard defaults and relies on an ETS (Engineering Tool Software) project download over KNX routing/tunneling to configure zones and group addresses.
+  ```bash
+  snapdog --knx-device
+  ```
+
+<Aside type="danger">
+If neither `--config` nor `--knx-device` is specified, the application will print the help guide to `stdout` and exit immediately with status code `1`.
+</Aside>
+
+---
+
+## 2. Command-Line Arguments Reference
+
+The following switches can be passed to the `snapdog` server binary:
+
+### Configuration & Mode Switches
+
+| Option | Shorthand | Type | Description |
+| :--- | :--- | :--- | :--- |
+| `--config <PATH>` | `-c` | String (Path) | Path to the TOML configuration file. |
+| `--knx-device` | — | Flag | Enables KNX Device mode, causing the server to register as an ETS-programmable device. |
+| `--knx-address <ADDR>` | — | String | The KNX physical/individual address (e.g. `1.1.100`) to advertise in ETS. Defaults to `15.15.255`. *(Requires `--knx-device`)* |
+| `--knx-prog-mode` | — | Flag | Starts the server with KNX programming mode active immediately, turning on the programming LED. *(Requires `--knx-device`)* |
+
+### Network & HTTP Overrides
+
+| Option | Shorthand | Type | Description |
+| :--- | :--- | :--- | :--- |
+| `--port <PORT>` | `-p` | Integer | Overrides the HTTP API / WebUI listening port (TOML: `[http].port`). |
+| `--bind <IP>` | `-b` | String | Overrides the network address to bind to (e.g. `0.0.0.0` or `::`). |
+| `--tls-cert <PATH>` | — | String (Path) | Path to a PEM certificate chain to enable HTTPS/TLS. |
+| `--tls-key <PATH>` | — | String (Path) | Path to an unencrypted PEM private key for HTTPS/TLS. |
+
+### Audio & Resampling Overrides
+
+| Option | Shorthand | Type | Description |
+| :--- | :--- | :--- | :--- |
+| `--codec <CODEC>` | — | String | Resampling compression codec. Options: `pcm`, `flac`, `f32lz4`, `f32lz4e`. |
+| `--sample-rate <HZ>` | — | Integer | Output sample resampling frequency (e.g., `44100`, `48000`, `96000`). |
+| `--bit-depth <BITS>` | — | Integer | Output audio PCM bit depth. Options: `16`, `24`, `32`. |
+| `--streaming-port <PORT>` | — | Integer | Port for client speaker connections (TOML: `[snapcast].streaming_port`). |
+
+### Diagnostics & System
+
+| Option | Shorthand | Type | Description |
+| :--- | :--- | :--- | :--- |
+| `--name <NAME>` | — | String | Overrides the server name advertised to `mDNS` / Spotify / MQTT. |
+| `--log-level <LEVEL>` | `-l` | String | Log level verbosity. Options: `trace`, `debug`, `info`, `warn`, `error`. |
+| `--service` | — | Flag | Runs the binary as a native NT Service. *(Windows builds only)* |
+| `--help` | `-h` | Flag | Prints help and usage details. |
+| `--version` | `-V` | Flag | Prints version information. |
+
+---
+
+## 3. Practical Usage Examples
+
+Here are common launch configurations for the SnapDog daemon:
+
+<Tabs>
+  <TabItem label="Standard Daemon Mode">
+    Launch the server on Linux or macOS with a specific configuration file:
+    ```bash
+    snapdog --config /etc/snapdog/snapdog.toml
+    ```
+  </TabItem>
+
+  <TabItem label="Debugging & Port Override">
+    Temporarily override the web server port and increase logging verbosity to debug connection issues:
+    ```bash
+    snapdog --config ~/.config/snapdog.toml --port 8080 --log-level debug
+    ```
+  </TabItem>
+
+  <TabItem label="KNX Integration Bootstrapping">
+    Launch in device mode to let an integrator assign a physical address (e.g., `1.1.25`) and program the server using the `.knxprod` file:
+    ```bash
+    snapdog --knx-device --knx-address 1.1.25 --knx-prog-mode
+    ```
+  </TabItem>
+
+  <TabItem label="Audiophile Override">
+    Temporarily launch with high-fidelity studio resampling and FLAC stream compression parameters, bypassing TOML settings:
+    ```bash
+    snapdog --config snapdog.toml --sample-rate 96000 --bit-depth 24 --codec flac
+    ```
+  </TabItem>
+</Tabs>
