@@ -13,8 +13,14 @@ Docker is the recommended deployment method for home servers or Network Attached
 
 Before running SnapDog inside Docker, make sure you configure your container hosting environment correctly:
 
-### 1. Network Host Mode
-SnapDog relies on **mDNS/Bonjour multicast** for zone discovery and **KNX IP multicast** for smart building integration. Therefore, the container **must** be run in `network_mode: host`. Bridge networks will block multicast traffic unless configured with complex mDNS reflectors.
+### 1. Network Mode Selection
+For full plug-and-play functionality, running the container in `network_mode: host` is **strongly recommended**. 
+
+SnapDog relies on **mDNS/Bonjour multicast** for automated client zone discovery and **KNX IP multicast routing** for smart building integration. Standard bridge networks will block multicast traffic unless configured with complex mDNS reflectors. 
+
+However, running in standard container bridge mode is fully supported if:
+* You configure client receiver targets manually via IP addresses (disabling mDNS autodiscovery).
+* Your KNX integration is configured in **tunneling mode** rather than routing mode (as point-to-point UDP tunnels do not require multicast access).
 
 ### 2. Device Access for Audio Output
 If you plan to use local soundcards connected to the host machine for audio output (via ALSA), you must expose `/dev/snd` to the container:
@@ -33,7 +39,7 @@ If you plan to use local soundcards connected to the host machine for audio outp
        image: ghcr.io/metaneutrons/snapdog:latest
        container_name: snapdog
        restart: unless-stopped
-       network_mode: host # Required for mDNS discovery and KNX multicast
+       network_mode: host # Recommended for mDNS discovery and KNX multicast. Can be omitted for bridge mode if using manual IPs and KNX tunneling.
        devices:
          - "/dev/snd:/dev/snd" # Expose ALSA soundcards for direct playback
        volumes:
