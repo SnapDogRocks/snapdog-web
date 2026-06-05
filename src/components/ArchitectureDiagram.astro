@@ -244,75 +244,75 @@
 
       <!-- ==================== LAYER 4: SMART HOME & CONTROL BRIDGES (RIGHT) ==================== -->
       <!-- Group Title -->
-      <text x="770" y="40" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[10px] tracking-wider uppercase font-semibold">Bridges & APIs</text>
+      <text x="775" y="40" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[10px] tracking-wider uppercase font-semibold">Bridges & APIs</text>
 
       <!-- Bridge 1: REST API & WebUI -->
       <g id="bridge-rest" class="bridge-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect REST API and Web UI Bridge">
-        <rect x="630" y="60" width="150" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
-        <circle cx="755" cy="83" r="12" fill="#171717" stroke="#38bdf8" stroke-width="1.5" class="status-led"></circle>
+        <rect x="605" y="60" width="190" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="775" cy="83" r="12" fill="#171717" stroke="#38bdf8" stroke-width="1.5" class="status-led"></circle>
         <!-- Code / Web Icon -->
-        <g transform="translate(755, 83) scale(0.8)" class="text-sky-400">
+        <g transform="translate(775, 83) scale(0.8)" class="text-sky-400">
           <path d="M-6,-3 L-2,1 L-6,5 M6,-3 L2,1 L6,5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
         </g>
-        <text x="733" y="81" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">REST API & WebUI</text>
-        <text x="733" y="93" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Axum Engine</text>
+        <text x="753" y="81" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">REST API & WebUI</text>
+        <text x="753" y="93" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Axum Engine</text>
       </g>
 
       <!-- Bridge 2: WebSocket API -->
       <g id="bridge-ws" class="bridge-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect WebSocket API Sync Bridge">
-        <rect x="630" y="126" width="150" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
-        <circle cx="755" cy="149" r="12" fill="#171717" stroke="#0ea5e9" stroke-width="1.5" class="status-led"></circle>
+        <rect x="605" y="126" width="190" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="775" cy="149" r="12" fill="#171717" stroke="#0ea5e9" stroke-width="1.5" class="status-led"></circle>
         <!-- Sync Icon -->
-        <g transform="translate(755, 149) scale(0.8)" class="text-sky-500">
+        <g transform="translate(775, 149) scale(0.8)" class="text-sky-500">
           <path d="M-5,-1 A5,5 0 0,1 5,-1 M5,2 A5,5 0 0,1 -5,2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>
           <polygon points="5,-4 8,-1 5,2" fill="currentColor" transform="scale(0.8) translate(3, -2)"></polygon>
         </g>
-        <text x="733" y="147" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">WebSocket API</text>
-        <text x="733" y="159" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Real-Time Sync</text>
+        <text x="753" y="147" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">WebSocket API</text>
+        <text x="753" y="159" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Real-Time Sync</text>
       </g>
 
       <!-- Bridge 3: D-Bus (MPRIS2) -->
       <g id="bridge-dbus" class="bridge-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect D-Bus MPRIS2 API Bridge">
-        <rect x="630" y="192" width="150" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
-        <circle cx="755" cy="215" r="12" fill="#171717" stroke="#a855f7" stroke-width="1.5" class="status-led"></circle>
+        <rect x="605" y="192" width="190" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="775" cy="215" r="12" fill="#171717" stroke="#a855f7" stroke-width="1.5" class="status-led"></circle>
         <!-- DBus topology node icon -->
-        <g transform="translate(755, 215) scale(0.8)" class="text-purple-400">
+        <g transform="translate(775, 215) scale(0.8)" class="text-purple-400">
           <circle cx="-4" cy="-3" r="2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
           <circle cx="4" cy="-3" r="2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
           <circle cx="0" cy="4" r="2" fill="none" stroke="currentColor" stroke-width="1.2"></circle>
           <line x1="-3" y1="-1" x2="-1" y2="2" stroke="currentColor" stroke-width="1"></line>
           <line x1="3" y1="-1" x2="1" y2="2" stroke="currentColor" stroke-width="1"></line>
         </g>
-        <text x="733" y="213" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">D-Bus (MPRIS2)</text>
-        <text x="733" y="225" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Linux Desktop Control</text>
+        <text x="753" y="213" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">D-Bus (MPRIS2)</text>
+        <text x="753" y="225" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Linux Desktop Control</text>
       </g>
 
       <!-- Bridge 4: MQTT Bridge -->
       <g id="bridge-mqtt" class="bridge-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect MQTT Smart Home Bridge">
-        <rect x="630" y="246" width="150" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
-        <circle cx="755" cy="269" r="12" fill="#171717" stroke="#fb7185" stroke-width="1.5" class="status-led"></circle>
+        <rect x="605" y="246" width="190" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="775" cy="269" r="12" fill="#171717" stroke="#fb7185" stroke-width="1.5" class="status-led"></circle>
         <!-- Broker hub icon -->
-        <g transform="translate(755, 269) scale(0.8)" class="text-rose-400">
+        <g transform="translate(775, 269) scale(0.8)" class="text-rose-400">
           <circle cx="0" cy="0" r="3" fill="currentColor"></circle>
           <line x1="-6" y1="-5" x2="-2" y2="-2" stroke="currentColor" stroke-width="1.2"></line>
           <line x1="6" y1="-5" x2="2" y2="-2" stroke="currentColor" stroke-width="1.2"></line>
           <line x1="0" y1="6" x2="0" y2="3" stroke="currentColor" stroke-width="1.2"></line>
         </g>
-        <text x="733" y="267" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">MQTT Bridge</text>
-        <text x="733" y="279" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Home Assistant</text>
+        <text x="753" y="267" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">MQTT Bridge</text>
+        <text x="753" y="279" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Home Assistant</text>
       </g>
 
       <!-- Bridge 5: KNX Bridge -->
       <g id="bridge-knx" class="bridge-node cursor-pointer focus:outline-none" role="button" tabindex="0" aria-label="Inspect KNX Smart Building Bridge">
-        <rect x="630" y="300" width="150" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
-        <circle cx="755" cy="323" r="12" fill="#171717" stroke="#2dd4bf" stroke-width="1.5" class="status-led"></circle>
+        <rect x="605" y="300" width="190" height="46" rx="8" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1" class="transition-all duration-300 hover:fill-white/[0.04] hover:stroke-amber-500/50"></rect>
+        <circle cx="775" cy="323" r="12" fill="#171717" stroke="#2dd4bf" stroke-width="1.5" class="status-led"></circle>
         <!-- House outline with switch wire icon -->
-        <g transform="translate(755, 323) scale(0.8)" class="text-teal-400">
+        <g transform="translate(775, 323) scale(0.8)" class="text-teal-400">
           <path d="M-6,4 L-6,-2 L0,-7 L6,-2 L6,4 Z" fill="none" stroke="currentColor" stroke-width="1.2"></path>
           <line x1="-3" y1="1" x2="3" y2="1" stroke="currentColor" stroke-width="1.2"></line>
         </g>
-        <text x="733" y="321" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">KNX Bridge</text>
-        <text x="733" y="333" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Building Multicast</text>
+        <text x="753" y="321" text-anchor="end" fill="currentColor" class="text-neutral-200 font-sans text-xs font-semibold">KNX Bridge</text>
+        <text x="753" y="333" text-anchor="end" fill="currentColor" class="text-neutral-500 font-mono text-[9px]">Building Multicast</text>
       </g>
 
 
@@ -382,33 +382,33 @@
 
       <!-- Control / Data packet circles (Right Stack) -->
       <!-- REST Packets (Blue) -->
-      <path id="ctrl-rest" d="M 630,83 L 600,83" fill="none" stroke="rgba(56, 189, 248, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
+      <path id="ctrl-rest" d="M 605,83 L 600,83" fill="none" stroke="rgba(56, 189, 248, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
       <circle r="2" fill="#38bdf8" opacity="0" class="packet">
-        <animateMotion dur="5s" repeatCount="indefinite" path="M 630,83 L 600,83" keyPoints="0;1;1;1" keyTimes="0;0.25;0.5;1" calcMode="linear" />
+        <animateMotion dur="5s" repeatCount="indefinite" path="M 605,83 L 600,83" keyPoints="0;1;1;1" keyTimes="0;0.25;0.5;1" calcMode="linear" />
         <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.22;0.25;1" dur="5s" repeatCount="indefinite" />
       </circle>
       <!-- WebSocket state packets (Blue back out) -->
-      <path id="ctrl-ws" d="M 600,149 L 630,149" fill="none" stroke="rgba(14, 165, 233, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
+      <path id="ctrl-ws" d="M 600,149 L 605,149" fill="none" stroke="rgba(14, 165, 233, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
       <circle r="2" fill="#0ea5e9" opacity="0" class="packet">
-        <animateMotion dur="4.5s" repeatCount="indefinite" path="M 600,149 L 630,149" keyPoints="0;1;1;1" keyTimes="0;0.25;0.5;1" calcMode="linear" />
+        <animateMotion dur="4.5s" repeatCount="indefinite" path="M 600,149 L 605,149" keyPoints="0;1;1;1" keyTimes="0;0.25;0.5;1" calcMode="linear" />
         <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.22;0.25;1" dur="4.5s" repeatCount="indefinite" />
       </circle>
       <!-- D-Bus Packets (Purple) -->
-      <path id="ctrl-dbus" d="M 630,215 L 600,215" fill="none" stroke="rgba(168, 85, 247, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
+      <path id="ctrl-dbus" d="M 605,215 L 600,215" fill="none" stroke="rgba(168, 85, 247, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
       <circle r="2" fill="#c084fc" opacity="0" class="packet">
-        <animateMotion dur="6s" begin="1s" repeatCount="indefinite" path="M 630,215 L 600,215" keyPoints="0;1;1;1" keyTimes="0;0.25;0.5;1" calcMode="linear" />
+        <animateMotion dur="6s" begin="1s" repeatCount="indefinite" path="M 605,215 L 600,215" keyPoints="0;1;1;1" keyTimes="0;0.25;0.5;1" calcMode="linear" />
         <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.22;0.25;1" dur="6s" begin="1s" repeatCount="indefinite" />
       </circle>
       <!-- MQTT Packets (Pink) -->
-      <path id="ctrl-mqtt" d="M 630,269 C 610,269 610,330 600,330" fill="none" stroke="rgba(251, 113, 133, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
+      <path id="ctrl-mqtt" d="M 605,269 C 602,269 602,330 600,330" fill="none" stroke="rgba(251, 113, 133, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
       <circle r="2" fill="#fb7185" opacity="0" class="packet">
-        <animateMotion dur="5.5s" begin="2s" repeatCount="indefinite" path="M 630,269 C 610,269 610,330 600,330" keyPoints="0;1;1;1" keyTimes="0;0.3;0.6;1" calcMode="linear" />
+        <animateMotion dur="5.5s" begin="2s" repeatCount="indefinite" path="M 605,269 C 602,269 602,330 600,330" keyPoints="0;1;1;1" keyTimes="0;0.3;0.6;1" calcMode="linear" />
         <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.27;0.3;1" dur="5.5s" begin="2s" repeatCount="indefinite" />
       </circle>
       <!-- KNX Packets (Teal) -->
-      <path id="ctrl-knx" d="M 630,323 C 610,323 610,370 600,370" fill="none" stroke="rgba(45, 212, 191, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
+      <path id="ctrl-knx" d="M 605,323 C 602,323 602,370 600,370" fill="none" stroke="rgba(45, 212, 191, 0.15)" stroke-width="1" stroke-dasharray="2 2"></path>
       <circle r="2" fill="#2dd4bf" opacity="0" class="packet">
-        <animateMotion dur="6.5s" begin="0.5s" repeatCount="indefinite" path="M 630,323 C 610,323 610,370 600,370" keyPoints="0;1;1;1" keyTimes="0;0.3;0.6;1" calcMode="linear" />
+        <animateMotion dur="6.5s" begin="0.5s" repeatCount="indefinite" path="M 605,323 C 602,323 602,370 600,370" keyPoints="0;1;1;1" keyTimes="0;0.3;0.6;1" calcMode="linear" />
         <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.02;0.27;0.3;1" dur="6.5s" begin="0.5s" repeatCount="indefinite" />
       </circle>
 
