@@ -175,7 +175,7 @@ Pushed to the client upon stream state changes to update local player displays.
 ```json
 {
   "playback": "playing",
-  "source": "subsonic",
+  "source": "subsonic_playlist",
   "shuffle": false,
   "repeat": "off",
   "title": "Acoustic Song",
@@ -189,7 +189,7 @@ Pushed to the client upon stream state changes to update local player displays.
   "duration_ms": 240000,
   "position_ms": 12400,
   "seekable": true,
-  "cover_url": "http://192.168.1.10:5555/api/v1/zones/1/cover",
+  "cover_url": "/api/v1/zones/1/cover",
   "bitrate_kbps": 320,
   "content_type": "audio/flac",
   "track_index": 2,
@@ -224,7 +224,7 @@ Pushed to clients to render album art thumbnails on color player screens.
   />
   <LinkCard
     title="WebSocket API"
-    description="Listen to real-time client connected and disconnected event signals."
+    description="Listen to real-time zone, client, progress, EQ, presence, and playback error updates."
     href="/docs/api-websocket"
   />
 </CardGrid>

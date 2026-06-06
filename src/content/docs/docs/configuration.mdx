@@ -33,7 +33,7 @@ Handles server execution settings, logging outputs, and local state directories.
 Controls formatting and preemption rules for audio streams.
 
 * **`sample_rate`** (Integer, default: `48000`)
-  Sets the target resampling frequency in Hz. All sources are resampled to this rate before encoding.
+  Sets the target resampling frequency in Hz. All sources are resampled to this rate before encoding. Supported values: `44100`, `48000`, `88200`, `96000`, `176400`, or `192000`.
 * **`bit_depth`** (Integer, default: `16`)
   PCM encoding bit depth. Options: `16`, `24`, or `32` bits.
 * **`channels`** (Integer, default: `2`)
@@ -52,16 +52,16 @@ Configures the REST API, WebSocket notifications, and static WebUI hosting.
 
 * **`port`** (Integer, default: `5555`)
   The TCP port on which the web server listens.
-* **`bind`** (String, default: `"0.0.0.0"`)
-  Listen interface IP. Set to `"0.0.0.0"` to listen on all IPv4 addresses, or `"::"` to enable dual-stack IPv4+IPv6.
-* **`base_url`** (String, default: `"http://localhost:<port>"`)
-  The absolute base URL of the server (e.g., `http://192.168.1.50:5555`). Used for generating absolute links for cover art endpoints in API payloads.
+* **`bind`** (String, default: `"::"`)
+  Listen interface IP. The default `::` listens on IPv6 and, on dual-stack systems, IPv4 as well. Set `"0.0.0.0"` for IPv4-only all-interface binding or a concrete IP address for one interface.
+* **`base_url`** (String, default: `"http://localhost:5555"`)
+  External base URL of the server (e.g., `http://192.168.1.50:5555` or `https://music.example.com`). Used by integrations that need absolute URLs, such as MQTT discovery and some cover-art metadata.
 * **`tls_cert`** (String, optional)
   Path to a PEM-formatted TLS certificate chain. Required together with `tls_key` to activate HTTPS.
 * **`tls_key`** (String, optional)
   Path to an unencrypted PEM TLS private key.
 * **`api_keys`** (Array of Strings, optional)
-  If configured, activates bearer token authentication. All requests to `/api/v1/*` and the `/ws` socket require the `Authorization: Bearer <key>` header.
+  If configured, activates token authentication. REST requests use `Authorization: Bearer <key>`; WebSocket connections to `/ws` pass the same key as `?token=<key>`.
 * **`api_docs`** (Boolean, default: `true`)
   Exposes the embedded **Scalar API Reference** UI dynamically at `http://<host>:<port>/docs`. Only applicable if the binary was compiled with the `api-docs` feature flag.
 
@@ -75,7 +75,7 @@ Manages the embedded Snapcast synchronizer backend.
 * **`address`** (String, default: `"127.0.0.1"`)
   The hostname or IP address of the Snapcast server.
 * **`jsonrpc_tcp_port`** (Integer, default: `1705`)
-  TCP port used to communicate JSON-RPC control events.
+  TCP port used to communicate JSON-RPC control events. `jsonrpc_port` is accepted as an alias.
 * **`streaming_port`** (Integer, default: `1704`)
   TCP port where Snapcast client devices connect to pull the encoded PCM audio data.
 * **`codec`** (String, default: `"flac"`)
@@ -137,7 +137,7 @@ Manages the embedded Snapcast synchronizer backend.
 
 #### `[subsonic.cache]`
 * **`path`** (String)
-  Local folder for pre-caching track streams.
+  Local folder for pre-caching track streams. Defaults to the platform cache directory (`~/Library/Caches/SnapDog/tracks` on macOS, `$XDG_CACHE_HOME/snapdog/tracks` or `~/.cache/snapdog/tracks` on Linux).
 * **`max_size_mb`** (Integer, default: `2048`)
   Maximum size in MB before LRU track eviction occurs.
 
@@ -151,11 +151,11 @@ Manages the embedded Snapcast synchronizer backend.
 * **`password`** (String, optional)
   Broker password.
 * **`base_topic`** (String, default: `"snapdog/"`)
-  Base namespace path under which states are published and commands are received.
+  Base namespace path under which states are published and commands are received. A trailing slash is added automatically if omitted.
 
 ### `[knx]`
 * **`role`** (String, default: `"client"`)
-  KNX integration mode: `"client"` (connects to gateway tunnel) or `"device"` (registers as an ETS-programmable device).
+  KNX integration mode: `"client"` (connects to gateway tunnel) or `"device"` (registers as an ETS-programmable device). The older key name `mode` is accepted as an alias.
 * **`url`** (String, optional)
   Gateway connection URL (e.g. `udp://192.168.1.50:3671`).
 * **`individual_address`** (String, optional)
@@ -174,16 +174,18 @@ Multiple zones can be defined using array of tables.
 
 * **`name`** (String)
   Unique name for the room (e.g. `"Living Room"`).
-* **`icon`** (String, default: `"speaker"`)
-  Icon tag used in the WebUI.
+* **`icon`** (String, default: `"🎵"`)
+  Icon or emoji used in the WebUI.
 * **`sink`** (String, optional)
   Manual override for the Snapcast audio sink path.
 * **`airplay_name`** (String, optional)
   Override for the AirPlay receiver name.
+* **`group_volume_mode`** (String, optional)
+  Zone-specific override for `[snapcast].group_volume_mode`. Options: `"absolute"`, `"relative"`, or `"compressed"`.
 * **`knx`** (Table, optional)
-  Custom group addresses for clients (e.g. `{ volume = "1/1/1", mute = "1/1/2" }`).
+  Explicit group addresses for this zone. Supported keys include `play`, `pause`, `stop`, `track_next`, `track_previous`, `control_status`, `volume`, `volume_status`, `volume_dim`, `mute`, `mute_status`, `mute_toggle`, track metadata/status fields, playlist controls, shuffle/repeat controls, and presence controls. Unconfigured group addresses are ignored.
 * **`presence`** (Table, optional)
-  Presence-activated schedules to automate playing radio stations or playlists when motion is detected.
+  Presence-activated playback and auto-off settings. `auto_off_delay` defaults to `900` seconds; `default_source` and schedule entry `source` values use `none`, `radio:<index>`, or `playlist:<id>`. Schedule entries use `from` and `to` in 24-hour `HH:MM` format, and overlapping or overnight ranges are rejected.
 
 ### `[[client]]`
 Defines output speaker hardware mapped to zones.
@@ -194,8 +196,12 @@ Defines output speaker hardware mapped to zones.
   Lowercase MAC address identifying the client device.
 * **`zone`** (String)
   Initial zone mapping. Must match a defined `[[zone]].name`.
+* **`icon`** (String, default: `"🎵"`)
+  Icon or emoji used in the WebUI.
 * **`max_volume`** (Integer, default: `100`)
   Limits the maximum volume output (0-100) to protect speaker hardware.
+* **`knx`** (Table, optional)
+  Explicit group addresses for this client. Supported keys: `volume`, `volume_status`, `volume_dim`, `mute`, `mute_status`, `mute_toggle`, `latency`, `latency_status`, `zone`, `zone_status`, and `connected_status`.
 
 ### `[[radio]]`
 Defines global internet radio streams.
@@ -206,6 +212,18 @@ Defines global internet radio streams.
   Streaming source stream URL (supports direct links, M3U/PLS, and HLS).
 * **`cover`** (String, optional)
   URL to a cover art image to display when this station is playing.
+
+---
+
+## 4. Environment Variable Overrides
+
+The server applies these environment variables after loading `snapdog.toml`:
+
+* **`SNAPDOG_HTTP_PORT`** — Overrides `[http].port`.
+* **`SNAPDOG_HTTP_API_KEYS`** — Comma-separated API keys replacing `[http].api_keys`.
+* **`SNAPDOG_SUBSONIC_PASSWORD`** — Overrides `[subsonic].password` when Subsonic is configured.
+* **`SNAPDOG_MQTT_PASSWORD`** — Overrides `[mqtt].password` when MQTT is configured.
+* **`SNAPDOG_SNAPCAST_ENCRYPTION_PSK`** — Overrides `[snapcast].encryption_psk`.
 
 ## Next Steps
 

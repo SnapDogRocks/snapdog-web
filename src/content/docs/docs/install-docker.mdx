@@ -35,7 +35,7 @@ If you plan to use local soundcards connected to the host machine for audio outp
    ```yaml
    services:
      snapdog:
-       image: ghcr.io/metaneutrons/snapdog:latest
+       image: ghcr.io/snapdogrocks/snapdog:latest
        container_name: snapdog
        restart: unless-stopped
        network_mode: host # Recommended for mDNS discovery and KNX multicast. Can be omitted for bridge mode if using manual IPs and KNX tunneling.

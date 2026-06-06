@@ -5,7 +5,7 @@ description: Install SnapDog directly using package managers, pre-compiled binar
 
 import { Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-**SnapDog** is distributed as a lightweight, single statically-linked binary. It can be deployed on Linux (x86_64, aarch64, armv7), macOS, and Windows (x86_64, aarch64).
+**SnapDog** is distributed as lightweight native binaries. The current release workflow publishes Linux (x86_64, aarch64), macOS (x86_64, aarch64), and Windows (x86_64) artifacts.
 
 ---
 
@@ -25,7 +25,7 @@ Ensure your target machine meets the following requirements:
     AUR helper tools can be used to install the latest pre-compiled binary or build SnapDog directly from the Arch User Repository.
 
     ```bash
-    # Install the server and control client
+    # Install the server and audio client
     yay -S snapdog snapdog-client
     
     # Enable and start the systemd service
@@ -38,9 +38,9 @@ Ensure your target machine meets the following requirements:
 
     ```bash
     # Tap the repository
-    brew tap metaneutrons/tap
+    brew tap snapdogrocks/tap
 
-    # Install the server and control utility
+    # Install the server and audio client
     brew install snapdog snapdog-client
 
     # Run SnapDog as a macOS background service
@@ -53,7 +53,7 @@ Ensure your target machine meets the following requirements:
 
     1. Register the trusted APT repository source:
        ```bash
-       echo "deb [trusted=yes] https://metaneutrons.github.io/snapdog/debian stable main" \
+       echo "deb [trusted=yes] https://snapdogrocks.github.io/snapdog/debian stable main" \
          | sudo tee /etc/apt/sources.list.d/snapdog.list
        ```
     2. Update package lists and install:
@@ -86,10 +86,10 @@ Ensure your target machine meets the following requirements:
 
 If you prefer to install the pre-compiled binaries manually:
 
-1. Download the correct archive for your architecture from the [GitHub Releases](https://github.com/metaneutrons/snapdog/releases) page.
+1. Download the correct archive for your architecture from the [GitHub Releases](https://github.com/SnapDogRocks/snapdog/releases) page.
 2. Extract the archive and copy the binary to `/usr/local/bin`:
    ```bash
-   tar -xzf snapdog-linux-amd64.tar.gz
+   tar -xzf snapdog-vX.Y.Z-x86_64-unknown-linux-gnu.tar.gz
    sudo mv snapdog /usr/local/bin/
    sudo chmod 755 /usr/local/bin/snapdog
    ```
@@ -112,12 +112,12 @@ Ensure your development machine has the required system libraries installed:
 ### Building
 1. Clone the repository:
    ```bash
-   git clone https://github.com/metaneutrons/snapdog.git
+   git clone https://github.com/SnapDogRocks/snapdog.git
    cd snapdog
    ```
 2. Build the release binary:
    ```bash
-   cargo build --release --bin snapdog
+   cargo build --release -p snapdog
    ```
 3. The compiled binary will be available at `target/release/snapdog`.
 
@@ -164,7 +164,7 @@ Create `~/Library/LaunchAgents/cc.snapdog.server.plist`:
     <array>
         <string>/usr/local/bin/snapdog</string>
         <string>--config</string>
-        <string>/Users/shared/snapdog.toml</string>
+        <string>/Users/Shared/snapdog.toml</string>
     </array>
     <key>RunAtLoad</key>
     <true/>

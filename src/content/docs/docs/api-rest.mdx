@@ -5,7 +5,7 @@ description: Complete reference for SnapDog HTTP control endpoints, parameter st
 
 import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-The SnapDog REST API is hosted on port `5555` by default (configurable via `[http].port` in `snapdog.toml`). All requests and responses utilize the `application/json` Content-Type.
+The SnapDog REST API is hosted on port `5555` by default (configurable via `[http].port` in `snapdog.toml`). JSON endpoints use the `application/json` Content-Type; cover-art endpoints return raw image bytes.
 
 ---
 
@@ -23,13 +23,10 @@ Accept: application/json
 </Aside>
 
 ### Authentication Errors
-Requests with missing, malformed, or invalid tokens return a `401 Unauthorized` status:
+Requests with missing, malformed, or invalid tokens return a `401 Unauthorized` status with a plain-text body:
 
-```json
-{
-  "error": "unauthorized",
-  "message": "Invalid or missing API key"
-}
+```text
+Invalid or missing API key
 ```
 
 ---
@@ -39,7 +36,7 @@ Requests with missing, malformed, or invalid tokens return a `401 Unauthorized` 
 If SnapDog is compiled with the `api-docs` feature flag and `api_docs = true` is set in the `[http]` section of your configuration, you can access the built-in documentation server directly:
 
 * **Scalar Interactive Console:** `http://<device-ip>:5555/docs`
-* **Raw OpenAPI Specification:** `http://<device-ip>:5555/api-docs/openapi.json`
+* **Runtime OpenAPI:** The OpenAPI document is embedded in the Scalar page. The project also generates a standalone JSON file for docs publishing via `cargo run --package xtask -- gen-api-spec openapi.json`.
 
 ### Console Capabilities
 
@@ -84,6 +81,15 @@ Returns detailed package and compilation versions along with the host name.
   }
   ```
 
+### Health Probes
+Health endpoints are mounted at the server root, outside the `/api/v1` prefix.
+
+* **Method:** `GET`
+* **Endpoints:**
+  * `/health` — Returns `{ "status": "ok", "zones": <count>, "clients": <count> }`.
+  * `/health/ready` — Returns plain text `ready`.
+  * `/health/live` — Returns plain text `live`.
+
 ---
 
 ## 4. Zone Management & Playback
@@ -103,7 +109,7 @@ Zones represent rooms or audio output groups. You can query their states and sen
       "volume": 75,
       "muted": false,
       "playback": "playing",
-      "source": "subsonic",
+      "source": "subsonic_playlist",
       "shuffle": false,
       "repeat": "off",
       "presence": false,
@@ -112,6 +118,8 @@ Zones represent rooms or audio output groups. You can query their states and sen
     }
   ]
   ```
+
+`source` values are the Rust `SourceType` strings: `idle`, `radio`, `subsonic_playlist`, `subsonic_track`, `url`, `airplay`, or `spotify`.
 
 ### Get Zone Count
 * **Method:** `GET`
@@ -212,8 +220,8 @@ Returns all tags of the currently playing stream.
     "bitrate_kbps": 320,
     "content_type": "audio/flac",
     "sample_rate": 48000,
-    "source": "subsonic",
-    "cover_url": "http://192.168.1.10:5555/api/v1/zones/1/cover",
+    "source": "subsonic_playlist",
+    "cover_url": "/api/v1/zones/1/cover",
     "playlist_index": 1,
     "playlist_name": "My Acoustic Playlist",
     "playlist_total": 5,
@@ -223,6 +231,8 @@ Returns all tags of the currently playing stream.
     "can_prev": false
   }
   ```
+
+`cover_url` is usually an API path such as `/api/v1/zones/1/cover`; receiver integrations may also provide an absolute HTTP(S) URL.
 
 ### Retrieve Cover Art Image
 Fetches the cover image binary. If no cover is active, returns the default SnapDog placeholder PNG.
@@ -241,6 +251,7 @@ Quick shortcuts to pull separate tags.
   * `/api/v1/zones/{zone_index}/track/artist` (returns JSON String)
   * `/api/v1/zones/{zone_index}/track/album` (returns JSON String)
   * `/api/v1/zones/{zone_index}/track/duration` (returns JSON Integer in ms)
+  * `/api/v1/zones/{zone_index}/track/playing` (returns JSON Boolean)
 
 ### Seek Position
 * **Method:** `GET` | `PUT`
@@ -281,6 +292,7 @@ Instructs a zone to immediately play a specific track, URL stream, or Subsonic p
       "track": 0
     }
     ```
+  * `/api/v1/zones/{zone_index}/play/playlist/{playlist_index}/track` — Request Body: track index. The current handler accepts the playlist path segment for compatibility and selects the track within the zone's active playlist.
   * `/api/v1/zones/{zone_index}/play/subsonic/{track_id}` — Starts a Subsonic server file stream.
 
 ### Shuffle & Repeat
@@ -331,7 +343,7 @@ Equalizers configured at the zone level are applied to the resampled master stre
     "enabled": true,
     "preset": "custom",
     "bands": [
-      { "frequency": 125, "q": 1.0, "gain": 4.5, "type": "peaking" }
+      { "freq": 125, "q": 1.0, "gain": 4.5, "type": "peaking" }
     ]
   }
   ```
@@ -345,7 +357,7 @@ Allows patching specific filters.
   {
     "enabled": true,
     "bands": [
-      { "frequency": 125, "q": 1.0, "gain": 2.0, "type": "peaking" }
+      { "freq": 125, "q": 1.0, "gain": 2.0, "type": "peaking" }
     ]
   }
   ```
@@ -357,6 +369,11 @@ Quickly overwrite current EQ settings with a standard curve.
 * **Endpoint:** `/api/v1/zones/{zone_index}/eq/preset`
 * **Request Body:** `"bass_boost"` (supported: `flat`, `bass_boost`, `loudness`, `vocals`, `treble_boost`)
 * **Response `200 OK`:** Returns loaded `EqConfig`.
+
+### Modify Single Zone EQ Band
+* **Method:** `PUT`
+* **Endpoint:** `/api/v1/zones/{zone_index}/eq/{band_index}`
+* **Request Body:** `{ "freq": 1000, "q": 1.0, "gain": -1.5, "type": "peaking" }`
 
 ---
 
@@ -454,7 +471,7 @@ Query or modify the user-configured EQ applied locally on the client player boar
 ### Modify Single EQ Band on Client
 * **Method:** `PUT`
 * **Endpoint:** `/api/v1/clients/{client_index}/eq/{band_index}`
-* **Request Body:** `{ "frequency": 1000, "q": 1.0, "gain": -1.5, "type": "peaking" }`
+* **Request Body:** `{ "freq": 1000, "q": 1.0, "gain": -1.5, "type": "peaking" }`
 
 ### Apply Client Preset
 * **Method:** `POST`
@@ -498,7 +515,7 @@ Sets either a predefined Spinorama speaker model, or applies custom correction f
     "custom": {
       "enabled": true,
       "bands": [
-        { "frequency": 80, "q": 1.41, "gain": -3.2, "type": "peaking" }
+        { "freq": 80, "q": 1.41, "gain": -3.2, "type": "peaking" }
       ]
     }
   }

@@ -16,7 +16,7 @@ The `snapdog` server registers an MPRIS2 interface for each configured audio zon
 ### Interface & Bus Details
 * **Bus Name:** `org.mpris.MediaPlayer2.snapdog.zone{N}` (where `{N}` is the 1-based index of the zone).
 * **Object Path:** `/org/mpris/MediaPlayer2`
-* **Bus Type:** Session Bus (requires session address setup).
+* **Bus Type:** Session Bus when `DBUS_SESSION_BUS_ADDRESS` is available; otherwise System Bus fallback for headless services.
 
 ### Implemented Methods (`org.mpris.MediaPlayer2.Player`)
 
@@ -43,7 +43,10 @@ The `snapdog` server registers an MPRIS2 interface for each configured audio zon
   - `xesam:title` (`String`) — Track or stream title.
   - `xesam:artist` (`Array of Strings`) — Artist array.
   - `xesam:album` (`String`) — Album title.
-* **`CanPlay` / `CanPause` / `CanSeek` / `CanControl`** (`Boolean`) — Capabilities flags.
+* **`CanPlay` / `CanPause` / `CanSeek` / `CanGoNext` / `CanGoPrevious` / `CanControl`** (`Boolean`) — Capabilities flags.
+* **`Shuffle`** (`Boolean`) — Read-write shuffle state.
+* **`LoopStatus`** (`String`) — Read-write repeat state: `"None"`, `"Track"`, or `"Playlist"`.
+* **`Rate` / `MinimumRate` / `MaximumRate`** (`Double`) — Fixed at `1.0`.
 
 ### Server Command-Line Examples
 
@@ -124,7 +127,7 @@ The `snapdog-client` player registers an MPRIS2 interface on speaker endpoints, 
   - `mpris:trackid` (`ObjectPath`) — `/org/snapdog/track`.
   - `mpris:length` (`Int64`) — Length in microseconds.
   - `mpris:artUrl` (`String`) — Local file link to pre-cached cover art (`file://<path>`).
-  - `xesam:title` / `xesam:artist` / `xesam:album` (`String`) — Metadata details.
+  - `xesam:title` / `xesam:album` (`String`) and `xesam:artist` (`Array of Strings`) — Metadata details.
 
 ### Client Command-Line Examples
 

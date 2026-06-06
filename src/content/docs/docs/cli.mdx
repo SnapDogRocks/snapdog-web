@@ -43,14 +43,14 @@ If neither `--config` nor `--knx-device` is specified, the server prints the hel
 | `--knx-address <ADDR>` | — | String | The KNX physical address (e.g. `1.1.100`) to advertise in ETS. Defaults to `15.15.255`. *(Requires `--knx-device`)* |
 | `--knx-prog-mode` | — | Flag | Starts the server with KNX programming mode active immediately. *(Requires `--knx-device`)* |
 | `--port <PORT>` | `-p` | Integer | Overrides the HTTP API / WebUI listening port (TOML: `[http].port`). |
-| `--bind <IP>` | `-b` | String | Overrides the network address to bind to (e.g. `0.0.0.0` or `::`). |
+| `--bind <IP>` | `-b` | String | Overrides the network address to bind to (e.g. `::`, `0.0.0.0`, or a concrete interface IP). |
 | `--tls-cert <PATH>` | — | String (Path) | Path to a PEM certificate chain to enable HTTPS/TLS. |
 | `--tls-key <PATH>` | — | String (Path) | Path to an unencrypted PEM private key for HTTPS/TLS. |
 | `--codec <CODEC>` | — | String | Resampling compression codec. Options: `pcm`, `flac`, `f32lz4`, `f32lz4e`. |
 | `--sample-rate <HZ>` | — | Integer | Output sample resampling frequency (e.g., `44100`, `48000`, `96000`). |
 | `--bit-depth <BITS>` | — | Integer | Output audio PCM bit depth. Options: `16`, `24`, `32`. |
 | `--streaming-port <PORT>` | — | Integer | Port for client speaker connections (TOML: `[snapcast].streaming_port`). |
-| `--name <NAME>` | — | String | Overrides the server name advertised to `mDNS` / Spotify / MQTT. |
+| `--name <NAME>` | — | String | Overrides the server name used for `mDNS`, MQTT discovery, KNX device naming, and system status. |
 | `--log-level <LEVEL>` | `-l` | String | Log level verbosity. Options: `trace`, `debug`, `info`, `warn`, `error`. |
 | `--service` | — | Flag | Runs the binary as a native NT Service. *(Windows builds only)* |
 
@@ -113,7 +113,7 @@ The `URL` has the format `<scheme>://<host>[:port]`, where scheme can be `tcp`, 
 | `--cert <PATH>` | — | String (Path) | Client certificate file (PEM format) for secure connections. |
 | `--cert-key <PATH>` | — | String (Path) | Client private key file (PEM format) for secure connections. |
 | `--key-password <PW>` | — | String | Password for encrypted private keys. |
-| `--server-cert <PATH>`| — | String (Path) | CA certificate file to verify the server certificate. |
+| `--server-cert [PATH]`| — | Optional String (Path) | CA certificate file to verify the server certificate. Use the flag without a value to use default certificate roots. |
 | `--encryption-psk <KEY>`| — | String | Pre-shared key for stream decryption when using `f32lz4e`. |
 | `--daemon [PRIORITY]` | `-d` | Integer | Run in the background (daemonized) with optional process priority `[-20..19]`. *(Unix only)* |
 | `--user <USER[:GROUP]>`| — | String | System user and group to run as when daemonized. *(Unix only)* |
@@ -125,6 +125,7 @@ The `URL` has the format `<scheme>://<host>[:port]`, where scheme can be `tcp`, 
 * `software` (Default): Digital volume scaling of the incoming PCM buffer.
 * `hardware:<control>`: Calls ALSA's mixer interface to set physical soundcard gain (e.g. `--mixer hardware:Master` or `--mixer hardware:Speaker`).
 * `midi:<interface>:<ch>`: Maps incoming volume levels to a MIDI CC control message (typically CC7).
+* `script:<path>`: Uses an external script mixer backend supported by the Snapcast client layer.
 * `none`: Disables volume adjustments on the client.
 </Aside>
 
