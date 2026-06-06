@@ -5,7 +5,7 @@ description: Install SnapDog directly using package managers, pre-compiled binar
 
 import { Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-**SnapDog** is distributed as lightweight native binaries. The current release workflow publishes Linux (x86_64, aarch64), macOS (x86_64, aarch64), and Windows (x86_64) artifacts.
+**SnapDog** is distributed as lightweight native binaries. The current release workflow publishes Linux (x86_64, aarch64), macOS (x86_64, aarch64), and Windows (x86_64, aarch64) artifacts.
 
 ---
 
@@ -69,9 +69,9 @@ Ensure your target machine meets the following requirements:
     </TabItem>
 
   <TabItem label="Windows Service">
-    SnapDog compiles to a native Windows binary and can run as an NT Service.
+    SnapDog compiles to a native Windows binary (x86_64 and arm64) and can run as an NT Service.
 
-    1. Download the Windows binary (`snapdog.exe`) and place it in `C:\Program Files\SnapDog\`.
+    1. Download the Windows binary (`snapdog.exe`) for your architecture and place it in `C:\Program Files\SnapDog\`.
     2. Open a Command Prompt as Administrator and register the service:
        ```cmd
        sc create SnapDog binPath= "\"C:\Program Files\SnapDog\snapdog.exe\" --service --config \"C:\ProgramData\snapdog\snapdog.toml\"" start= auto
