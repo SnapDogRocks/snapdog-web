@@ -170,6 +170,14 @@ Fired when a zone equalizer is enabled, disabled, edited, or assigned a preset.
 ### `playback_error`
 Fired when a zone fails during streaming or decoding. Examples include DNS failures, HTTP timeouts, unsupported HLS encryption, invalid audio containers, unreadable cached files, or decoder probe failures.
 
+| Field | Type | Required | Description |
+|---|---|---:|---|
+| `type` | string | yes | Always `playback_error`. |
+| `zone` | number | yes | 1-based zone index that encountered the failure. |
+| `message` | string | yes | Primary user-facing error message. |
+| `details` | string \| null | no | Optional technical diagnostic detail. The field may be omitted or `null`. |
+| `recoverable` | boolean | yes | Whether the server considers the error recoverable without explicit user action. |
+
 ```json
 {
   "type": "playback_error",
