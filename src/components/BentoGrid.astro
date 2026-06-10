@@ -200,10 +200,79 @@
       </div>
     </div>
 
-    <!-- Card 6: SnapDog OS Kernel (col-span-2) -->
+    <!-- Card 6: Audio Sources (col-span-2) -->
     <div class="glass-card shadow-glow-card rounded-2xl p-4 sm:p-6 md:col-span-2 flex flex-col justify-between overflow-hidden group hover:border-amber-500/30 hover:shadow-glow-amber/5 relative min-h-[280px]">
       <div class="absolute inset-0 bg-gradient-to-tr from-amber-500/0 via-amber-500/0 to-amber-500/[0.02] pointer-events-none"></div>
-      
+
+      <div class="relative z-10 flex flex-col gap-2 max-w-md">
+        <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-md w-fit">Streaming Sources</span>
+        <h3 class="text-lg font-semibold mt-1">Native Receivers &amp; Streaming</h3>
+        <p class="text-xs text-neutral-400 leading-relaxed">
+          Every zone runs its own AirPlay and Spotify Connect receiver, streams libraries from Subsonic / Navidrome media servers, and tunes in internet radio — all decoded in pure Rust and fed straight into the Snapcast sync engine.
+        </p>
+      </div>
+
+      <!-- Source tiles -->
+      <div class="relative z-10 mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <!-- AirPlay -->
+        <div class="flex flex-col gap-1.5 bg-black/20 border border-white/5 rounded-xl p-3 group-hover:border-sky-500/30 transition-colors">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1"/><path d="m12 15 5 6H7Z"/></svg>
+          <span class="font-mono text-[10px] text-neutral-300">AirPlay</span>
+          <span class="font-mono text-[8px] text-sky-400">receiver</span>
+        </div>
+        <!-- Spotify Connect -->
+        <div class="flex flex-col gap-1.5 bg-black/20 border border-white/5 rounded-xl p-3 group-hover:border-green-500/30 transition-colors">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M7 10c3.5-1 7-0.6 10 1.2"/><path d="M7.5 13.5c2.8-0.8 5.6-0.4 8 1"/><path d="M8 16.5c2.2-0.6 4.2-0.2 6 0.9"/></svg>
+          <span class="font-mono text-[10px] text-neutral-300">Spotify</span>
+          <span class="font-mono text-[8px] text-green-400">connect</span>
+        </div>
+        <!-- Subsonic / Navidrome -->
+        <div class="flex flex-col gap-1.5 bg-black/20 border border-white/5 rounded-xl p-3 group-hover:border-amber-500/30 transition-colors">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M5.6 5.6 9 9"/><path d="m15 15 3.4 3.4"/></svg>
+          <span class="font-mono text-[10px] text-neutral-300">Subsonic</span>
+          <span class="font-mono text-[8px] text-amber-400">/ Navidrome</span>
+        </div>
+        <!-- Internet Radio -->
+        <div class="flex flex-col gap-1.5 bg-black/20 border border-white/5 rounded-xl p-3 group-hover:border-purple-500/30 transition-colors">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/><path d="M19.1 4.9C23 8.8 23 15.2 19.1 19.1"/></svg>
+          <span class="font-mono text-[10px] text-neutral-300">Internet</span>
+          <span class="font-mono text-[8px] text-purple-400">radio</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 7: D-Bus / MPRIS2 (col-span-1) -->
+    <div class="glass-card shadow-glow-card rounded-2xl p-4 sm:p-6 flex flex-col justify-between overflow-hidden group hover:border-amber-500/30 hover:shadow-glow-amber/5 relative min-h-[280px]">
+      <div class="relative z-10 flex flex-col gap-2">
+        <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-md w-fit"><abbr title="Media Player Remote Interoperability Specification">MPRIS2</abbr></span>
+        <h3 class="text-lg font-semibold mt-1"><abbr title="Desktop Bus inter-process communication">D-Bus</abbr> Media Control</h3>
+        <p class="text-xs text-neutral-400 leading-relaxed">
+          On Linux, every zone and client registers a standard <abbr title="Media Player Remote Interoperability Specification">MPRIS2</abbr> interface on D-Bus — so media keys, <code class="text-indigo-300 font-mono">playerctl</code>, lock screens, and desktop controllers can drive playback and read now-playing metadata natively.
+        </p>
+      </div>
+
+      <!-- playerctl / D-Bus visual -->
+      <div class="mt-4 font-mono text-[9px] bg-black/40 border border-white/5 rounded-xl p-3 flex flex-col gap-1 min-h-[80px] text-neutral-300">
+        <div class="flex justify-between border-b border-white/5 pb-1 mb-1 text-neutral-400">
+          <span class="truncate">org.mpris.MediaPlayer2.snapdog.zone1</span>
+          <span>D-Bus</span>
+        </div>
+        <div class="truncate">
+          <span class="text-indigo-400">$</span> playerctl -p snapdog.zone1 <span class="text-amber-400">play-pause</span>
+        </div>
+        <div class="truncate opacity-80 group-hover:opacity-100 transition-opacity" style="transition-delay: 0.05s;">
+          PlaybackStatus &rarr; <span class="text-green-400">Playing</span>
+        </div>
+        <div class="truncate opacity-50 group-hover:opacity-100 transition-opacity" style="transition-delay: 0.1s;">
+          Metadata &rarr; <span class="text-neutral-300">"Mezzanine"</span> &middot; Massive Attack
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 8: SnapDog OS Kernel (col-span-2) -->
+    <div class="glass-card shadow-glow-card rounded-2xl p-4 sm:p-6 md:col-span-2 flex flex-col justify-between overflow-hidden group hover:border-amber-500/30 hover:shadow-glow-amber/5 relative min-h-[280px]">
+      <div class="absolute inset-0 bg-gradient-to-tr from-amber-500/0 via-amber-500/0 to-amber-500/[0.02] pointer-events-none"></div>
+
       <div class="relative z-10 flex flex-col gap-2 max-w-md">
         <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-md w-fit">Operating System</span>
         <h3 class="text-lg font-semibold mt-1">Real-time Embedded <abbr title="Operating System">OS</abbr></h3>
@@ -233,6 +302,34 @@
         <div class="flex items-center gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
           <span class="text-neutral-400">[ 0.1982 ]</span>
           <span><abbr title="Advanced Linux Sound Architecture">ALSA</abbr>: Initialized SnapDog-HiFi <abbr title="Digital-to-Analog Converter">DAC</abbr> [PCM5122]</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 9: Control APIs (col-span-1) -->
+    <div class="glass-card shadow-glow-card rounded-2xl p-4 sm:p-6 flex flex-col justify-between overflow-hidden group hover:border-amber-500/30 hover:shadow-glow-amber/5 relative min-h-[280px]">
+      <div class="relative z-10 flex flex-col gap-2">
+        <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-teal-500/10 border border-teal-500/20 text-teal-400 rounded-md w-fit">REST + WebSocket</span>
+        <h3 class="text-lg font-semibold mt-1">Control APIs</h3>
+        <p class="text-xs text-neutral-400 leading-relaxed">
+          A full HTTP control surface with a built-in OpenAPI console, plus a real-time WebSocket feed that pushes state deltas — drive zones, clients, and playback without polling.
+        </p>
+      </div>
+
+      <!-- API request / event visual -->
+      <div class="mt-4 font-mono text-[9px] bg-black/40 border border-white/5 rounded-xl p-3 flex flex-col gap-1 min-h-[80px] text-neutral-300">
+        <div class="flex justify-between border-b border-white/5 pb-1 mb-1 text-neutral-400">
+          <span>:5555</span>
+          <span><abbr title="JavaScript Object Notation">JSON</abbr> &middot; Bearer</span>
+        </div>
+        <div class="truncate">
+          <span class="text-teal-400">GET</span> /api/v1/zones/1
+        </div>
+        <div class="truncate opacity-80 group-hover:opacity-100 transition-opacity" style="transition-delay: 0.05s;">
+          <span class="text-amber-400">ws</span> /ws &rarr; <span class="text-green-400">ZoneStateChanged</span>
+        </div>
+        <div class="truncate opacity-50 group-hover:opacity-100 transition-opacity" style="transition-delay: 0.1s;">
+          &#123; "volume": <span class="text-neutral-300">65</span>, "status": <span class="text-green-400">"playing"</span> &#125;
         </div>
       </div>
     </div>

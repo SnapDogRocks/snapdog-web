@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -28,17 +29,73 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Starlight color theme overrides for vacuum-tube amber */
+/* Starlight theme overrides — match the landing page aesthetic */
 :root {
+  /* Vacuum-tube amber accent */
   --sl-color-accent-low: #362000;
   --sl-color-accent: #f59e0b;
   --sl-color-accent-high: #ffbe47;
   --sl-color-text-accent: #f59e0b;
   --sl-color-asides-note-border: #f59e0b;
+
+  /* Landing-page typography */
+  --sl-font: "Inter", system-ui, sans-serif;
+  --sl-font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Neutral near-black palette (replaces Starlight's bluish grays)
+     to match the landing page's #0a0a0a + Tailwind-neutral ramp */
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #f5f5f5;
+  --sl-color-gray-2: #d4d4d4;
+  --sl-color-gray-3: #a3a3a3;
+  --sl-color-gray-4: #737373;
+  --sl-color-gray-5: #404040;
+  --sl-color-gray-6: #262626;
+  --sl-color-gray-7: #1a1a1a;
+  --sl-color-black: #0a0a0a;
+
+  --sl-color-bg: #0a0a0a;
+  --sl-color-bg-nav: rgba(10, 10, 10, 0.7);
+  --sl-color-bg-sidebar: #0a0a0a;
+  --sl-color-bg-inline-code: rgba(255, 255, 255, 0.06);
+  --sl-color-hairline: rgba(255, 255, 255, 0.07);
+  --sl-color-hairline-light: rgba(255, 255, 255, 0.07);
+  --sl-color-hairline-shade: rgba(255, 255, 255, 0.04);
 }
 
 :root[data-theme='light'] {
   --sl-color-accent-low: #ffbe47;
   --sl-color-accent: #d97706;
   --sl-color-accent-high: #362000;
+
+  /* Reset background/grays back to Starlight's light defaults
+     (the dark-mode neutrals above would otherwise leak in) */
+  --sl-color-white: #181818;
+  --sl-color-gray-1: #262626;
+  --sl-color-gray-2: #404040;
+  --sl-color-gray-3: #737373;
+  --sl-color-gray-4: #a3a3a3;
+  --sl-color-gray-5: #d4d4d4;
+  --sl-color-gray-6: #f5f5f5;
+  --sl-color-gray-7: #fafafa;
+  --sl-color-black: #ffffff;
+
+  --sl-color-bg: #ffffff;
+  --sl-color-bg-nav: rgba(255, 255, 255, 0.7);
+  --sl-color-bg-sidebar: #fafafa;
+  --sl-color-bg-inline-code: rgba(0, 0, 0, 0.05);
+  --sl-color-hairline: rgba(0, 0, 0, 0.08);
+  --sl-color-hairline-light: rgba(0, 0, 0, 0.08);
+  --sl-color-hairline-shade: rgba(0, 0, 0, 0.05);
+}
+
+/* Outfit display font for headings, matching the landing page's font-display */
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3,
+.sl-markdown-content h4,
+.content-panel h1,
+h1#_top {
+  font-family: "Outfit", system-ui, sans-serif;
+  letter-spacing: -0.01em;
 }
