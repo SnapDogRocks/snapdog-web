@@ -1,0 +1,111 @@
+---
+import '../styles/globals.css';
+
+const updated = 'June 14, 2026';
+---
+
+<html lang="en" class="scroll-smooth font-sans">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>Imprint - SnapDog</title>
+    <meta
+      name="description"
+      content="Imprint and legal notice for snapdog.cc according to Section 5 DDG."
+    />
+  </head>
+  <body class="min-h-screen bg-[#0a0a0a] text-neutral-200 selection:bg-amber-500/20 selection:text-amber-200">
+    <main class="mx-auto flex w-full max-w-3xl flex-col gap-10 px-5 py-10 sm:px-6 sm:py-16">
+      <header class="flex flex-col gap-5 border-b border-white/10 pb-8">
+        <a href="/" class="inline-flex w-fit items-center gap-3 text-sm text-neutral-400 transition-colors hover:text-amber-400">
+          <img src="/logo.svg" alt="" class="h-9 w-9" />
+          <span>SnapDog</span>
+        </a>
+        <div class="flex flex-col gap-3">
+          <p class="font-mono text-xs uppercase tracking-widest text-amber-400">Legal Notice</p>
+          <h1 class="font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">Imprint</h1>
+          <p class="text-sm leading-relaxed text-neutral-400">Last updated: {updated}</p>
+        </div>
+      </header>
+
+      <div class="legal-content flex flex-col gap-9 text-sm leading-relaxed text-neutral-300">
+        <section>
+          <h2>Information According to Section 5 DDG</h2>
+          <address>
+            Dr. Fabian Schmieder<br />
+            c/o lexICT GmbH<br />
+            Eichenbrink 5<br />
+            30453 Hannover<br />
+            Germany
+          </address>
+        </section>
+
+        <section>
+          <h2>Contact</h2>
+          <p>Email: <a href="mailto:hello@snapdog.cc">hello@snapdog.cc</a></p>
+        </section>
+
+        <section>
+          <h2>Responsible for Editorial Content</h2>
+          <p>Responsible for editorial content according to Section 18(2) MStV:</p>
+          <address>
+            Dr. Fabian Schmieder<br />
+            c/o lexICT GmbH<br />
+            Eichenbrink 5<br />
+            30453 Hannover<br />
+            Germany
+          </address>
+        </section>
+
+        <section>
+          <h2>Project Information</h2>
+          <p>
+            SnapDog is an open-source multi-room audio project. This website provides project information,
+            documentation, downloads, and links to source-code repositories.
+          </p>
+        </section>
+
+        <section>
+          <h2>Privacy</h2>
+          <p>
+            Information about how SnapDog handles personal data is available in the
+            <a href="/privacy">Privacy Policy</a>.
+          </p>
+        </section>
+      </div>
+    </main>
+
+    <style>
+      .legal-content h2 {
+        color: #ffffff;
+        font-family: var(--font-display);
+        font-size: 1.375rem;
+        font-weight: 600;
+        letter-spacing: 0;
+        margin-bottom: 0.75rem;
+      }
+
+      .legal-content p + p,
+      .legal-content address + p {
+        margin-top: 0.85rem;
+      }
+
+      .legal-content a {
+        color: #f59e0b;
+        text-decoration: underline;
+        text-decoration-color: rgba(245, 158, 11, 0.45);
+        text-underline-offset: 0.18em;
+      }
+
+      .legal-content a:hover {
+        color: #fbbf24;
+      }
+
+      .legal-content address {
+        color: #f5f5f5;
+        font-style: normal;
+      }
+    </style>
+  </body>
+</html>

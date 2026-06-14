@@ -1,0 +1,269 @@
+---
+import '../styles/globals.css';
+
+const updated = 'June 14, 2026';
+---
+
+<html lang="en" class="scroll-smooth font-sans">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>Privacy Policy — SnapDog</title>
+    <meta
+      name="description"
+      content="Privacy Policy for SnapDog Client, snapdog.cc, demo.snapdog.cc, and SnapDog downloads."
+    />
+  </head>
+  <body class="min-h-screen bg-[#0a0a0a] text-neutral-200 selection:bg-amber-500/20 selection:text-amber-200">
+    <main class="mx-auto flex w-full max-w-3xl flex-col gap-10 px-5 py-10 sm:px-6 sm:py-16">
+      <header class="flex flex-col gap-5 border-b border-white/10 pb-8">
+        <a href="/" class="inline-flex w-fit items-center gap-3 text-sm text-neutral-400 transition-colors hover:text-amber-400">
+          <img src="/logo.svg" alt="" class="h-9 w-9" />
+          <span>SnapDog</span>
+        </a>
+        <div class="flex flex-col gap-3">
+          <p class="font-mono text-xs uppercase tracking-widest text-amber-400">Privacy Policy</p>
+          <h1 class="font-display text-4xl font-semibold tracking-tight text-white sm:text-5xl">Privacy Policy</h1>
+          <p class="text-sm leading-relaxed text-neutral-400">Last updated: {updated}</p>
+        </div>
+      </header>
+
+      <section class="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5 text-sm leading-relaxed text-neutral-200 sm:p-6">
+        <h2 class="font-display text-xl font-semibold text-white">Short Version</h2>
+        <p class="mt-3">
+          SnapDog is designed to work without accounts, analytics, advertising, tracking, or crash-reporting SDKs.
+          In normal use, SnapDogRocks does not receive your room names, server addresses, API keys, playback state,
+          music metadata, or settings. The app talks to the SnapDog server you choose.
+        </p>
+      </section>
+
+      <div class="privacy-content flex flex-col gap-9 text-sm leading-relaxed text-neutral-300">
+        <section>
+          <h2>1. Controller</h2>
+          <p>The controller responsible for this Privacy Policy is:</p>
+          <address>
+            Dr. Fabian Schmieder<br />
+            c/o lexICT GmbH<br />
+            Eichenbrink 5<br />
+            30453 Hannover<br />
+            Germany
+          </address>
+          <p>Email: <a href="mailto:hello@snapdog.cc">hello@snapdog.cc</a></p>
+        </section>
+
+        <section>
+          <h2>2. Scope</h2>
+          <p>This Privacy Policy applies to:</p>
+          <ul>
+            <li>the SnapDog Client mobile apps;</li>
+            <li>the website <a href="https://snapdog.cc">snapdog.cc</a>;</li>
+            <li>the optional demo service at <a href="https://demo.snapdog.cc">demo.snapdog.cc</a>;</li>
+            <li>downloads served from <a href="https://updates.snapdog.cc">updates.snapdog.cc</a>.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>3. SnapDog Client App</h2>
+          <p>
+            The SnapDog Client app can be used without a SnapDog account and without any external service operated by us.
+            In normal operation, the app connects only to the SnapDog server selected by you, for example a server in
+            your home network.
+          </p>
+          <p>The app may process data locally on your device or with your own SnapDog server, such as:</p>
+          <ul>
+            <li>server addresses, hostnames, ports, and authentication tokens configured by you;</li>
+            <li>room, zone, client, and device names;</li>
+            <li>volume, mute, playback, grouping, equalizer, and DSP settings;</li>
+            <li>music metadata such as track title, artist, album, playlist, and artwork URLs;</li>
+            <li>technical status and error messages from your SnapDog server.</li>
+          </ul>
+          <p>
+            These data are not sent to SnapDogRocks unless you explicitly connect the app to a service operated by us,
+            such as the optional demo described below. The app does not include analytics, advertising, tracking,
+            crash-reporting, or profiling SDKs.
+          </p>
+        </section>
+
+        <section>
+          <h2>4. Optional Demo Service</h2>
+          <p>
+            You may choose to connect the app to <a href="https://demo.snapdog.cc">demo.snapdog.cc</a>. The demo exists
+            to help app-store reviewers and users understand SnapDog without running their own server.
+          </p>
+          <p>
+            The demo uses mock data only. You cannot enter free-form personal content. Interactions such as play, pause,
+            volume, and zone changes are kept in memory and are lost when the virtual machine restarts. The demo
+            application does not write access logs.
+          </p>
+          <p>
+            To deliver the demo securely, technically necessary connection data may be processed transiently during your
+            HTTPS or WebSocket connection. This may include your IP address, the time of the request, TLS/HTTP/WebSocket
+            metadata, and user-agent or app-version information if sent by your client.
+          </p>
+          <p>
+            The legal basis is our legitimate interest in providing a secure, functional demo service
+            (Art. 6(1)(f) GDPR). The demo is hosted by Render Services, Inc., which acts as our processor under a data
+            processing addendum.
+          </p>
+        </section>
+
+        <section>
+          <h2>5. Website</h2>
+          <p>
+            The website <a href="https://snapdog.cc">snapdog.cc</a> is a static website. It does not provide user
+            accounts, contact forms, comments, newsletter signup, analytics, advertising, tracking pixels, or cookies.
+            Fonts are hosted locally; the website does not load Google Fonts from Google servers.
+          </p>
+          <p>
+            When you visit the website, technically necessary connection data are processed to deliver the page and keep
+            it secure. This may include your IP address, the time of the request, requested URL, referrer if sent by your
+            browser, user-agent, and similar technical metadata.
+          </p>
+          <p>
+            The legal basis is our legitimate interest in operating a secure and reliable website (Art. 6(1)(f) GDPR).
+            The website is hosted by Vercel Inc. on a Pro plan. Vercel acts as our processor under its data processing
+            addendum.
+          </p>
+        </section>
+
+        <section>
+          <h2>6. Downloads</h2>
+          <p>
+            Downloads from <a href="https://updates.snapdog.cc">updates.snapdog.cc</a> are delivered through Cloudflare
+            as a CDN. When you download a file, technically necessary connection data are processed to deliver the file,
+            protect the service, and maintain availability. This may include your IP address, request time, requested
+            file, user-agent, and related network metadata.
+          </p>
+          <p>
+            We do not use these downloads for advertising or user profiling. Cloudflare acts as a processor where it
+            processes personal data on our behalf for the CDN service.
+          </p>
+        </section>
+
+        <section>
+          <h2>7. External Links</h2>
+          <p>
+            Our website and documentation link to external services such as GitHub, GNU, Creative Commons, Spinorama, or
+            other project resources. These services are not contacted merely because you visit snapdog.cc. They are
+            contacted only if you open the external link. The privacy practices of those services are governed by their
+            own policies.
+          </p>
+        </section>
+
+        <section>
+          <h2>8. Service Providers</h2>
+          <p>We use the following service providers for hosting and delivery:</p>
+          <ul>
+            <li>Vercel Inc. for hosting <a href="https://snapdog.cc">snapdog.cc</a>;</li>
+            <li>Render Services, Inc. for hosting the optional demo service;</li>
+            <li>Cloudflare, Inc. for CDN delivery of downloads from <a href="https://updates.snapdog.cc">updates.snapdog.cc</a>.</li>
+          </ul>
+          <p>
+            These providers may process technical connection data as necessary to provide their services, maintain
+            security, prevent abuse, and ensure availability. Where required, we use data processing agreements under
+            Art. 28 GDPR and appropriate safeguards for international transfers.
+          </p>
+        </section>
+
+        <section>
+          <h2>9. Retention</h2>
+          <p>
+            The SnapDog Client app does not transmit normal-use app data to us. The optional demo keeps mock interaction
+            state only in memory and does not persist it. We do not operate our own analytics or tracking logs for the
+            app or website.
+          </p>
+          <p>
+            Our processors may retain technically necessary service, security, or abuse-prevention data according to
+            their own infrastructure and data processing terms.
+          </p>
+        </section>
+
+        <section>
+          <h2>10. International Transfers</h2>
+          <p>
+            Some of our processors are based in, or may process data in, countries outside the European Economic Area.
+            Where personal data are transferred internationally, we rely on appropriate safeguards such as EU Standard
+            Contractual Clauses, data processing agreements, and the providers' technical and organizational measures.
+          </p>
+        </section>
+
+        <section>
+          <h2>11. Your Rights</h2>
+          <p>
+            Subject to the conditions of the GDPR, you may have the right to request access, rectification, erasure,
+            restriction of processing, data portability, and objection to processing based on legitimate interests.
+          </p>
+          <p>
+            You also have the right to lodge a complaint with a competent data protection supervisory authority. To
+            exercise your rights, contact us at <a href="mailto:hello@snapdog.cc">hello@snapdog.cc</a>.
+          </p>
+        </section>
+
+        <section>
+          <h2>12. App Store and Play Store Notes</h2>
+          <p>
+            SnapDog Client is intended to work without collecting personal data for SnapDogRocks in normal use. The app
+            does not track users across apps or websites and does not sell or share personal data for advertising.
+          </p>
+          <p>
+            If you choose to use the optional demo service, only technically necessary connection data are processed
+            transiently to provide the connection. The demo contains mock data only and does not accept personal content.
+          </p>
+        </section>
+
+        <section>
+          <h2>13. Changes</h2>
+          <p>
+            We may update this Privacy Policy when SnapDog, our infrastructure, or applicable legal requirements change.
+            The date at the top of this page indicates the latest version.
+          </p>
+        </section>
+      </div>
+    </main>
+
+    <style>
+      .privacy-content h2 {
+        color: #ffffff;
+        font-family: var(--font-display);
+        font-size: 1.375rem;
+        font-weight: 600;
+        letter-spacing: 0;
+        margin-bottom: 0.75rem;
+      }
+
+      .privacy-content p + p,
+      .privacy-content p + ul,
+      .privacy-content ul + p,
+      .privacy-content address + p {
+        margin-top: 0.85rem;
+      }
+
+      .privacy-content ul {
+        list-style: disc;
+        padding-left: 1.25rem;
+      }
+
+      .privacy-content li + li {
+        margin-top: 0.35rem;
+      }
+
+      .privacy-content a {
+        color: #f59e0b;
+        text-decoration: underline;
+        text-decoration-color: rgba(245, 158, 11, 0.45);
+        text-underline-offset: 0.18em;
+      }
+
+      .privacy-content a:hover {
+        color: #fbbf24;
+      }
+
+      .privacy-content address {
+        color: #f5f5f5;
+        font-style: normal;
+        margin-top: 0.85rem;
+      }
+    </style>
+  </body>
+</html>
