@@ -2,8 +2,8 @@
 import '../styles/globals.css';
 import AudioWave from '../components/AudioWave.astro';
 import BentoGrid from '../components/BentoGrid.astro';
+import ClientShowcase from '../components/ClientShowcase.astro';
 import RoutingVisualizer from '../components/RoutingVisualizer.astro';
-import SetupWalkthrough from '../components/SetupWalkthrough.astro';
 
 // Fetch the latest version from GitHub at build time
 let version = 'v0.2.0';
@@ -20,7 +20,7 @@ try {
 }
 ---
 
-<html lang="en" class="scroll-smooth font-sans">
+<html lang="en" class="scroll-smooth font-sans overflow-x-hidden">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
@@ -156,8 +156,8 @@ try {
       <!-- Bento Features Section -->
       <BentoGrid />
 
-      <!-- Captive Portal Provisioning Setup Section -->
-      <SetupWalkthrough />
+      <!-- Native Apple Client Showcase Section -->
+      <ClientShowcase />
 
       <!-- CTA to Docs -->
       <section class="py-24 flex flex-col items-center gap-6 text-center max-w-xl">

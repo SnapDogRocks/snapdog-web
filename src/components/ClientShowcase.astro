@@ -1,0 +1,203 @@
+---
+// Apple client marketing showcase
+---
+
+<section class="w-full max-w-5xl px-0 sm:px-4 py-20 flex flex-col gap-10 items-center">
+  <div class="w-full grid grid-cols-1 lg:grid-cols-[0.78fr_1.22fr] gap-10 lg:gap-14 items-center">
+    <div class="flex flex-col gap-6 text-center lg:text-left">
+      <div class="flex flex-col gap-3">
+        <span class="font-mono text-xs uppercase tracking-widest text-amber-400">Native clients</span>
+        <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white">
+          Native control across Mac, iPad, iPhone, Apple Watch, and Android.
+        </h2>
+        <p class="text-sm text-neutral-400 leading-relaxed">
+          One codebase per platform, same full feature set everywhere: zone control,
+          library browsing, radio, playlists, and multi-room audio.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-5 gap-3 text-center">
+        <div class="client-badge">macOS</div>
+        <div class="client-badge">iPad</div>
+        <div class="client-badge">iPhone</div>
+        <div class="client-badge">Watch</div>
+        <div class="client-badge">Android</div>
+      </div>
+
+      <p class="text-[0.65rem] text-neutral-500 mt-4">
+        All clients are currently in beta and not yet available on public app stores. Clients are not subject to open-source licenses.
+      </p>
+    </div>
+
+    <div class="client-stage" aria-label="SnapDog iPad, iPhone, and Apple Watch app screenshots">
+      <div class="client-device client-device-ipad">
+        <img
+          src="/appstore/ipad-zones.webp"
+          alt="SnapDog iPad client showing zone playback controls and music library tiles"
+          width="1600"
+          height="1138"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+
+      <div class="client-companions">
+        <div class="client-device client-device-phone">
+          <img
+            src="/appstore/iphone-radio.webp"
+            alt="SnapDog iPhone client showing radio playback controls"
+            width="820"
+            height="1432"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+
+        <div class="client-device client-device-watch">
+          <img
+            src="/appstore/watch-subsonic.webp"
+            alt="SnapDog Apple Watch client showing Subsonic browsing"
+            width="3231"
+            height="2361"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+
+        <div class="client-device client-device-android">
+          <img
+            src="/appstore/android-player.webp"
+            alt="SnapDog Android client showing playback controls"
+            width="1410"
+            height="2968"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .client-badge {
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 0.375rem;
+    color: #f59e0b;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0.4rem 0.6rem;
+    text-transform: uppercase;
+  }
+
+  .client-stage {
+    align-items: end;
+    display: grid;
+    gap: 0.9rem;
+    grid-template-columns: minmax(0, 1fr);
+    margin-inline: auto;
+    max-width: 42rem;
+    width: min(100%, 42rem);
+  }
+
+  .client-device {
+    min-width: 0;
+  }
+
+  .client-device img {
+    display: block;
+    filter: drop-shadow(0 28px 42px rgba(0, 0, 0, 0.5));
+    height: auto;
+    object-fit: contain;
+    width: 100%;
+  }
+
+  .client-device-ipad {
+    justify-self: center;
+    width: min(100%, 36rem);
+  }
+
+  .client-companions {
+    align-items: end;
+    display: grid;
+    gap: clamp(0.6rem, 2.2vw, 1rem);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.84fr) minmax(0, 1fr);
+    justify-self: center;
+    width: min(100%, 25rem);
+  }
+
+  .client-device-phone img {
+    max-height: 31.2rem;
+  }
+
+  .client-device-android img {
+    max-height: 31.2rem;
+  }
+
+  .client-device-watch img {
+    max-height: 38.4rem;
+  }
+
+  @media (min-width: 40rem) {
+    .client-device-ipad {
+      width: min(100%, 38rem);
+    }
+
+    .client-companions {
+      width: min(82%, 28rem);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .client-stage {
+      align-items: center;
+      display: block;
+      max-width: none;
+      min-height: clamp(31rem, 43vw, 36rem);
+      position: relative;
+      width: 100%;
+    }
+
+    .client-companions {
+      display: contents;
+    }
+
+    .client-device {
+      position: absolute;
+    }
+
+    .client-device img {
+      max-height: none;
+    }
+
+    .client-device-ipad {
+      right: 0;
+      top: 0;
+      width: 88%;
+      z-index: 1;
+    }
+
+    .client-device-phone {
+      bottom: 0.6rem;
+      left: 0;
+      width: 39%;
+      z-index: 2;
+    }
+
+    .client-device-android {
+      bottom: 0.6rem;
+      right: -10%;
+      width: 30%;
+      z-index: 4;
+    }
+
+    .client-device-watch {
+      bottom: 0;
+      left: calc(30% + 70px);
+      width: 60%;
+      z-index: 3;
+    }
+  }
+</style>
