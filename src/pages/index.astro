@@ -5,26 +5,66 @@ import BentoGrid from '../components/BentoGrid.astro';
 import ClientShowcase from '../components/ClientShowcase.astro';
 import RoutingVisualizer from '../components/RoutingVisualizer.astro';
 
-// Fetch the latest version from GitHub at build time.
-// snapdog-os is a release-please monorepo: the OS distro uses bare vX.Y.Z tags,
-// while snapdog-ctrl / snapdog-update use prefixed tags. The /releases/latest
-// endpoint returns the newest release across ALL components, so we fetch the
-// list and pick the latest OS release (bare vX.Y.Z) instead.
-let version = 'v0.2.0';
-try {
-  const res = await fetch(
-    'https://api.github.com/repos/SnapDogRocks/snapdog-os/releases?per_page=30'
-  );
-  if (res.ok) {
-    const releases = await res.json();
-    const os = releases.find(
-      (r) => !r.prerelease && !r.draft && /^v\d+\./.test(r.tag_name)
-    );
-    version = os?.tag_name ?? 'v0.2.0';
+// SnapDog OS CI publishes a per-channel manifest to R2 (single source of truth
+// for both the displayed version and the download): latest-release.json (stable)
+// and latest-beta.json (rolling beta = HEAD of main). We seed from it at build
+// time and the client refreshes it on load, so the badge always matches the file
+// the download button actually serves.
+const R2 = 'https://updates.snapdog.cc/os/images';
+const DEFAULT_MODEL = 'pi4';
+
+async function fetchChannel(ch: string) {
+  try {
+    const res = await fetch(`${R2}/latest-${ch}.json`);
+    if (res.ok) return await res.json();
+  } catch {
+    // offline / channel not yet published at build time
   }
-} catch {
-  // Use fallback if offline or rate-limited during build
+  return null;
 }
+const [release, beta] = await Promise.all([
+  fetchChannel('release'),
+  fetchChannel('beta'),
+]);
+const channels: Record<string, any> = { release, beta };
+const defaultChannel = release ? 'release' : 'beta';
+
+// Fallback version (GitHub releases) only if no channel manifest exists yet.
+let fallbackVersion = '0.2.0';
+if (!release && !beta) {
+  try {
+    const res = await fetch(
+      'https://api.github.com/repos/SnapDogRocks/snapdog-os/releases?per_page=30'
+    );
+    if (res.ok) {
+      const rel = await res.json();
+      const os = rel.find(
+        (r: any) => !r.prerelease && !r.draft && /^v\d+\./.test(r.tag_name)
+      );
+      fallbackVersion = (os?.tag_name ?? 'v0.2.0').replace(/^v/, '');
+    }
+  } catch {
+    /* offline */
+  }
+}
+
+function imageFor(ch: string, model: string) {
+  const info = channels[ch];
+  if (!info?.boards) return null;
+  const board = model === 'zero2w' ? 'pi3' : model; // zero2w ships the pi3 image
+  const entry = info.boards[board];
+  return entry ? `${R2}/${entry.image}` : null;
+}
+
+const hasChannels = Boolean(release || beta);
+const initialVersion = channels[defaultChannel]?.version ?? fallbackVersion;
+const initialHref =
+  imageFor(defaultChannel, DEFAULT_MODEL) ??
+  `${R2}/snapdog-os-${DEFAULT_MODEL}-beta.img.gz`;
+const channelBtnClass = (ch: string) =>
+  `channel-btn px-3 py-0.5 transition-colors ${
+    ch === defaultChannel ? 'bg-amber-500 text-black' : 'text-neutral-300 hover:bg-white/5'
+  } ${channels[ch] ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'}`;
 ---
 
 <html lang="en" class="scroll-smooth font-sans overflow-x-hidden">
@@ -78,6 +118,17 @@ try {
         <!-- Info and download grids -->
         <div class="flex flex-wrap justify-center gap-3 w-full max-w-3xl font-mono text-left text-xs mt-[6px] px-4 sm:px-0">
           
+          <!-- Channel toggle (release / beta) -->
+          {hasChannels && (
+            <div class="flex flex-col py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10 flex-none shrink-0">
+              <span class="text-[10px] sm:text-xs uppercase font-semibold text-neutral-400 tracking-wider">Channel</span>
+              <div class="mt-1 inline-flex w-fit rounded-lg overflow-hidden border border-white/10 text-[13px] sm:text-[15px] font-semibold">
+                <button type="button" data-channel="release" class={channelBtnClass('release')} disabled={!channels.release} aria-label="Stable release channel">Release</button>
+                <button type="button" data-channel="beta" class={channelBtnClass('beta')} disabled={!channels.beta} aria-label="Beta channel">Beta</button>
+              </div>
+            </div>
+          )}
+
           <!-- Dropdown Selector (replaces DownloadSelector.tsx component) -->
           <div class="flex items-stretch gap-3 w-full max-w-[320px] flex-none shrink-0">
             <div class="relative flex flex-col py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10 flex-1 min-w-0">
@@ -97,7 +148,7 @@ try {
             </div>
             <a
               id="download-btn"
-              href="https://updates.snapdog.cc/os/images/snapdog-os-pi4-beta.img.gz"
+              href={initialHref}
               class="flex items-center justify-center w-14 rounded-xl bg-amber-500 text-black hover:bg-amber-400 transition-colors shrink-0"
               title="Download image"
               aria-label="Download SnapDog OS image for selected model"
@@ -108,7 +159,7 @@ try {
 
           <div class="flex flex-col py-3 px-4 rounded-xl bg-white/[0.03] border border-white/10 flex-none shrink-0 whitespace-nowrap">
             <span class="text-[10px] sm:text-xs uppercase font-semibold text-neutral-400 tracking-wider">Version</span>
-            <span class="font-semibold text-white mt-1 tabular-nums tracking-tight text-[13px] sm:text-[15px]">{version}</span>
+            <span id="version-label" class="font-semibold text-white mt-1 tabular-nums tracking-tight text-[13px] sm:text-[15px]">v{initialVersion}</span>
           </div>
 
           <a
@@ -225,17 +276,58 @@ try {
       </div>
     </footer>
 
-    <!-- Client-side javascript to handle download URL swapping -->
-    <script is:inline>
+    <!-- Client-side: channel + model -> version badge & download URL.
+         Refreshes from latest-<channel>.json so the badge matches the live download. -->
+    <script is:inline define:vars={{ channels, R2, defaultChannel }}>
       const select = document.getElementById('model-select');
       const btn = document.getElementById('download-btn');
-      if (select && btn) {
-        select.addEventListener('change', (e) => {
-          const model = e.target.value;
-          const downloadModel = model === 'zero2w' ? 'pi3' : model;
-          btn.href = `https://updates.snapdog.cc/os/images/snapdog-os-${downloadModel}-beta.img.gz`;
+      const versionLabel = document.getElementById('version-label');
+      const channelBtns = Array.from(document.querySelectorAll('.channel-btn'));
+      const cache = { ...channels };
+      let channel = defaultChannel;
+      let model = (select && select.value) || 'pi4';
+
+      function urlFor(ch, m) {
+        const board = m === 'zero2w' ? 'pi3' : m; // zero2w ships the pi3 image
+        const entry = cache[ch] && cache[ch].boards && cache[ch].boards[board];
+        const file = entry ? entry.image : `snapdog-os-${board}-${ch}.img.gz`;
+        return `${R2}/${file}`;
+      }
+
+      function render() {
+        const info = cache[channel];
+        if (versionLabel && info && info.version) versionLabel.textContent = 'v' + info.version;
+        if (btn) btn.href = urlFor(channel, model);
+        channelBtns.forEach((b) => {
+          const active = b.dataset.channel === channel;
+          b.classList.toggle('bg-amber-500', active);
+          b.classList.toggle('text-black', active);
+          b.classList.toggle('text-neutral-300', !active);
         });
       }
+
+      async function refresh(ch) {
+        try {
+          const res = await fetch(`${R2}/latest-${ch}.json`, { cache: 'no-store' });
+          if (res.ok) {
+            cache[ch] = await res.json();
+            if (ch === channel) render();
+          }
+        } catch { /* keep build-time snapshot */ }
+      }
+
+      if (select) select.addEventListener('change', (e) => { model = e.target.value; render(); });
+      channelBtns.forEach((b) =>
+        b.addEventListener('click', () => {
+          if (b.disabled) return;
+          channel = b.dataset.channel;
+          render();
+          refresh(channel);
+        })
+      );
+
+      render();
+      refresh(channel); // always reflect the live rolling pointer
     </script>
   </body>
 </html>
