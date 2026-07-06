@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.2",
-    "@astrojs/starlight": "^0.41.2",
+    "@astrojs/starlight": "^0.41.3",
     "@fontsource/inter": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/outfit": "^5.2.8",
