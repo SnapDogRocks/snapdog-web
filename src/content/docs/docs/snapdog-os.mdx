@@ -30,9 +30,9 @@ Select and download the custom system image for your Raspberry Pi board:
 
 | Hardware Board Model | Target Architecture | Latest Stable Image |
 |---|---|---|
-| **Raspberry Pi 5 / 500** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi5-beta.img.gz) |
-| **Raspberry Pi 4 / 400** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi4-beta.img.gz) |
-| **Raspberry Pi 3 / 3+ / Zero 2 W** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi3-beta.img.gz) |
+| **Raspberry Pi 5 / 500** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi5-release.img.gz) |
+| **Raspberry Pi 4 / 400** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi4-release.img.gz) |
+| **Raspberry Pi 3 / 3+ / Zero 2 W** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi3-release.img.gz) |
 
 ### Flashing the Image
 1. Download the appropriate image file from the table above.
@@ -46,9 +46,9 @@ Select and download the custom system image for your Raspberry Pi board:
 
 ### Setting Up Wi-Fi & Initial Boot
 1. Insert the written SD card into your Raspberry Pi and power it on.
-2. If no Ethernet cable is connected, the board automatically spawns a setup Wi-Fi network:
-   * **SSID:** `SnapDog-XXXX` (where `XXXX` represents the last 4 characters of your client's MAC address).
-   * **Password:** `snapdog123`
+2. If no working network (wired **or** wireless) is found on boot, the board automatically spawns a setup Wi-Fi network:
+   * **SSID:** `SnapDog-XXXX` (where `XXXX` is the last 4 characters of the device's MAC address).
+   * **Password:** a unique per-device passphrase — printed to the device's console (HDMI/serial) on first boot, and shown on the setup page once you're connected. There is no shared default password.
 3. Connect to the setup Wi-Fi using your phone or laptop.
 4. Your device will automatically open a **Captive Portal** configuration wizard.
    5. Enter your home Wi-Fi details, select your SnapDog server (auto-discovered via mDNS), and select your I2S DAC model. Click **Save**—the Pi will reboot and join your home network.
@@ -88,7 +88,7 @@ To prevent flash memory wear and SD card corruption from sudden power loss, the 
 ### Dual A/B System Updates (RAUC)
 System updates use standard `.raucb` signed bundles:
 * **Background Check:** Daily automated update checks verify signature certificates and verify partition integrity.
-* **A/B Rollbacks:** Updates install to the inactive slot. On reboot, the bootloader attempts to launch the new kernel. If the system fails to boot successfully 3 times, the bootloader automatically rolls back to the previous stable partition.
+* **A/B Rollbacks:** Updates install to the inactive slot and boot as a one-time trial (Raspberry Pi *tryboot*). The new slot is committed only after the system comes up healthy; if it doesn't, the next boot automatically returns to the last known-good slot.
 
 ### Security Hardening
 * **No Default Access:** SSH is disabled by default. When enabled, it is restricted to public-key authentication only (keys uploaded via Web UI).

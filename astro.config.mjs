@@ -21,9 +21,9 @@ export default defineConfig({
         SiteTitle: './src/components/CustomSiteTitle.astro',
         Footer: './src/components/CustomFooter.astro',
       },
-      social: {
-        github: 'https://github.com/SnapDogRocks/snapdog',
-      },
+      social: [
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/SnapDogRocks/snapdog' },
+      ],
       sidebar: [
         { label: 'Introduction', link: '/docs/introduction' },
         { label: 'System Architecture', link: '/docs/architecture' },
