@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SnapDog Web
 
-## Getting Started
+Public website and documentation portal for the
+[SnapDog](https://github.com/SnapDogRocks/snapdog) multiroom audio ecosystem.
+It contains the product landing page, SnapDog server/client documentation, API
+reference, and SnapDog OS installation guides.
 
-First, run the development server:
+## Stack
+
+- [Astro](https://astro.build/)
+- [Starlight](https://starlight.astro.build/) documentation
+- MDX, Mermaid, and Tailwind CSS
+- Vercel deployment
+
+## Development
+
+Requires Node.js 22 or newer.
 
 ```bash
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open <http://localhost:4321>. Production output is generated with:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm run preview
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Content layout
 
-## Learn More
+- `src/pages/index.astro` — landing page and channel-aware OS downloads
+- `src/content/docs/docs/` — Starlight documentation pages
+- `src/components/` — shared landing-page and documentation visuals
+- `src/assets/openapi.json` — generated API contract from the `snapdog` repository
+- `public/` — static images and downloadable presentation assets
 
-To learn more about Next.js, take a look at the following resources:
+## API documentation synchronization
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The `snapdog` repository generates its OpenAPI contract from the Rust route
+registry and synchronizes it into `src/assets/openapi.json`. The website CI
+checks that every generated REST path is represented in the manual API guide.
+When adding or changing an API route:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Update the Rust OpenAPI annotations and registry in `snapdog`.
+2. Generate/synchronize `src/assets/openapi.json`.
+3. Update `src/content/docs/docs/api-rest.mdx`.
+4. Run `npm run docs:check` and `npm run build`.
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Vercel deploys the Astro site. SnapDog OS release workflows trigger a fresh
+deployment after publishing so the landing page resolves the current release
+and beta manifests from `updates.snapdog.cc`.

@@ -189,6 +189,17 @@ Skip tracks inside the current active playlist.
   * `/api/v1/zones/{zone_index}/previous`
 * **Response `200 OK`:** Success payload or standard HTTP status.
 
+### Playlist Selection and Navigation
+Read or select the unified playlist assigned to a zone, or move between the
+available radio/Subsonic playlists.
+
+* **Methods and endpoints:**
+  * `GET /api/v1/zones/{zone_index}/playlist` — returns the active zero-based playlist index.
+  * `PUT /api/v1/zones/{zone_index}/playlist` — accepts a JSON integer playlist index.
+  * `POST /api/v1/zones/{zone_index}/next/playlist` — selects the next playlist.
+  * `POST /api/v1/zones/{zone_index}/previous/playlist` — selects the previous playlist.
+* **Response `404 Not Found`:** The requested zone does not exist.
+
 ### Retrieve Current Track Details
 * **Method:** `GET`
 * **Endpoint:** `/api/v1/zones/{zone_index}/track`
@@ -526,6 +537,31 @@ Sets either a predefined Spinorama speaker model, or applies custom correction f
 ## 9. KNX Integration
 
 If the SnapDog daemon is running in KNX device mode, it functions as an ETS-programmable device. These endpoints manage its KNX hardware configuration.
+
+### Download the Embedded ETS Product Database
+Downloads the exact `.knxprod` archive embedded in the running server. This is
+available even when KNX device mode is inactive, allowing commissioning tools to
+obtain the product definition that matches the firmware.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/knx/knxprod`
+* **Content-Type:** `application/octet-stream`
+* **Filename:** `snapdog.knxprod`
+
+### Get ETS Product Identity
+Returns the application version, application/order number, and hardware revision
+of the embedded product database.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/knx/product-info`
+* **Response `200 OK`:**
+  ```json
+  {
+    "app_version": 11,
+    "application_number": "0xFF01",
+    "hardware_version": 1
+  }
+  ```
 
 ### Get or Set ETS Programming Mode
 Activates or deactivates the physical button programming state (equivalent to pressing the physical programming button on a DIN rail module) to allow the ETS software to assign an individual address.
