@@ -60,9 +60,10 @@ import RoutingVisualizer from '../components/RoutingVisualizer.astro';
             <a
               id="etcher-download"
               href="https://github.com/SnapDogRocks/snapdog-etcher/releases/tag/v2.1.6-snapdog.1"
-              class="group flex flex-1 items-center justify-center gap-3 rounded-xl bg-amber-500 px-6 py-4 text-sm font-semibold text-black shadow-[0_8px_30px_rgba(245,158,11,0.2)] transition hover:bg-amber-400 hover:shadow-[0_8px_35px_rgba(245,158,11,0.3)]"
+              class="group relative flex flex-1 items-center justify-center gap-3 overflow-hidden rounded-xl bg-amber-500 px-6 py-4 text-sm font-semibold text-black shadow-[0_8px_30px_rgba(245,158,11,0.2)] transition hover:bg-amber-400 hover:shadow-[0_8px_35px_rgba(245,158,11,0.3)]"
               aria-label="Download SnapDog Etcher for this computer"
             >
+              <span class="pointer-events-none absolute -right-7 top-2 w-24 rotate-45 border-y border-amber-300/30 bg-neutral-950 py-0.5 text-center text-[8px] font-bold uppercase tracking-[0.22em] text-amber-300 shadow-sm" aria-hidden="true">Beta</span>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
               <span class="flex flex-col items-start leading-tight">
                 <span>Download SnapDog Etcher</span>
@@ -72,9 +73,10 @@ import RoutingVisualizer from '../components/RoutingVisualizer.astro';
 
             <a
               href="/docs/install-docker"
-              class="group flex flex-1 items-center justify-center gap-3 rounded-xl border border-white/15 bg-white/[0.05] px-6 py-4 text-sm font-semibold text-white backdrop-blur-sm transition hover:border-white/25 hover:bg-white/[0.09]"
+              class="group relative flex flex-1 items-center justify-center gap-3 overflow-hidden rounded-xl border border-white/15 bg-white/[0.05] px-6 py-4 text-sm font-semibold text-white backdrop-blur-sm transition hover:border-white/25 hover:bg-white/[0.09]"
               aria-label="Run SnapDog with Docker on an existing server or NAS"
             >
+              <span class="pointer-events-none absolute -right-7 top-2 w-24 rotate-45 border-y border-amber-200/50 bg-amber-400 py-0.5 text-center text-[8px] font-bold uppercase tracking-[0.22em] text-neutral-950 shadow-sm" aria-hidden="true">Beta</span>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/><path d="M9 14h.01"/><path d="M15 14h.01"/></svg>
               <span class="flex flex-col items-start leading-tight">
                 <span>Run on your server</span>
