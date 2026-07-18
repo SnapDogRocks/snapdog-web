@@ -58,14 +58,15 @@ import RoutingVisualizer from '../components/RoutingVisualizer.astro';
         <div class="flex flex-col items-center gap-3 w-full max-w-2xl mt-[6px] px-4 sm:px-0">
           <div class="flex flex-col sm:flex-row justify-center gap-3 w-full">
             <a
-              href="/docs/snapdog-os#snapdog-etcher"
+              id="etcher-download"
+              href="https://github.com/SnapDogRocks/snapdog-etcher/releases/tag/v2.1.6-snapdog.1"
               class="group flex flex-1 items-center justify-center gap-3 rounded-xl bg-amber-500 px-6 py-4 text-sm font-semibold text-black shadow-[0_8px_30px_rgba(245,158,11,0.2)] transition hover:bg-amber-400 hover:shadow-[0_8px_35px_rgba(245,158,11,0.3)]"
-              aria-label="Install SnapDog on a Raspberry Pi with SnapDog Etcher"
+              aria-label="Download SnapDog Etcher for this computer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
               <span class="flex flex-col items-start leading-tight">
-                <span>Get SnapDog Etcher</span>
-                <span class="mt-1 text-[10px] font-medium uppercase tracking-wider text-black/65">Easiest setup · server + receiver</span>
+                <span>Download SnapDog Etcher</span>
+                <span id="etcher-platform" class="mt-1 text-[10px] font-medium uppercase tracking-wider text-black/65">Detecting your platform…</span>
               </span>
             </a>
 
@@ -83,7 +84,8 @@ import RoutingVisualizer from '../components/RoutingVisualizer.astro';
           </div>
 
           <p class="text-xs leading-relaxed text-neutral-400">
-            New to SnapDog? Start with a Raspberry Pi and Etcher.
+            Need Etcher for another platform or architecture?
+            <a href="https://github.com/SnapDogRocks/snapdog-etcher/releases/tag/v2.1.6-snapdog.1" class="text-neutral-300 underline decoration-white/20 underline-offset-4 transition hover:text-amber-300">View all downloads</a>.
             <a href="/docs/install-direct" class="text-neutral-300 underline decoration-white/20 underline-offset-4 transition hover:text-amber-300">Native packages</a>
             and <a href="/docs/snapdog-os#manual-image-download" class="text-neutral-300 underline decoration-white/20 underline-offset-4 transition hover:text-amber-300">raw images</a>
             are available for custom setups.
@@ -172,6 +174,67 @@ import RoutingVisualizer from '../components/RoutingVisualizer.astro';
         <a href="/privacy" class="hover:text-neutral-300" aria-label="Read SnapDog privacy policy">Privacy</a>
       </div>
     </footer>
+
+    <script is:inline>
+      const releaseBase = 'https://github.com/SnapDogRocks/snapdog-etcher/releases/download/v2.1.6-snapdog.1';
+      const installers = {
+        mac: {
+          label: 'macOS · Apple silicon + Intel',
+          file: 'macos-universal-SnapDog.Etcher-2.1.6-snapdog.1-universal.dmg',
+        },
+        windows: {
+          label: 'Windows · x64',
+          file: 'windows-x64-SnapDog.Etcher-2.1.6-snapdog.1.Setup.exe',
+        },
+        linuxArm64: {
+          label: 'Linux · ARM64',
+          file: 'linux-arm64-SnapDog.Etcher-linux-arm64-2.1.6-snapdog.1.zip',
+        },
+        linuxX64: {
+          label: 'Linux · x64',
+          file: 'linux-x64-SnapDog.Etcher-linux-x64-2.1.6-snapdog.1.zip',
+        },
+      };
+
+      const download = document.getElementById('etcher-download');
+      const platformLabel = document.getElementById('etcher-platform');
+
+      function chooseInstaller(platform, architecture = '') {
+        const os = platform.toLowerCase();
+        const arch = architecture.toLowerCase();
+        if (os.includes('mac')) return installers.mac;
+        if (os.includes('win')) return installers.windows;
+        if (os.includes('linux')) {
+          return /arm64|aarch64/.test(arch) ? installers.linuxArm64 : installers.linuxX64;
+        }
+        return null;
+      }
+
+      function applyInstaller(installer) {
+        if (!installer || !download || !platformLabel) return;
+        download.href = `${releaseBase}/${installer.file}`;
+        platformLabel.textContent = installer.label;
+      }
+
+      const userAgent = navigator.userAgent || '';
+      const fallbackPlatform = navigator.platform || userAgent;
+      const fallbackArchitecture = /arm64|aarch64/i.test(userAgent) ? 'arm64' : 'x64';
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(userAgent);
+      const fallback = isMobile ? null : chooseInstaller(fallbackPlatform, fallbackArchitecture);
+      applyInstaller(fallback);
+
+      if (!fallback && platformLabel) platformLabel.textContent = 'Choose your platform';
+
+      if (navigator.userAgentData?.getHighEntropyValues) {
+        navigator.userAgentData
+          .getHighEntropyValues(['architecture', 'bitness'])
+          .then(({ architecture, bitness }) => {
+            const preciseArchitecture = `${architecture || ''}${bitness || ''}`;
+            applyInstaller(chooseInstaller(navigator.userAgentData.platform || fallbackPlatform, preciseArchitecture));
+          })
+          .catch(() => { /* retain the synchronous fallback */ });
+      }
+    </script>
 
   </body>
 </html>
