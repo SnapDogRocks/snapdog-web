@@ -1,0 +1,16 @@
+{
+  "tag": "v2.1.6-snapdog.1",
+  "version": "2.1.6-snapdog.1",
+  "releaseUrl": "https://github.com/SnapDogRocks/snapdog-etcher/releases/tag/v2.1.6-snapdog.1",
+  "publishedAt": "2026-07-18T17:01:21Z",
+  "assets": {
+    "macosUniversalDmg": "macos-universal-SnapDog.Etcher-2.1.6-snapdog.1-universal.dmg",
+    "windowsX64Exe": "windows-x64-SnapDog.Etcher-2.1.6-snapdog.1.Setup.exe",
+    "linuxX64Deb": "linux-x64-snapdog-etcher_2.1.6-snapdog.1_amd64.deb",
+    "linuxX64Rpm": "linux-x64-snapdog-etcher-2.1.6.snapdog.1-1.x86_64.rpm",
+    "linuxX64Zip": "linux-x64-SnapDog.Etcher-linux-x64-2.1.6-snapdog.1.zip",
+    "linuxArm64Deb": "linux-arm64-snapdog-etcher_2.1.6-snapdog.1_arm64.deb",
+    "linuxArm64Rpm": "linux-arm64-snapdog-etcher-2.1.6.snapdog.1-1.arm64.rpm",
+    "linuxArm64Zip": "linux-arm64-SnapDog.Etcher-linux-arm64-2.1.6-snapdog.1.zip"
+  }
+}
