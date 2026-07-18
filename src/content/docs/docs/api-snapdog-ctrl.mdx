@@ -1,0 +1,99 @@
+---
+title: SnapDog OS Control API
+description: HTTP and WebSocket reference for the snapdog-ctrl device-management service.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+`snapdog-ctrl` serves the SnapDog OS dashboard and its device-management API on port `80` by default. This API is separate from the SnapDog server's playback API on port `5555`: use this API for operating-system, network, audio-device, service, and firmware management; use the [SnapDog REST API](/docs/api-rest) for zones, playlists, and speaker playback.
+
+All controller endpoints use the `/api` prefix and normally exchange JSON. Unknown API routes return `404` with `{"error":"not found"}`.
+
+## Authentication
+
+Authentication is optional. Check `GET /api/auth/status`; when authentication is enabled, send the password to `POST /api/auth/login` as `{"password":"..."}`. Use the returned opaque token on subsequent protected calls:
+
+```http
+Authorization: Bearer <token>
+```
+
+`/api/auth/status`, `/api/auth/login`, and `/api/ws` remain public. Tokens are held in memory and are invalid after a controller restart.
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/api/auth/status` | Report whether password auth is enabled and whether the request is authenticated. |
+| `POST` | `/api/auth/login` | Exchange the control-panel password for a bearer token. |
+| `POST` | `/api/auth/logout` | Revoke the current token. |
+| `PUT` | `/api/auth/password` | Set, change, or disable the Web UI/API password. |
+
+## System and updates
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET`, `PUT` | `/api/system` | Read system identity/version or change hostname and release channel. |
+| `GET`, `PUT` | `/api/system/tuning` | Read or change supported platform tuning controls. |
+| `GET` | `/api/system/health` | Return preflight warnings, including critical storage failures. |
+| `POST` | `/api/system/reboot` | Reboot, preserving an active RAUC tryboot trial. |
+| `POST` | `/api/system/update` | Start an update from the configured channel. |
+| `GET` | `/api/system/update/check` | Compare installed and channel versions. |
+| `GET` | `/api/system/update/status` | Return the RAUC operation, progress, errors, and slots. |
+| `POST` | `/api/system/update/upload` | Upload a multipart signed RAUC bundle (`file` part). |
+| `POST` | `/api/system/update/install` | Install the previously uploaded bundle. |
+| `POST` | `/api/system/update/flash-raw` | Upload a guarded raw `.img` or `.img.gz`. |
+| `POST` | `/api/system/update/flash-raw/confirm` | Confirm the short-lived destructive-flash challenge. |
+| `GET`, `PUT` | `/api/system/update/auto` | Read or configure scheduled updates. |
+| `GET` | `/api/system/update/auto/status` | Read scheduler state, last check/attempt/success/error, and next check time. |
+| `POST` | `/api/system/factory-reset` | Reset persistent configuration. |
+| `GET` | `/api/system/logs` | Retrieve recent service logs. |
+| `GET`, `PUT` | `/api/system/timezone` | Read or change the system timezone. |
+
+<Aside type="caution">
+  Firmware uploads can be hundreds of megabytes. Use streaming multipart uploads and do not retry destructive endpoints blindly. The [`snapdog-update` CLI](/docs/snapdog-update) implements the intended checks, progress tracking, challenge flow, and reboot verification.
+</Aside>
+
+## Network, audio, and services
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/api/network` | Summarize active interfaces and connectivity. |
+| `GET`, `PUT` | `/api/network/ethernet` | Read or change DHCP/static Ethernet configuration. |
+| `GET`, `PUT`, `DELETE` | `/api/network/wifi` | Read, configure, or remove Wi-Fi configuration. |
+| `POST` | `/api/network/wifi/scan` | Scan for nearby Wi-Fi networks. |
+| `GET`, `PUT` | `/api/network/softap` | Read or change setup access-point settings. |
+| `GET`, `PUT` | `/api/audio` | Read soundcards/DAC overlays or change audio configuration. |
+| `GET`, `PUT` | `/api/client` | Read or configure the local SnapDog client service. |
+| `POST` | `/api/client/scan-servers` | Discover SnapDog servers using mDNS. |
+| `POST` | `/api/client/test-server` | Test reachability of a server configuration. |
+| `GET`, `PUT` | `/api/ssh` | Read or change SSH enablement and authorized keys. |
+| `GET`, `PUT` | `/api/server` | Read or configure the optional local SnapDog server. |
+| `GET` | `/api/server/status` | Return local server service state. |
+| `POST` | `/api/server/enable` | Enable and start the local server. |
+| `POST` | `/api/server/disable` | Stop and disable the local server. |
+
+## Settings and now playing
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/api/settings/export` | Download a persistent-settings archive. |
+| `POST` | `/api/settings/preview` | Validate and summarize an uploaded settings archive. |
+| `POST` | `/api/settings/import` | Import a validated settings archive. |
+| `GET` | `/api/now-playing` | Read MPRIS-derived playback state for the local client. |
+| `POST` | `/api/now-playing/command` | Send a playback command. |
+| `PUT` | `/api/now-playing/volume` | Change playback volume. |
+| `POST` | `/api/now-playing/seek` | Seek within the current track. |
+
+## WebSocket notifications
+
+Connect to `ws://snapdog.local/api/ws` (or `wss://` behind TLS). The controller currently sends text frames:
+
+| Frame | Meaning |
+|---|---|
+| `system_changed` | System configuration changed; refetch `/api/system`. |
+| `audio_changed` | Audio configuration changed; refetch `/api/audio`. |
+| `client_changed` | Client configuration changed; refetch `/api/client`. |
+| `server_changed` | Local server configuration or state changed. |
+| `now_playing:<json>` | Updated now-playing object serialized after the colon. |
+
+<Aside type="note">
+  `/api/ws` is not authenticated in the current controller. Treat notifications as invalidation hints and fetch protected state through authenticated HTTP calls.
+</Aside>

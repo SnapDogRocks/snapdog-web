@@ -1,0 +1,65 @@
+---
+title: SnapDog Update CLI
+description: Update or recover SnapDog OS devices with the snapdog-update operator tool.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+`snapdog-update` is a workstation and automation CLI for updating a remote SnapDog OS device through the [`snapdog-ctrl` API](/docs/api-snapdog-ctrl). It supports signed RAUC bundle upgrades and a separately guarded raw-image recovery path.
+
+## Installation
+
+On macOS with Homebrew:
+
+```shell
+brew install snapdogrocks/tap/snapdog-update
+```
+
+## Signed RAUC update
+
+```shell
+snapdog-update \
+  --url http://snapdog.local \
+  --file snapdog-os-pi4-0.10.4.raucb
+```
+
+The tool checks authentication and system health, validates the target board when it can infer both board models, uploads the bundle, triggers RAUC, follows installation progress, reboots the device, and verifies that the new slot booted. Supply an enabled control-panel password with `--password` or `SNAPDOG_PASSWORD`.
+
+## Automation
+
+```shell
+snapdog-update \
+  --url http://snapdog.local \
+  --file snapdog-os-pi4-0.10.4.raucb \
+  --password "$SNAPDOG_PASSWORD" \
+  --non-interactive \
+  --no-progress \
+  --output json
+```
+
+JSON output is newline-delimited on stdout; diagnostics and progress use stderr. `SNAPDOG_URL` can replace `--url`. The default overall timeout is 30 minutes and the default status-poll interval is 2 seconds; override them with `--timeout-mins` and `--poll-secs`.
+
+## Guarded raw-image flash
+
+<Aside type="danger">
+  A raw flash replaces the device storage image and is intended for recovery or full reprovisioning of a reachable SnapDog OS device. Use a normal signed `.raucb` update whenever the installed A/B system is healthy.
+</Aside>
+
+Uploading a raw `.img` or `.img.gz` requires `--raw`. The controller returns a short-lived challenge that must be confirmed explicitly:
+
+```shell
+snapdog-update --url http://snapdog.local --file snapdog-os-pi4-0.10.4.img.gz --raw
+snapdog-update --url http://snapdog.local --raw --confirm-raw-flash CHALLENGE
+```
+
+Interactive mode can accept the challenge in the same run. Non-interactive mode exits after upload so an operator or automation gate can approve the second command.
+
+## Exit codes
+
+| Code | Meaning |
+|---|---|
+| `0` | Update completed successfully. |
+| `1` | Validation, authentication, upload, installation, reboot, or verification failed. |
+| `2` | A raw image was uploaded and awaits explicit challenge confirmation. |
+
+Run `snapdog-update --help` for the complete option list.
