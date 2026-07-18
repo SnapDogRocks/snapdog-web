@@ -25,16 +25,50 @@ SnapDog OS is compiled as a 64-bit (`aarch64`) image running a minimal Linux 6.6
 
 ## 1. Installation & First Boot
 
-### Download SnapDog OS
-Select and download the custom system image for your Raspberry Pi board:
+### SnapDog Etcher
+
+[SnapDog Etcher](https://github.com/SnapDogRocks/snapdog-etcher) is the recommended guided installation path for macOS, Windows, and Linux. It presents the supported Raspberry Pi models and release channels in one place, downloads the correct image, writes it to the selected SD card, and verifies the result.
+
+![SnapDog Etcher showing the Raspberry Pi model and SnapDog OS version selectors](/installation/snapdog-etcher.png)
+
+<Aside type="note">
+  The current release is [SnapDog Etcher v2.1.6-snapdog.1](https://github.com/SnapDogRocks/snapdog-etcher/releases/tag/v2.1.6-snapdog.1). Windows ARM64 is not yet supported; use the Windows x64 installer on x64 systems.
+</Aside>
+
+Download the installer for your computer:
+
+| Platform | Installer |
+|---|---|
+| **macOS** (Apple silicon and Intel) | [Universal DMG](https://github.com/SnapDogRocks/snapdog-etcher/releases/download/v2.1.6-snapdog.1/macos-universal-SnapDog.Etcher-2.1.6-snapdog.1-universal.dmg) |
+| **Windows x64** | [Setup EXE](https://github.com/SnapDogRocks/snapdog-etcher/releases/download/v2.1.6-snapdog.1/windows-x64-SnapDog.Etcher-2.1.6-snapdog.1.Setup.exe) |
+| **Linux x64** | [DEB](https://github.com/SnapDogRocks/snapdog-etcher/releases/download/v2.1.6-snapdog.1/linux-x64-snapdog-etcher_2.1.6-snapdog.1_amd64.deb) · [RPM](https://github.com/SnapDogRocks/snapdog-etcher/releases/download/v2.1.6-snapdog.1/linux-x64-snapdog-etcher-2.1.6.snapdog.1-1.x86_64.rpm) · [ZIP](https://github.com/SnapDogRocks/snapdog-etcher/releases/download/v2.1.6-snapdog.1/linux-x64-SnapDog.Etcher-linux-x64-2.1.6-snapdog.1.zip) |
+| **Linux ARM64** | [DEB](https://github.com/SnapDogRocks/snapdog-etcher/releases/download/v2.1.6-snapdog.1/linux-arm64-snapdog-etcher_2.1.6-snapdog.1_arm64.deb) · [RPM](https://github.com/SnapDogRocks/snapdog-etcher/releases/download/v2.1.6-snapdog.1/linux-arm64-snapdog-etcher-2.1.6.snapdog.1-1.arm64.rpm) · [ZIP](https://github.com/SnapDogRocks/snapdog-etcher/releases/download/v2.1.6-snapdog.1/linux-arm64-SnapDog.Etcher-linux-arm64-2.1.6-snapdog.1.zip) |
+
+[View all release assets, checksums, and the SPDX SBOM](https://github.com/SnapDogRocks/snapdog-etcher/releases/tag/v2.1.6-snapdog.1).
+
+Then:
+
+1. Install or extract SnapDog Etcher and launch it.
+2. Choose your exact Raspberry Pi model.
+3. Select **Stable** for normal use or **Beta** to test the newest build, then choose the offered version.
+4. Click **Use SnapDog OS**, select the target SD card, and click **Flash**.
+5. Wait for writing and verification to finish before removing the card.
+
+<Aside type="caution">
+  Flashing erases the selected drive. Check its name and capacity before confirming.
+</Aside>
+
+### Manual Image Download
+If you prefer another image writer, download the board-specific image:
 
 | Hardware Board Model | Target Architecture | Latest Stable Image |
 |---|---|---|
 | **Raspberry Pi 5 / 500** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi5-release.img.gz) |
 | **Raspberry Pi 4 / 400** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi4-release.img.gz) |
-| **Raspberry Pi 3 / 3+ / Zero 2 W** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi3-release.img.gz) |
+| **Raspberry Pi 3 / 3+** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi3-release.img.gz) |
+| **Raspberry Pi Zero 2 W** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-zero2w-release.img.gz) |
 
-### Flashing the Image
+### Flashing a Manually Downloaded Image
 1. Download the appropriate image file from the table above.
 2. Open **Raspberry Pi Imager**.
 3. Under **OS**, choose **"Use custom"** and select the downloaded `.img.gz` file.
@@ -48,7 +82,7 @@ Select and download the custom system image for your Raspberry Pi board:
 1. Insert the written SD card into your Raspberry Pi and power it on.
 2. If no working network (wired **or** wireless) is found on boot, the board automatically spawns a setup Wi-Fi network:
    * **SSID:** `SnapDog-XXXX` (where `XXXX` is the last 4 characters of the device's MAC address).
-   * **Password:** a unique per-device passphrase — printed to the device's console (HDMI/serial) on first boot, and shown on the setup page once you're connected. There is no shared default password.
+   * **Password:** a unique passphrase generated on first use, persisted on the device, and printed to the HDMI/serial console. It can be changed later in the Web UI.
 3. Connect to the setup Wi-Fi using your phone or laptop.
 4. Your device will automatically open a **Captive Portal** configuration wizard.
 5. Enter your home Wi-Fi details, select your SnapDog server (auto-discovered via mDNS), and select your I2S DAC model. Click **Save**—the Pi will reboot and join your home network.
@@ -92,11 +126,21 @@ System updates use standard `.raucb` signed bundles:
 
 ### Security Hardening
 * **No Default Access:** SSH is disabled by default. When enabled, it is restricted to public-key authentication only (keys uploaded via Web UI).
-* **Root Password:** Challenge-gated root password setups, easily managed through `snapdog-ctrl`.
+* **Authentication:** The Web UI/API password is optional. When set, `snapdog-ctrl` stores a bcrypt hash and requires bearer-token authentication for protected API routes. Changing it also changes the console root password.
 
 ## Next Steps
 
 <CardGrid>
+  <LinkCard
+    title="SnapDog Update CLI"
+    description="Upload signed RAUC bundles or perform a guarded recovery image flash from another computer."
+    href="/docs/snapdog-update"
+  />
+  <LinkCard
+    title="SnapDog OS Control API"
+    description="Automate device, network, audio, server, and update management through snapdog-ctrl."
+    href="/docs/api-snapdog-ctrl"
+  />
   <LinkCard
     title="CLI Reference"
     description="Check command-line switches, volume mixer flags, and soundcard overrides for speaker boards."

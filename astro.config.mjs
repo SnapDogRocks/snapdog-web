@@ -33,6 +33,7 @@ export default defineConfig({
             { label: 'Direct Installation', link: '/docs/install-direct' },
             { label: 'Docker Container', link: '/docs/install-docker' },
             { label: 'SnapDog OS', link: '/docs/snapdog-os' },
+            { label: 'SnapDog Update CLI', link: '/docs/snapdog-update' },
           ],
         },
         {
@@ -49,6 +50,7 @@ export default defineConfig({
             { label: 'WebSocket API', link: '/docs/api-websocket' },
             { label: 'D-Bus API (MPRIS2)', link: '/docs/api-dbus' },
             { label: 'Binary Protocol', link: '/docs/api-binary-protocol' },
+            { label: 'SnapDog OS Control API', link: '/docs/api-snapdog-ctrl' },
           ],
         },
         { label: 'Licensing', link: '/docs/license' },
@@ -60,4 +62,3 @@ export default defineConfig({
     mdx(),
   ],
 });
-
