@@ -1,0 +1,38 @@
+---
+import release from '../data/snapdog-etcher-release.json';
+
+const downloadBase = `https://github.com/SnapDogRocks/snapdog-etcher/releases/download/${release.tag}`;
+const assetUrl = (name: string) => `${downloadBase}/${name}`;
+---
+
+<div class="etcher-release">
+  <p>
+    The current release is <a href={release.releaseUrl}>SnapDog Etcher v{release.version}</a>.
+    Windows ARM64 is not yet supported; use the Windows x64 installer on x64 systems.
+  </p>
+</div>
+
+<p>Download the installer for your computer:</p>
+
+<table>
+  <thead><tr><th>Platform</th><th>Installer</th></tr></thead>
+  <tbody>
+    <tr><td><strong>macOS</strong> (Apple silicon and Intel)</td><td><a href={assetUrl(release.assets.macosUniversalDmg)}>Universal DMG</a></td></tr>
+    <tr><td><strong>Windows x64</strong></td><td><a href={assetUrl(release.assets.windowsX64Exe)}>Setup EXE</a></td></tr>
+    <tr><td><strong>Linux x64</strong></td><td><a href={assetUrl(release.assets.linuxX64Deb)}>DEB</a> · <a href={assetUrl(release.assets.linuxX64Rpm)}>RPM</a> · <a href={assetUrl(release.assets.linuxX64Zip)}>ZIP</a></td></tr>
+    <tr><td><strong>Linux ARM64</strong></td><td><a href={assetUrl(release.assets.linuxArm64Deb)}>DEB</a> · <a href={assetUrl(release.assets.linuxArm64Rpm)}>RPM</a> · <a href={assetUrl(release.assets.linuxArm64Zip)}>ZIP</a></td></tr>
+  </tbody>
+</table>
+
+<p><a href={release.releaseUrl}>View all release assets, checksums, and the SPDX SBOM</a>.</p>
+
+<style>
+  .etcher-release {
+    margin-block: 1rem;
+    padding: 0.85rem 1rem;
+    border-inline-start: 0.25rem solid var(--sl-color-blue);
+    border-radius: 0.25rem;
+    background: var(--sl-color-blue-low);
+  }
+  .etcher-release p { margin: 0; }
+</style>

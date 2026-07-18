@@ -4,6 +4,15 @@ import AudioWave from '../components/AudioWave.astro';
 import BentoGrid from '../components/BentoGrid.astro';
 import ClientShowcase from '../components/ClientShowcase.astro';
 import RoutingVisualizer from '../components/RoutingVisualizer.astro';
+import etcherRelease from '../data/snapdog-etcher-release.json';
+
+const etcherDownloadBase = `https://github.com/SnapDogRocks/snapdog-etcher/releases/download/${etcherRelease.tag}`;
+const etcherInstallers = {
+  mac: { label: 'macOS · Apple silicon + Intel', file: etcherRelease.assets.macosUniversalDmg },
+  windows: { label: 'Windows · x64', file: etcherRelease.assets.windowsX64Exe },
+  linuxArm64: { label: 'Linux · ARM64', file: etcherRelease.assets.linuxArm64Zip },
+  linuxX64: { label: 'Linux · x64', file: etcherRelease.assets.linuxX64Zip },
+};
 ---
 
 <html lang="en" class="scroll-smooth font-sans overflow-x-hidden">
@@ -59,7 +68,7 @@ import RoutingVisualizer from '../components/RoutingVisualizer.astro';
           <div class="flex flex-col sm:flex-row justify-center gap-3 w-full">
             <a
               id="etcher-download"
-              href="https://github.com/SnapDogRocks/snapdog-etcher/releases/tag/v2.1.6-snapdog.1"
+              href={etcherRelease.releaseUrl}
               class="group relative flex flex-1 items-center justify-center gap-3 overflow-hidden rounded-xl bg-amber-500 px-6 py-4 text-sm font-semibold text-black shadow-[0_8px_30px_rgba(245,158,11,0.2)] transition hover:bg-amber-400 hover:shadow-[0_8px_35px_rgba(245,158,11,0.3)]"
               aria-label="Download SnapDog Etcher for this computer"
             >
@@ -87,7 +96,7 @@ import RoutingVisualizer from '../components/RoutingVisualizer.astro';
 
           <p class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs leading-relaxed text-neutral-400">
             <span>Need Etcher for another platform or architecture?</span>
-            <a href="https://github.com/SnapDogRocks/snapdog-etcher/releases/tag/v2.1.6-snapdog.1" class="text-neutral-300 underline decoration-white/20 underline-offset-4 transition hover:text-amber-300">View all downloads</a>
+            <a href={etcherRelease.releaseUrl} class="text-neutral-300 underline decoration-white/20 underline-offset-4 transition hover:text-amber-300">View all downloads</a>
             <span aria-hidden="true" class="text-neutral-600">·</span>
             <a href="/docs/install-direct" class="text-neutral-300 underline decoration-white/20 underline-offset-4 transition hover:text-amber-300">Native packages</a>
             <span aria-hidden="true" class="text-neutral-600">·</span>
@@ -178,26 +187,7 @@ import RoutingVisualizer from '../components/RoutingVisualizer.astro';
       </div>
     </footer>
 
-    <script is:inline>
-      const releaseBase = 'https://github.com/SnapDogRocks/snapdog-etcher/releases/download/v2.1.6-snapdog.1';
-      const installers = {
-        mac: {
-          label: 'macOS · Apple silicon + Intel',
-          file: 'macos-universal-SnapDog.Etcher-2.1.6-snapdog.1-universal.dmg',
-        },
-        windows: {
-          label: 'Windows · x64',
-          file: 'windows-x64-SnapDog.Etcher-2.1.6-snapdog.1.Setup.exe',
-        },
-        linuxArm64: {
-          label: 'Linux · ARM64',
-          file: 'linux-arm64-SnapDog.Etcher-linux-arm64-2.1.6-snapdog.1.zip',
-        },
-        linuxX64: {
-          label: 'Linux · x64',
-          file: 'linux-x64-SnapDog.Etcher-linux-x64-2.1.6-snapdog.1.zip',
-        },
-      };
+    <script is:inline define:vars={{ releaseBase: etcherDownloadBase, installers: etcherInstallers }}>
 
       const download = document.getElementById('etcher-download');
       const platformLabel = document.getElementById('etcher-platform');
