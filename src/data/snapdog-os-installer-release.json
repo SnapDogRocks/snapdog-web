@@ -1,0 +1,13 @@
+{
+  "tag": "v0.2.1",
+  "version": "0.2.1",
+  "releaseUrl": "https://github.com/SnapDogRocks/snapdog-os-installer/releases/tag/v0.2.1",
+  "publishedAt": "2026-07-21T11:39:34Z",
+  "assets": {
+    "macosUniversalDmg": "snapdog-os-installer-0.2.1-macos-universal.dmg",
+    "windowsX64Exe": "snapdog-os-installer-0.2.1-windows-x86_64.exe",
+    "windowsArm64Exe": "snapdog-os-installer-0.2.1-windows-aarch64.exe",
+    "linuxX64AppImage": "snapdog-os-installer-0.2.1-linux-x86_64.AppImage",
+    "linuxArm64AppImage": "snapdog-os-installer-0.2.1-linux-aarch64.AppImage"
+  }
+}

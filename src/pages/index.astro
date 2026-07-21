@@ -4,14 +4,15 @@ import AudioWave from '../components/AudioWave.astro';
 import BentoGrid from '../components/BentoGrid.astro';
 import ClientShowcase from '../components/ClientShowcase.astro';
 import RoutingVisualizer from '../components/RoutingVisualizer.astro';
-import etcherRelease from '../data/snapdog-etcher-release.json';
+import installerRelease from '../data/snapdog-os-installer-release.json';
 
-const etcherDownloadBase = `https://github.com/SnapDogRocks/snapdog-etcher/releases/download/${etcherRelease.tag}`;
-const etcherInstallers = {
-  mac: { label: 'macOS · Apple silicon + Intel', file: etcherRelease.assets.macosUniversalDmg },
-  windows: { label: 'Windows · x64', file: etcherRelease.assets.windowsX64Exe },
-  linuxArm64: { label: 'Linux · ARM64', file: etcherRelease.assets.linuxArm64Zip },
-  linuxX64: { label: 'Linux · x64', file: etcherRelease.assets.linuxX64Zip },
+const installerDownloadBase = `https://github.com/SnapDogRocks/snapdog-os-installer/releases/download/${installerRelease.tag}`;
+const installers = {
+  mac: { label: 'macOS · Apple silicon + Intel', file: installerRelease.assets.macosUniversalDmg },
+  windowsArm64: { label: 'Windows · ARM64', file: installerRelease.assets.windowsArm64Exe },
+  windowsX64: { label: 'Windows · x64', file: installerRelease.assets.windowsX64Exe },
+  linuxArm64: { label: 'Linux · ARM64', file: installerRelease.assets.linuxArm64AppImage },
+  linuxX64: { label: 'Linux · x64', file: installerRelease.assets.linuxX64AppImage },
 };
 ---
 
@@ -67,16 +68,16 @@ const etcherInstallers = {
         <div class="flex flex-col items-center gap-3 w-full max-w-2xl mt-[6px] px-4 sm:px-0">
           <div class="flex flex-col sm:flex-row justify-center gap-3 w-full">
             <a
-              id="etcher-download"
-              href={etcherRelease.releaseUrl}
+              id="installer-download"
+              href={installerRelease.releaseUrl}
               class="group relative flex flex-1 items-center justify-center gap-3 overflow-hidden rounded-xl bg-amber-500 px-6 py-4 text-sm font-semibold text-black shadow-[0_8px_30px_rgba(245,158,11,0.2)] transition hover:bg-amber-400 hover:shadow-[0_8px_35px_rgba(245,158,11,0.3)]"
-              aria-label="Download SnapDog Etcher for this computer"
+              aria-label="Download SnapDog OS Installer for this computer"
             >
               <span class="pointer-events-none absolute -right-7 top-2 w-24 rotate-45 border-y border-amber-300/30 bg-neutral-950 py-0.5 text-center text-[8px] font-bold uppercase tracking-[0.22em] text-amber-300 shadow-sm" aria-hidden="true">Beta</span>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
               <span class="flex flex-col items-start leading-tight">
-                <span>Download SnapDog Etcher</span>
-                <span id="etcher-platform" class="mt-1 text-[10px] font-medium uppercase tracking-wider text-black/65">Detecting your platform…</span>
+                <span>Download SnapDog OS Installer</span>
+                <span id="installer-platform" class="mt-1 text-[10px] font-medium uppercase tracking-wider text-black/65">Detecting your platform…</span>
               </span>
             </a>
 
@@ -95,8 +96,8 @@ const etcherInstallers = {
           </div>
 
           <p class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs leading-relaxed text-neutral-400">
-            <span>Need Etcher for another platform or architecture?</span>
-            <a href={etcherRelease.releaseUrl} class="text-neutral-300 underline decoration-white/20 underline-offset-4 transition hover:text-amber-300">View all downloads</a>
+            <span>Need the installer for another platform or architecture?</span>
+            <a href={installerRelease.releaseUrl} class="text-neutral-300 underline decoration-white/20 underline-offset-4 transition hover:text-amber-300">View all downloads</a>
             <span aria-hidden="true" class="text-neutral-600">·</span>
             <a href="/docs/install-direct" class="text-neutral-300 underline decoration-white/20 underline-offset-4 transition hover:text-amber-300">Native packages</a>
             <span aria-hidden="true" class="text-neutral-600">·</span>
@@ -187,16 +188,18 @@ const etcherInstallers = {
       </div>
     </footer>
 
-    <script is:inline define:vars={{ releaseBase: etcherDownloadBase, installers: etcherInstallers }}>
+    <script is:inline define:vars={{ releaseBase: installerDownloadBase, installers }}>
 
-      const download = document.getElementById('etcher-download');
-      const platformLabel = document.getElementById('etcher-platform');
+      const download = document.getElementById('installer-download');
+      const platformLabel = document.getElementById('installer-platform');
 
       function chooseInstaller(platform, architecture = '') {
         const os = platform.toLowerCase();
         const arch = architecture.toLowerCase();
         if (os.includes('mac')) return installers.mac;
-        if (os.includes('win')) return installers.windows;
+        if (os.includes('win')) {
+          return /arm64|aarch64/.test(arch) ? installers.windowsArm64 : installers.windowsX64;
+        }
         if (os.includes('linux')) {
           return /arm64|aarch64/.test(arch) ? installers.linuxArm64 : installers.linuxX64;
         }
