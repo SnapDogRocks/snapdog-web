@@ -4,7 +4,7 @@ description: Dedicated minimal operating system for SnapDog audio receivers.
 ---
 
 import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
-import EtcherDownloads from '../../../components/EtcherDownloads.astro';
+import InstallerDownloads from '../../../components/InstallerDownloads.astro';
 
 **SnapDog OS** is a custom, minimal Buildroot-based Linux distribution that turns a Raspberry Pi with an I2S soundcard (DAC) into a dedicated, appliance-like audio receiver. It boots in seconds, connects to your network automatically, and requires zero command-line configuration.
 
@@ -26,20 +26,20 @@ SnapDog OS is compiled as a 64-bit (`aarch64`) image running a minimal Linux 6.6
 
 ## 1. Installation & First Boot
 
-### SnapDog Etcher
+### SnapDog OS Installer
 
-[SnapDog Etcher](https://github.com/SnapDogRocks/snapdog-etcher) is the recommended guided installation path for macOS, Windows, and Linux. It presents the supported Raspberry Pi models and release channels in one place, downloads the correct image, writes it to the selected SD card, and verifies the result.
+[SnapDog OS Installer](https://github.com/SnapDogRocks/snapdog-os-installer) is the recommended guided installation path for macOS, Windows, and Linux. This purpose-built native application presents the supported Raspberry Pi models and release channels in one place, downloads the correct image, writes it to the selected SD card, and verifies the result.
 
-![SnapDog Etcher showing the Raspberry Pi model and SnapDog OS version selectors](/installation/snapdog-etcher.png)
+![SnapDog OS Installer showing the Raspberry Pi model, version, target, and flash steps](/installation/snapdog-os-installer.png)
 
-<EtcherDownloads />
+<InstallerDownloads />
 
 Then:
 
-1. Install or extract SnapDog Etcher and launch it.
+1. Install or launch SnapDog OS Installer.
 2. Choose your exact Raspberry Pi model.
 3. Select **Stable** for normal use or **Beta** to test the newest build, then choose the offered version.
-4. Click **Use SnapDog OS**, select the target SD card, and click **Flash**.
+4. Click **Select target**, choose the SD card, and click **Flash!**.
 5. Wait for writing and verification to finish before removing the card.
 
 <Aside type="caution">
