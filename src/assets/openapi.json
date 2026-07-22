@@ -5072,6 +5072,8 @@
           "position_ms",
           "seekable",
           "source",
+          "can_playlist_next",
+          "can_playlist_prev",
           "can_next",
           "can_prev"
         ],
@@ -5097,6 +5099,12 @@
             "minimum": 0
           },
           "can_next": {
+            "type": "boolean"
+          },
+          "can_playlist_next": {
+            "type": "boolean"
+          },
+          "can_playlist_prev": {
             "type": "boolean"
           },
           "can_prev": {

@@ -46,7 +46,8 @@ export default defineConfig({
         {
           label: 'Developer Manual',
           items: [
-            { label: 'REST API', link: '/docs/api-rest' },
+            { label: 'REST API Guide', link: '/docs/api-rest' },
+            { label: 'Generated REST Reference', link: '/docs/api-reference' },
             { label: 'WebSocket API', link: '/docs/api-websocket' },
             { label: 'D-Bus API (MPRIS2)', link: '/docs/api-dbus' },
             { label: 'Binary Protocol', link: '/docs/api-binary-protocol' },

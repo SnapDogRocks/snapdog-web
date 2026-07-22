@@ -48,6 +48,11 @@ The embedded **Scalar** interface provides a modern developer playground with se
 * **Multi-Language Code Generator:** Select any endpoint to generate copy-pasteable client integration snippets in `cURL`, `JavaScript`, `Python`, `Rust`, `Go`, `PHP`, and more.
 * **Fuzzy Search:** Press `/` within the console to trigger fuzzy search indexing across all endpoints, tags, and request schemas.
 
+<Aside type="tip">
+  The [generated REST API reference](/docs/api-reference) lists every endpoint,
+  request, response, and schema directly from the same Rust OpenAPI registry.
+</Aside>
+
 ---
 
 ## 3. System Endpoints
@@ -58,7 +63,7 @@ Returns count statistics for configured zones, clients, and radio streams.
 * **Method:** `GET`
 * **Endpoint:** `/api/v1/system/status`
 * **Response `200 OK`:**
-  ```json
+  ```json schema=SystemStatus
   {
     "version": "1.0.0",
     "zones": 2,
@@ -215,7 +220,7 @@ Returns all tags of the currently playing stream.
 * **Method:** `GET`
 * **Endpoint:** `/api/v1/zones/{zone_index}/track/metadata`
 * **Response `200 OK`:**
-  ```json
+  ```json schema=ZoneTrackMetadata
   {
     "title": "Acoustic Song",
     "artist": "The Band",
@@ -238,6 +243,8 @@ Returns all tags of the currently playing stream.
     "playlist_total": 5,
     "playlist_track_index": 1,
     "playlist_track_count": 12,
+    "can_playlist_next": true,
+    "can_playlist_prev": false,
     "can_next": true,
     "can_prev": false
   }

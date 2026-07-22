@@ -34,19 +34,22 @@ npm run preview
 - `src/content/docs/docs/` — Starlight documentation pages
 - `src/components/` — shared landing-page and documentation visuals
 - `src/assets/openapi.json` — generated API contract from the `snapdog` repository
+- `src/content/docs/docs/api-reference.mdx` — generated, visible endpoint and schema reference
 - `public/` — static images and downloadable presentation assets
 
 ## API documentation synchronization
 
 The `snapdog` repository generates its OpenAPI contract from the Rust route
-registry and synchronizes it into `src/assets/openapi.json`. The website CI
-checks that every generated REST path is represented in the manual API guide.
+registry and synchronizes it through an auto-merge PR. The same workflow
+regenerates the visible API reference. Website CI rejects a stale generated
+reference, missing REST paths, and schema-bound JSON examples that no longer
+match required OpenAPI fields.
 When adding or changing an API route:
 
 1. Update the Rust OpenAPI annotations and registry in `snapdog`.
-2. Generate/synchronize `src/assets/openapi.json`.
-3. Update `src/content/docs/docs/api-rest.mdx`.
-4. Run `npm run docs:check` and `npm run build`.
+2. Run `cargo run --package xtask -- gen-api-spec openapi.json` and commit it.
+3. Update curated examples in `src/content/docs/docs/api-rest.mdx` when needed.
+4. Run `npm run docs:generate`, `npm run docs:check`, and `npm run build`.
 
 ## Deployment
 

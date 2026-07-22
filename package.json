@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "docs:check": "node scripts/check-api-docs.mjs",
+    "docs:generate": "node scripts/generate-api-reference.mjs",
+    "docs:check": "node scripts/generate-api-reference.mjs --check && node scripts/check-api-docs.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
