@@ -1,6 +1,9 @@
 name: Update SnapDog OS Installer release
 
 on:
+  repository_dispatch:
+    types:
+      - snapdog-os-installer-release
   workflow_dispatch:
     inputs:
       tag:
@@ -33,7 +36,7 @@ jobs:
       - name: Update release metadata from published assets
         env:
           GITHUB_TOKEN: ${{ secrets.SNAPDOG_RELEASE_AUTOMATION_TOKEN }}
-          TAG: ${{ inputs.tag }}
+          TAG: ${{ inputs.tag || github.event.client_payload.tag }}
         run: node scripts/update-installer-release.mjs "$TAG"
 
       - name: Verify website
@@ -45,7 +48,7 @@ jobs:
       - name: Create or update pull request and arm auto-merge
         env:
           GH_TOKEN: ${{ secrets.SNAPDOG_RELEASE_AUTOMATION_TOKEN }}
-          TAG: ${{ inputs.tag }}
+          TAG: ${{ inputs.tag || github.event.client_payload.tag }}
         shell: bash
         run: |
           set -euo pipefail
