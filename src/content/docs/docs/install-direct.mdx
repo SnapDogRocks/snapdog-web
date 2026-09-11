@@ -51,17 +51,29 @@ Ensure your target machine meets the following requirements:
   <TabItem label="Debian/Ubuntu (APT)">
     We distribute native `.deb` packages for Debian and Ubuntu architectures (amd64, arm64).
 
-    1. Register the trusted APT repository source:
+    1. Fetch the archive keyring and check its fingerprint before trusting it:
        ```bash
-       echo "deb [trusted=yes] https://snapdogrocks.github.io/snapdog/debian stable main" \
+       curl -fsSL https://deb.snapdog.cc/snapdog-archive-keyring.pgp \
+         -o /tmp/snapdog-archive-keyring.pgp
+       gpg --show-keys --with-colons /tmp/snapdog-archive-keyring.pgp \
+         | awk -F: '$1 == "fpr" { print $10; exit }'
+       # Expected: 1B7B79417383648BBFBE282E01AB8296EF0FCD76
+       ```
+       That is the certifying primary key; packages for this domain are signed
+       by its subkey `CFE7BACA652DD0D72EB7156FC7252FAD41F8F7DA`.
+    2. Register the repository, bound to that key:
+       ```bash
+       sudo install -m 0644 /tmp/snapdog-archive-keyring.pgp \
+         /usr/share/keyrings/snapdog-archive-keyring.pgp
+       echo "deb [signed-by=/usr/share/keyrings/snapdog-archive-keyring.pgp] https://deb.snapdog.cc rolling main" \
          | sudo tee /etc/apt/sources.list.d/snapdog.list
        ```
-    2. Update package lists and install:
+    3. Update package lists and install:
        ```bash
        sudo apt update
        sudo apt install snapdog snapdog-client
        ```
-    3. Start the background service:
+    4. Start the background service:
        ```bash
        sudo systemctl daemon-reload
        sudo systemctl enable --now snapdog
