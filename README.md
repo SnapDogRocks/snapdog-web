@@ -17,15 +17,15 @@ reference, and SnapDog OS installation guides.
 Requires Node.js 22 or newer.
 
 ```bash
-npm ci
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 Open <http://localhost:4321>. Production output is generated with:
 
 ```bash
-npm run build
-npm run preview
+pnpm run build
+pnpm run preview
 ```
 
 ## Content layout
@@ -49,7 +49,7 @@ When adding or changing an API route:
 1. Update the Rust OpenAPI annotations and registry in `snapdog`.
 2. Run `cargo run --package xtask -- gen-api-spec openapi.json` and commit it.
 3. Update curated examples in `src/content/docs/docs/api-rest.mdx` when needed.
-4. Run `npm run docs:generate`, `npm run docs:check`, and `npm run build`.
+4. Run `pnpm run docs:generate`, `pnpm run docs:check`, and `pnpm run build`.
 
 ## Deployment
 
