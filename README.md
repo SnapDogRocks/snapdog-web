@@ -9,7 +9,7 @@ reference, and SnapDog OS installation guides.
 
 - [Astro](https://astro.build/)
 - [Starlight](https://starlight.astro.build/) documentation
-- MDX, Mermaid, and Tailwind CSS
+- MDX and Tailwind CSS
 - Vercel deployment
 
 ## Development
