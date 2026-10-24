@@ -140,7 +140,7 @@ const generated = `${lines.join('\n').trim()}\n`;
 if (checkOnly) {
   const current = await readFile(outputPath, 'utf8').catch(() => '');
   if (current !== generated) {
-    console.error(`${outputPath} is stale. Run npm run docs:generate and commit the result.`);
+    console.error(`${outputPath} is stale. Run pnpm run docs:generate and commit the result.`);
     process.exit(1);
   }
   console.log(`Generated API reference is current (${operations.length} operations).`);
