@@ -27,9 +27,9 @@ Ensure your target machine meets the following requirements:
     ```bash
     # Install the server and audio client
     yay -S snapdog snapdog-client
-    
-    # Enable and start the systemd service
-    sudo systemctl enable --now snapdog
+
+    # Enable and start both services (the packages install their systemd units)
+    sudo systemctl enable --now snapdog snapdog-client
     ```
   </TabItem>
 
@@ -73,10 +73,10 @@ Ensure your target machine meets the following requirements:
        sudo apt update
        sudo apt install snapdog snapdog-client
        ```
-    4. Start the background service:
+    4. Enable and start both services. The packages install their own systemd
+       units, so there is no unit file to write:
        ```bash
-       sudo systemctl daemon-reload
-       sudo systemctl enable --now snapdog
+       sudo systemctl enable --now snapdog snapdog-client
        ```
     </TabItem>
 
@@ -137,30 +137,48 @@ Ensure your development machine has the required system libraries installed:
 
 ## Post-Installation Service Scripts
 
-To ensure SnapDog starts automatically on boot and restarts in case of failures, configure a service supervisor.
+This section is only for the [direct binary download](#direct-binary-download) and [source builds](#compiling-from-source). The AUR and APT packages install their own systemd units, and Homebrew runs SnapDog through `brew services`.
+
+<Aside type="caution">
+  Do not add these files on a package install. A unit in `/etc/systemd/system/` overrides the one the package installed, and this one points to `/usr/local/bin` instead of `/usr/bin`.
+</Aside>
 
 ### Linux Systemd Service Unit
-Create `/etc/systemd/system/snapdog.service`:
+Create `/etc/systemd/system/snapdog.service`. It matches the unit the packages ship, with the binary in `/usr/local/bin`:
 
 ```ini
 [Unit]
-Description=SnapDog Multi-room Audio Controller
+Description=SnapDog multiroom audio server
 After=network-online.target sound.target
 Wants=network-online.target
 
 [Service]
 Type=simple
-User=snapdog
-Group=audio
 ExecStart=/usr/local/bin/snapdog --config /etc/snapdog/snapdog.toml
-Restart=always
+Restart=on-failure
 RestartSec=5
-LimitRTPRIO=99
-LimitMEMLOCK=infinity
+DynamicUser=yes
+SupplementaryGroups=audio
+StateDirectory=snapdog
+WorkingDirectory=/var/lib/snapdog
+ConfigurationDirectory=snapdog
+ProtectSystem=strict
+ProtectHome=yes
+NoNewPrivileges=yes
+PrivateTmp=yes
 
 [Install]
 WantedBy=multi-user.target
 ```
+
+Then load and start it:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now snapdog
+```
+
+For the audio client, use [`snapdog-client.service`](https://github.com/SnapDogRocks/snapdog/blob/main/snapdog-client/systemd/snapdog-client.service) from the repository the same way and change its `ExecStart` to `/usr/local/bin/snapdog-client`.
 
 ### macOS Launchd Service Agent
 Create `~/Library/LaunchAgents/cc.snapdog.server.plist`:
