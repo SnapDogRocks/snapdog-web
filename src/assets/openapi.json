@@ -34,6 +34,12 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           }
         }
       }
@@ -50,12 +56,18 @@
           "200": {
             "description": "Total client count",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "minimum": 0
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           }
         }
@@ -77,7 +89,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -90,6 +102,12 @@
                   "$ref": "#/components/schemas/ClientInfo"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -121,7 +139,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -129,11 +147,17 @@
           "200": {
             "description": "Connection status",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "boolean"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -165,7 +189,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -180,8 +204,14 @@
               }
             }
           },
-          "400": {
-            "description": "Client does not support EQ",
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "404": {
+            "description": "Client not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -190,8 +220,8 @@
               }
             }
           },
-          "404": {
-            "description": "Client not found",
+          "422": {
+            "description": "Client does not support EQ (not a SnapDog client)",
             "content": {
               "application/json": {
                 "schema": {
@@ -217,7 +247,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -252,8 +282,24 @@
               }
             }
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "404": {
             "description": "Client not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Client does not support EQ (not a SnapDog client)",
             "content": {
               "application/json": {
                 "schema": {
@@ -281,13 +327,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "string"
               }
@@ -316,8 +362,24 @@
               }
             }
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "404": {
             "description": "Client not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Client does not support EQ (not a SnapDog client)",
             "content": {
               "application/json": {
                 "schema": {
@@ -345,7 +407,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           },
           {
@@ -390,8 +452,24 @@
               }
             }
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "404": {
             "description": "Client or band not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Client does not support EQ (not a SnapDog client)",
             "content": {
               "application/json": {
                 "schema": {
@@ -419,7 +497,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -427,11 +505,17 @@
           "200": {
             "description": "Client icon name",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "string"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -463,7 +547,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -471,12 +555,18 @@
           "200": {
             "description": "Current client latency in milliseconds",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "format": "int32"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -506,13 +596,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "integer",
                 "format": "int32"
@@ -525,12 +615,18 @@
           "200": {
             "description": "Updated client latency in milliseconds",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "format": "int32"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -562,7 +658,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -570,11 +666,17 @@
           "200": {
             "description": "Client mute status",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "boolean"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -604,13 +706,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "boolean"
               }
@@ -622,11 +724,17 @@
           "200": {
             "description": "Updated client mute status",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "boolean"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -658,7 +766,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -666,11 +774,17 @@
           "200": {
             "description": "New client mute status after toggling",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "boolean"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -702,7 +816,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -710,11 +824,17 @@
           "200": {
             "description": "Client friendly name",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "string"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -744,13 +864,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "string"
               }
@@ -762,11 +882,17 @@
           "200": {
             "description": "Updated friendly name",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "string"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -798,7 +924,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -813,8 +939,24 @@
               }
             }
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "404": {
             "description": "Client not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Client does not support speaker correction (not a SnapDog client)",
             "content": {
               "application/json": {
                 "schema": {
@@ -840,7 +982,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -875,8 +1017,24 @@
               }
             }
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "404": {
             "description": "Client or speaker profile not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Client does not support speaker correction (not a SnapDog client)",
             "content": {
               "application/json": {
                 "schema": {
@@ -904,7 +1062,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -912,12 +1070,18 @@
           "200": {
             "description": "Current client volume",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "format": "int32"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -947,7 +1111,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -965,7 +1129,7 @@
           "200": {
             "description": "Updated client volume",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "format": "int32"
@@ -981,6 +1145,12 @@
                   "$ref": "#/components/schemas/ErrorBody"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -1012,7 +1182,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -1020,12 +1190,18 @@
           "200": {
             "description": "Assigned zone index",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "minimum": 0
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -1055,13 +1231,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "integer",
                 "minimum": 0
@@ -1074,12 +1250,18 @@
           "200": {
             "description": "Assigned zone index",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "minimum": 0
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -1090,6 +1272,37 @@
                   "$ref": "#/components/schemas/ErrorBody"
                 }
               }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/eq/presets": {
+      "get": {
+        "tags": [
+          "equalizer"
+        ],
+        "summary": "List EQ presets",
+        "description": "Returns every preset name that `POST .../eq/preset` accepts, with the bands each one sets.",
+        "operationId": "list_presets",
+        "responses": {
+          "200": {
+            "description": "Available presets, in a fixed order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EqPreset"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           }
         }
@@ -1106,6 +1319,12 @@
         "responses": {
           "200": {
             "description": "The .knxprod product database (ZIP)"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           }
         }
       }
@@ -1127,6 +1346,12 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           }
         }
       }
@@ -1143,15 +1368,31 @@
           "200": {
             "description": "Programming mode status",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "boolean"
                 }
               }
             }
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "409": {
             "description": "KNX device mode not active",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The KNX device task did not answer within two seconds",
             "content": {
               "application/json": {
                 "schema": {
@@ -1171,7 +1412,7 @@
         "operationId": "set_programming_mode",
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "boolean"
               }
@@ -1183,15 +1424,86 @@
           "200": {
             "description": "Updated programming mode status",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "boolean"
                 }
               }
             }
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "409": {
             "description": "KNX device mode not active",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The KNX device task did not answer within two seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media/cover/{cover_id}": {
+      "get": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Get a cover image by its Subsonic cover id",
+        "description": "Proxies the cover of a search result, with the caching headers of the other cover routes.\nA search result has no playlist index to build the playlist cover path from.",
+        "operationId": "get_cover",
+        "parameters": [
+          {
+            "name": "cover_id",
+            "in": "path",
+            "description": "Subsonic cover art id, percent-encoded",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cover image",
+            "content": {
+              "image/*": {}
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "404": {
+            "description": "Cover not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Subsonic is not configured",
             "content": {
               "application/json": {
                 "schema": {
@@ -1221,6 +1533,462 @@
                   "items": {
                     "$ref": "#/components/schemas/PlaylistInfo"
                   }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Create a Subsonic playlist",
+        "description": "Needs `[subsonic].playlist_write = true`, otherwise 403 `read_only`. Answers 201 with the new\nplaylist. Creating a playlist can move the indices behind it, so address it by `playlist_id`.",
+        "operationId": "create_playlist",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePlaylist"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Playlist created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaylistInfo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Empty name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "403": {
+            "description": "Writing playlists is off",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Subsonic refused or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Subsonic is not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media/playlists/by-id/{playlist_id}": {
+      "get": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Get playlist details by `playlist_id`",
+        "description": "Same body as the index path. This path takes the `playlist_id` (`snapdog:radio`,\n`subsonic:<id>`, percent-encoded); the path without `by-id` takes the unified index.",
+        "operationId": "get_playlist_by_id",
+        "parameters": [
+          {
+            "name": "playlist_id",
+            "in": "path",
+            "description": "Stable playlist reference, percent-encoded",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Playlist details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaylistDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "404": {
+            "description": "Playlist not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Upstream request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Delete a Subsonic playlist",
+        "description": "Needs `[subsonic].playlist_write = true`. `snapdog:radio` answers 403. Playlists behind the\ndeleted one move up by one index.",
+        "operationId": "delete_playlist",
+        "parameters": [
+          {
+            "name": "playlist_id",
+            "in": "path",
+            "description": "Stable playlist reference, percent-encoded",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Playlist deleted"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "403": {
+            "description": "Writing playlists is off, or the radio list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Playlist not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Subsonic refused or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Change a Subsonic playlist",
+        "description": "Rename, append tracks and remove tracks by position, the three operations of `updatePlaylist`,\nin one call. Needs `[subsonic].playlist_write = true`. `snapdog:radio` answers 403. A zone that\nplays the playlist keeps its current track and uses the new content from the next track on.",
+        "operationId": "update_playlist",
+        "parameters": [
+          {
+            "name": "playlist_id",
+            "in": "path",
+            "description": "Stable playlist reference, percent-encoded",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchPlaylist"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Playlist changed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaylistDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Nothing to change, or an empty name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "403": {
+            "description": "Writing playlists is off, or the radio list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Playlist not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Subsonic refused or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media/playlists/by-id/{playlist_id}/tracks": {
+      "get": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Get playlist tracks by `playlist_id`",
+        "description": "Same body as the index path. This path takes the `playlist_id`, the path without `by-id`\ntakes the unified index.",
+        "operationId": "get_playlist_tracks_by_id",
+        "parameters": [
+          {
+            "name": "playlist_id",
+            "in": "path",
+            "description": "Stable playlist reference, percent-encoded",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of tracks. Without `limit` and `offset` every track is returned and no\n`X-Total-Count` header is sent.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of tracks to skip (default 0).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of tracks in the playlist",
+            "headers": {
+              "X-Total-Count": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Full number of tracks, only when `limit` or `offset` is given"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MediaTrackInfo"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "404": {
+            "description": "Playlist not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Upstream request failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Replace the tracks of a Subsonic playlist",
+        "description": "Sets the complete content and the order. Needs `[subsonic].playlist_write = true`.\n`snapdog:radio` answers 403.",
+        "operationId": "replace_playlist_tracks",
+        "parameters": [
+          {
+            "name": "playlist_id",
+            "in": "path",
+            "description": "Stable playlist reference, percent-encoded",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplaceTracks"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Playlist replaced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaylistDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "403": {
+            "description": "Writing playlists is off, or the radio list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Playlist not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Subsonic refused or failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
                 }
               }
             }
@@ -1257,6 +2025,12 @@
                   "$ref": "#/components/schemas/PlaylistDetails"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -1309,6 +2083,12 @@
               "image/*": {}
             }
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "404": {
             "description": "Playlist or cover not found",
             "content": {
@@ -1328,7 +2108,7 @@
           "media"
         ],
         "summary": "Get playlist tracks",
-        "description": "Returns a list of all tracks in the specified playlist.",
+        "description": "Returns the tracks of the specified playlist. With `limit` and/or `offset` the same array is\ncut and the header `X-Total-Count` carries the full number of tracks. Without them the\nresponse is the whole list and has no such header.",
         "operationId": "get_playlist_tracks",
         "parameters": [
           {
@@ -1340,11 +2120,40 @@
               "type": "integer",
               "minimum": 0
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of tracks. Without `limit` and `offset` every track is returned and no\n`X-Total-Count` header is sent.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of tracks to skip (default 0).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "List of tracks in the playlist",
+            "headers": {
+              "X-Total-Count": {
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Full number of tracks, only when `limit` or `offset` is given"
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1354,6 +2163,12 @@
                   }
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -1420,6 +2235,12 @@
               }
             }
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "404": {
             "description": "Playlist or track not found",
             "content": {
@@ -1480,8 +2301,102 @@
               "image/*": {}
             }
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "404": {
             "description": "Track or cover not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/media/search": {
+      "get": {
+        "tags": [
+          "media"
+        ],
+        "summary": "Search the music library, the playlists and the radio stations",
+        "description": "Tracks and albums come from the `search3` call of the Subsonic server, so what matches\nfollows the rules of that server (some match word prefixes, some any substring). Playlists\nand radio stations are matched by the server on a case-insensitive substring of the name.\n`limit` and `offset` apply to each kind. `search3` reports no total, so `next_offset` is set\nwhen any kind filled its page.",
+        "operationId": "search",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Text to search for, at least two characters.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "description": "Comma-separated kinds: `track`, `album`, `playlist`, `radio` (default all four).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Results per kind (default 20, at most 100).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Results to skip per kind (default 0).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "q shorter than two characters, or an unknown kind",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "502": {
+            "description": "Upstream request failed",
             "content": {
               "application/json": {
                 "schema": {
@@ -1513,6 +2428,12 @@
                   }
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "503": {
@@ -1551,8 +2472,45 @@
               }
             }
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "404": {
             "description": "Speaker profile not found"
+          }
+        }
+      }
+    },
+    "/api/v1/system/listeners": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "List every network listener of the server.",
+        "description": "One row per listener: service, protocol, address, port, what creates the socket and how far\nthe service honours a `bind` setting (`full`, `partial` or `none`). Use it to derive firewall\nrules. A port of `0` means a random port at every start.",
+        "operationId": "get_listeners",
+        "responses": {
+          "200": {
+            "description": "Listeners of the server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Row"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           }
         }
       }
@@ -1571,6 +2529,216 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SystemStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/updates": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Read the state of the container updater sidecar.",
+        "description": "Needs `SNAPDOG_UPDATER_URL` and `UPDATER_TOKEN` (see `deploy/docker-compose.yml`);\nwithout them, and outside the Docker deployment, the answer is 503.",
+        "operationId": "update_status",
+        "responses": {
+          "200": {
+            "description": "Updater state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "502": {
+            "description": "The updater sidecar did not answer or refused",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No updater sidecar is configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/updates/apply": {
+      "post": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Apply the available update now.",
+        "description": "The sidecar pulls the new image, verifies it and restarts the server, so the\nconnection drops while this runs. Does nothing if no update is available.",
+        "operationId": "apply_update",
+        "responses": {
+          "200": {
+            "description": "Updater state after starting the update",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "502": {
+            "description": "The updater sidecar did not answer or refused (for example an operation is running)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No updater sidecar is configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/updates/check": {
+      "post": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Ask the sidecar to look for a newer release now.",
+        "description": "Answers with the updater state once the check has been started. A check or update\nthat is already running makes the sidecar refuse, which shows up as 502.",
+        "operationId": "check_updates",
+        "responses": {
+          "200": {
+            "description": "Updater state after starting the check",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "502": {
+            "description": "The updater sidecar did not answer or refused (for example an operation is running)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No updater sidecar is configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/updates/config": {
+      "post": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Change the update mode and maintenance window of the sidecar.",
+        "operationId": "configure_updates",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateConfig"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updater state with the new schedule",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "422": {
+            "description": "Malformed body or unknown field (plain-text rejection)"
+          },
+          "502": {
+            "description": "The updater sidecar did not answer or rejected the schedule",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "No updater sidecar is configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
                 }
               }
             }
@@ -1594,6 +2762,12 @@
                   "$ref": "#/components/schemas/VersionInfo"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           }
         }
@@ -1620,6 +2794,12 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           }
         }
       }
@@ -1636,12 +2816,18 @@
           "200": {
             "description": "Total zone count",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "minimum": 0
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           }
         }
@@ -1663,7 +2849,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -1676,6 +2862,12 @@
                   "$ref": "#/components/schemas/ZoneInfo"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -1707,7 +2899,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -1724,6 +2916,12 @@
                   }
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           }
         }
@@ -1745,7 +2943,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -1754,6 +2952,12 @@
             "description": "Zone cover art image binary",
             "content": {
               "image/*": {}
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           }
         }
@@ -1775,7 +2979,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -1788,6 +2992,12 @@
                   "$ref": "#/components/schemas/EqConfig"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -1817,7 +3027,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -1852,6 +3062,12 @@
               }
             }
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "404": {
             "description": "Zone not found",
             "content": {
@@ -1881,13 +3097,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "string"
               }
@@ -1914,6 +3130,12 @@
                   "$ref": "#/components/schemas/ErrorBody"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -1945,7 +3167,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           },
           {
@@ -1990,6 +3212,12 @@
               }
             }
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "404": {
             "description": "Zone or band not found",
             "content": {
@@ -2019,7 +3247,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -2027,11 +3255,17 @@
           "200": {
             "description": "Zone icon character",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "string"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -2063,7 +3297,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -2071,11 +3305,17 @@
           "200": {
             "description": "Zone mute status",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "boolean"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -2105,13 +3345,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "boolean"
               }
@@ -2122,6 +3362,12 @@
         "responses": {
           "200": {
             "description": "Updated mute status"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -2152,13 +3398,19 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "responses": {
           "200": {
             "description": "Mute toggled successfully"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -2189,7 +3441,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -2197,11 +3449,17 @@
           "200": {
             "description": "Zone name",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "string"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -2233,13 +3491,19 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "responses": {
           "200": {
             "description": "Skipped to next track"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -2270,13 +3534,19 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "responses": {
           "200": {
             "description": "Switched to next playlist"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -2307,13 +3577,19 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "responses": {
           "200": {
             "description": "Playback paused"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -2344,13 +3620,19 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "responses": {
           "200": {
             "description": "Playback resumed"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -2381,7 +3663,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -2399,8 +3681,67 @@
           "200": {
             "description": "Playlist playback triggered"
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "404": {
             "description": "Zone not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/zones/{zone_index}/play/playlist/by-id": {
+      "post": {
+        "tags": [
+          "zones"
+        ],
+        "summary": "Play playlist by `playlist_id`",
+        "description": "Switches the zone to the playlist with the given `playlist_id` and starts playing at the\nspecified track index. This path takes the `playlist_id` (`snapdog:radio`, `subsonic:<id>`);\nthe paths without `by-id` take the unified playlist index. An unknown `playlist_id` is a 404.",
+        "operationId": "play_playlist_by_id",
+        "parameters": [
+          {
+            "name": "zone_index",
+            "in": "path",
+            "description": "1-based index of the target zone",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaylistByIdPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Playlist playback triggered"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "404": {
+            "description": "Zone or playlist not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -2428,7 +3769,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           },
           {
@@ -2444,7 +3785,7 @@
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "integer",
                 "format": "int32"
@@ -2457,8 +3798,66 @@
           "200": {
             "description": "Playlist track playback started"
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "404": {
             "description": "Zone or playlist not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/zones/{zone_index}/play/subsonic/album/{album_id}": {
+      "post": {
+        "tags": [
+          "zones"
+        ],
+        "summary": "Play a Subsonic album",
+        "description": "Queues the album's tracks and starts the first. An album is not part of the unified\nplaylist list, so the zone state names it in `playlist_name` and has no `playlist_index`\nand no `playlist_id`. A search result carries the `album_id`.",
+        "operationId": "play_subsonic_album",
+        "parameters": [
+          {
+            "name": "zone_index",
+            "in": "path",
+            "description": "1-based index of the target zone",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "album_id",
+            "in": "path",
+            "description": "Subsonic album ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Album playback started"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "404": {
+            "description": "Zone not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -2486,7 +3885,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           },
           {
@@ -2502,6 +3901,12 @@
         "responses": {
           "200": {
             "description": "Subsonic track playback started"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone or track not found",
@@ -2532,13 +3937,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "integer",
                 "format": "int32"
@@ -2550,6 +3955,12 @@
         "responses": {
           "200": {
             "description": "Track play command sent"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -2580,13 +3991,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "string"
               }
@@ -2606,6 +4017,12 @@
                   "$ref": "#/components/schemas/ErrorBody"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -2637,7 +4054,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -2645,11 +4062,17 @@
           "200": {
             "description": "Playback status string",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "string"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -2681,7 +4104,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -2689,12 +4112,18 @@
           "200": {
             "description": "Active playlist index",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "minimum": 0
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -2724,13 +4153,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "integer",
                 "minimum": 0
@@ -2743,8 +4172,115 @@
           "200": {
             "description": "Playlist changed successfully"
           },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
           "404": {
             "description": "Zone not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/zones/{zone_index}/playlist/by-id": {
+      "get": {
+        "tags": [
+          "zones"
+        ],
+        "summary": "Get zone playlist reference",
+        "description": "Returns the `playlist_id` of the currently active playlist in the specified zone, or an empty\nstring when no playlist is active. The path without `by-id` returns the index.",
+        "operationId": "get_zone_playlist_by_id",
+        "parameters": [
+          {
+            "name": "zone_index",
+            "in": "path",
+            "description": "1-based index of the target zone",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Active playlist_id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "404": {
+            "description": "Zone not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "zones"
+        ],
+        "summary": "Set zone playlist by `playlist_id`",
+        "description": "Selects the playlist with the given `playlist_id` (a JSON string such as `\"subsonic:42\"`).\nIf the zone is already playing, playback switches to it, otherwise it is loaded. The path\nwithout `by-id` takes the unified index. An unknown `playlist_id` is a 404.",
+        "operationId": "set_zone_playlist_by_id",
+        "parameters": [
+          {
+            "name": "zone_index",
+            "in": "path",
+            "description": "1-based index of the target zone",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Playlist changed successfully"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
+          },
+          "404": {
+            "description": "Zone or playlist not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -2772,7 +4308,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -2780,12 +4316,18 @@
           "200": {
             "description": "Playlist track count",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "format": "int32"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -2817,7 +4359,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -2830,6 +4372,12 @@
                   "$ref": "#/components/schemas/ZonePlaylistInfo"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -2861,7 +4409,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -2869,11 +4417,17 @@
           "200": {
             "description": "Active playlist display name",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "string"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -2905,7 +4459,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -2913,11 +4467,17 @@
           "200": {
             "description": "Current occupancy status",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "boolean"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -2947,13 +4507,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "boolean"
               }
@@ -2964,6 +4524,12 @@
         "responses": {
           "200": {
             "description": "Presence status updated successfully"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -2994,7 +4560,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3002,11 +4568,17 @@
           "200": {
             "description": "Presence sensor system status",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "boolean"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -3036,13 +4608,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "boolean"
               }
@@ -3053,6 +4625,12 @@
         "responses": {
           "200": {
             "description": "Presence sensor status updated"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -3083,7 +4661,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3091,13 +4669,19 @@
           "200": {
             "description": "Auto-off timeout in seconds",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "format": "int32",
                   "minimum": 0
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -3127,13 +4711,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "integer",
                 "format": "int32",
@@ -3146,6 +4730,12 @@
         "responses": {
           "200": {
             "description": "Presence timeout updated"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -3176,7 +4766,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3184,11 +4774,17 @@
           "200": {
             "description": "True if auto-off countdown timer is active",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "boolean"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -3220,13 +4816,19 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "responses": {
           "200": {
             "description": "Skipped to previous track"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -3257,13 +4859,19 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "responses": {
           "200": {
             "description": "Switched to previous playlist"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -3294,7 +4902,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3307,6 +4915,12 @@
                   "$ref": "#/components/schemas/RepeatMode"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -3336,7 +4950,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3353,6 +4967,12 @@
         "responses": {
           "200": {
             "description": "Repeat mode updated"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -3383,13 +5003,19 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "responses": {
           "200": {
             "description": "Repeat mode toggled"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -3420,7 +5046,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3428,11 +5054,17 @@
           "200": {
             "description": "Shuffle status",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "boolean"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -3462,13 +5094,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "boolean"
               }
@@ -3479,6 +5111,12 @@
         "responses": {
           "200": {
             "description": "Shuffle status updated"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -3509,13 +5147,19 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "responses": {
           "200": {
             "description": "Shuffle status toggled"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -3546,13 +5190,19 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "responses": {
           "200": {
             "description": "Playback stopped"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -3583,7 +5233,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3591,12 +5241,18 @@
           "200": {
             "description": "Current track index (0-based)",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "format": "int32"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -3628,7 +5284,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3636,11 +5292,17 @@
           "200": {
             "description": "Track album title",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "string"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -3672,7 +5334,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3680,11 +5342,17 @@
           "200": {
             "description": "Track artist name",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "string"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -3716,7 +5384,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3724,12 +5392,18 @@
           "200": {
             "description": "Track duration in milliseconds",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "format": "int64"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -3761,7 +5435,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3774,6 +5448,12 @@
                   "$ref": "#/components/schemas/ZoneTrackMetadata"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -3805,7 +5485,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3813,11 +5493,17 @@
           "200": {
             "description": "True if active track is playing",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "boolean"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -3849,7 +5535,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3857,12 +5543,18 @@
           "200": {
             "description": "Current playback position in milliseconds",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "format": "int64"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -3892,7 +5584,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3918,6 +5610,12 @@
                   "$ref": "#/components/schemas/ErrorBody"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -3949,7 +5647,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -3957,12 +5655,18 @@
           "200": {
             "description": "Track progress fraction (0.0 to 1.0)",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "number",
                   "format": "double"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -3992,13 +5696,13 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "number",
                 "format": "double"
@@ -4010,6 +5714,12 @@
         "responses": {
           "200": {
             "description": "Seek command processed"
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
+            }
           },
           "404": {
             "description": "Zone not found",
@@ -4040,7 +5750,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -4048,11 +5758,17 @@
           "200": {
             "description": "Track title",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "string"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -4084,7 +5800,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -4092,12 +5808,18 @@
           "200": {
             "description": "Current zone volume",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "format": "int32"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -4127,7 +5849,7 @@
             "required": true,
             "schema": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 1
             }
           }
         ],
@@ -4145,7 +5867,7 @@
           "200": {
             "description": "Updated zone volume",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "format": "int32"
@@ -4161,6 +5883,12 @@
                   "$ref": "#/components/schemas/ErrorBody"
                 }
               }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key (plain-text body)",
+            "content": {
+              "text/plain": {}
             }
           },
           "404": {
@@ -4202,6 +5930,15 @@
             "description": "Speaker name (from spinorama). Mutually exclusive with `custom`."
           }
         }
+      },
+      "BindSupport": {
+        "type": "string",
+        "description": "How far a service honours a `bind` setting.",
+        "enum": [
+          "full",
+          "partial",
+          "none"
+        ]
       },
       "ClientInfo": {
         "type": "object",
@@ -4251,6 +5988,26 @@
           "zone_index": {
             "type": "integer",
             "minimum": 0
+          }
+        }
+      },
+      "CreatePlaylist": {
+        "type": "object",
+        "description": "Body of `POST /media/playlists`.",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the new playlist."
+          },
+          "track_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Subsonic track ids to start with, in order."
           }
         }
       },
@@ -4310,6 +6067,27 @@
               "null"
             ],
             "description": "Name of the preset this config was loaded from, if any."
+          }
+        }
+      },
+      "EqPreset": {
+        "type": "object",
+        "description": "A named EQ preset with the bands it applies.",
+        "required": [
+          "name",
+          "bands"
+        ],
+        "properties": {
+          "bands": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EqBand"
+            },
+            "description": "Bands the preset sets. Empty for `flat`."
+          },
+          "name": {
+            "type": "string",
+            "description": "Preset name, as accepted by the `eq/preset` calls of zones and clients."
           }
         }
       },
@@ -4379,6 +6157,34 @@
           "track": {
             "type": "integer",
             "minimum": 0
+          }
+        }
+      },
+      "PatchPlaylist": {
+        "type": "object",
+        "description": "Body of `PATCH /media/playlists/by-id/{playlist_id}`: the three operations of `updatePlaylist`.",
+        "properties": {
+          "add_track_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Subsonic track ids appended to the end."
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "New name."
+          },
+          "remove_positions": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Positions (0-based, in the playlist as it is now) of tracks to remove."
           }
         }
       },
@@ -4589,20 +6395,51 @@
         ],
         "description": "Playback control command sent from client to server."
       },
+      "PlaylistByIdPayload": {
+        "type": "object",
+        "description": "Body of `POST /zones/{zone_index}/play/playlist/by-id`.",
+        "required": [
+          "playlist_id"
+        ],
+        "properties": {
+          "playlist_id": {
+            "type": "string",
+            "description": "Stable playlist reference (`snapdog:radio`, `subsonic:<id>`)."
+          },
+          "track": {
+            "type": "integer",
+            "description": "Track index to start at (0-based, default 0).",
+            "minimum": 0
+          }
+        }
+      },
       "PlaylistDetails": {
         "type": "object",
         "required": [
           "id",
+          "index",
+          "playlist_id",
           "name",
           "tracks"
         ],
         "properties": {
           "id": {
             "type": "integer",
+            "description": "Unified playlist index.\n\nDeprecated. Use `index`. Removed with SnapDog 1.0, which breaks compatibility of `/api/v1` for clients that still read it.",
+            "deprecated": true,
+            "minimum": 0
+          },
+          "index": {
+            "type": "integer",
+            "description": "Unified playlist index (0-based). Moves when the list changes, see `playlist_id`.",
             "minimum": 0
           },
           "name": {
             "type": "string"
+          },
+          "playlist_id": {
+            "type": "string",
+            "description": "Stable reference: `snapdog:radio` or `subsonic:<subsonic id>`."
           },
           "tracks": {
             "type": "integer",
@@ -4614,6 +6451,8 @@
         "type": "object",
         "required": [
           "id",
+          "index",
+          "playlist_id",
           "name",
           "song_count",
           "duration"
@@ -4632,10 +6471,21 @@
           },
           "id": {
             "type": "integer",
+            "description": "Unified playlist index.\n\nDeprecated. Use `index`. Removed with SnapDog 1.0, which breaks compatibility of `/api/v1` for clients that still read it.",
+            "deprecated": true,
+            "minimum": 0
+          },
+          "index": {
+            "type": "integer",
+            "description": "Unified playlist index (0-based). Moves when the list changes, see `playlist_id`.",
             "minimum": 0
           },
           "name": {
             "type": "string"
+          },
+          "playlist_id": {
+            "type": "string",
+            "description": "Stable reference: `snapdog:radio` or `subsonic:<subsonic id>`."
           },
           "song_count": {
             "type": "integer",
@@ -4646,12 +6496,22 @@
       },
       "PlaylistPayload": {
         "type": "object",
-        "required": [
-          "id"
-        ],
         "properties": {
           "id": {
-            "type": "integer",
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Unified playlist index.\n\nDeprecated. Use `index`. Removed with SnapDog 1.0, which breaks compatibility of `/api/v1` for clients that still read it.",
+            "deprecated": true,
+            "minimum": 0
+          },
+          "index": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Unified playlist index (0-based).",
             "minimum": 0
           },
           "track": {
@@ -4687,6 +6547,14 @@
           }
         }
       },
+      "Protocol": {
+        "type": "string",
+        "description": "Transport protocol of a listener.",
+        "enum": [
+          "tcp",
+          "udp"
+        ]
+      },
       "RepeatMode": {
         "type": "string",
         "description": "Repeat mode for zone playback.",
@@ -4695,6 +6563,172 @@
           "track",
           "playlist"
         ]
+      },
+      "ReplaceTracks": {
+        "type": "object",
+        "description": "Body of `PUT /media/playlists/by-id/{playlist_id}/tracks`.",
+        "required": [
+          "track_ids"
+        ],
+        "properties": {
+          "track_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The complete new content, in order."
+          }
+        }
+      },
+      "Row": {
+        "type": "object",
+        "description": "One line of the listener table: a listener, and what an operator needs to know about\nbinding it.",
+        "required": [
+          "service",
+          "protocol",
+          "address",
+          "port",
+          "backend",
+          "bind_support",
+          "note"
+        ],
+        "properties": {
+          "address": {
+            "type": "string",
+            "description": "Address, `0.0.0.0` or `::` for every interface of that family."
+          },
+          "backend": {
+            "type": "string",
+            "description": "What creates the socket."
+          },
+          "bind_support": {
+            "$ref": "#/components/schemas/BindSupport",
+            "description": "Whether a `bind` setting reaches this socket."
+          },
+          "note": {
+            "type": "string",
+            "description": "What the bind support level means for this service, in one sentence."
+          },
+          "port": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Port. `0` means a random port at every start.",
+            "minimum": 0
+          },
+          "protocol": {
+            "$ref": "#/components/schemas/Protocol",
+            "description": "Transport protocol."
+          },
+          "service": {
+            "type": "string",
+            "description": "Service that owns the listener."
+          },
+          "via": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The `bind` entry this address came from when that was an interface name or `loopback`,\nfor example `eth0`. Absent when the address was written as an address or is the default."
+          }
+        }
+      },
+      "SearchItem": {
+        "type": "object",
+        "description": "One search result. The identifier has a field per kind, there is no generic one.",
+        "required": [
+          "kind",
+          "title",
+          "duration"
+        ],
+        "properties": {
+          "album_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Subsonic album id (kind `album`). Plays with `POST /zones/{zone}/play/subsonic/album/{album_id}`."
+          },
+          "cover_art": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Path of a cover image, see `GET /media/cover/{cover_id}`."
+          },
+          "duration": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Seconds, 0 if unknown.",
+            "minimum": 0
+          },
+          "index": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Current unified index of the playlist (kinds `playlist` and `radio`).",
+            "minimum": 0
+          },
+          "kind": {
+            "type": "string",
+            "description": "`track`, `album`, `playlist` or `radio`."
+          },
+          "playlist_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Stable reference (kinds `playlist` and `radio`, where `radio` is the list `snapdog:radio`)."
+          },
+          "subtitle": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Artist, or album for a track. Absent for a playlist."
+          },
+          "title": {
+            "type": "string"
+          },
+          "track": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Position of the station in the radio list (kind `radio`), the `track` to play it with.",
+            "minimum": 0
+          },
+          "track_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Subsonic track id (kind `track`). Plays with `POST /zones/{zone}/play/subsonic/{track_id}`."
+          }
+        }
+      },
+      "SearchResponse": {
+        "type": "object",
+        "description": "Body of `GET /media/search`.",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchItem"
+            }
+          },
+          "next_offset": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "Offset of the next page, `null` when no kind filled its page.",
+            "minimum": 0
+          }
+        }
       },
       "SeekPayload": {
         "type": "object",
@@ -4935,6 +6969,118 @@
           }
         }
       },
+      "UpdateConfig": {
+        "type": "object",
+        "description": "New update schedule for the container updater sidecar.",
+        "required": [
+          "mode",
+          "maintenanceTime",
+          "timezone"
+        ],
+        "properties": {
+          "maintenanceTime": {
+            "type": "string",
+            "description": "Local time of day for automatic updates, `HH:MM`.",
+            "example": "02:00"
+          },
+          "mode": {
+            "type": "string",
+            "description": "`manual` only checks and applies when asked, `automatic` applies new releases\nat `maintenanceTime`.",
+            "example": "automatic"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "IANA time zone the maintenance time is read in.",
+            "example": "Europe/Berlin"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateProgress": {
+        "type": "object",
+        "description": "Progress of a running update.",
+        "required": [
+          "phase"
+        ],
+        "properties": {
+          "detail": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Further detail about the phase, if any."
+          },
+          "phase": {
+            "type": "string",
+            "description": "Current phase of the update."
+          }
+        }
+      },
+      "UpdateStatus": {
+        "type": "object",
+        "description": "State of the container updater sidecar, as reported by the sidecar itself.\nThe sidecar may add further fields; the ones listed here are what the `WebUI` reads.",
+        "required": [
+          "state",
+          "updateAvailable",
+          "updateMode",
+          "maintenanceTime",
+          "timezone"
+        ],
+        "properties": {
+          "availableVersion": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Newest release found by the last check, if any."
+          },
+          "currentVersion": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Version of the running image, if known."
+          },
+          "lastError": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Error of the last check or update, if it failed."
+          },
+          "maintenanceTime": {
+            "type": "string",
+            "description": "Local time of day for automatic updates, `HH:MM`."
+          },
+          "progress": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UpdateProgress",
+                "description": "Progress of a running update, `null` when none runs."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "state": {
+            "type": "string",
+            "description": "Updater state, for example `idle`, `checking`, `updating`."
+          },
+          "timezone": {
+            "type": "string",
+            "description": "IANA time zone for `maintenanceTime`."
+          },
+          "updateAvailable": {
+            "type": "boolean",
+            "description": "Whether `availableVersion` is newer than `currentVersion`."
+          },
+          "updateMode": {
+            "type": "string",
+            "description": "`manual` or `automatic`."
+          }
+        }
+      },
       "VersionInfo": {
         "type": "object",
         "required": [
@@ -5039,6 +7185,13 @@
               "null"
             ]
           },
+          "playlist_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Stable reference of the active playlist (`snapdog:radio`, `subsonic:<id>`)."
+          },
           "total": {
             "type": [
               "integer",
@@ -5140,6 +7293,13 @@
               "null"
             ]
           },
+          "playlist_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Stable reference of the active playlist (`snapdog:radio`, `subsonic:<id>`)."
+          },
           "playlist_index": {
             "type": [
               "integer",
@@ -5213,8 +7373,21 @@
           }
         }
       }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "One of the configured `api_keys`. Not needed when none is configured."
+      }
     }
   },
+  "security": [
+    {},
+    {
+      "bearer": []
+    }
+  ],
   "tags": [
     {
       "name": "system",
