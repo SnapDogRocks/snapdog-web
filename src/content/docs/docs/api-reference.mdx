@@ -50,6 +50,7 @@ Multi-zone control, playback, and presence management
 | **POST** | `/api/v1/zones/{zone_index}/play/playlist` | Play unified playlist | [`PlaylistPayload`](#playlistpayload) | — |
 | **POST** | `/api/v1/zones/{zone_index}/play/playlist/by-id` | Play playlist by `playlist_id` | [`PlaylistByIdPayload`](#playlistbyidpayload) | — |
 | **POST** | `/api/v1/zones/{zone_index}/play/playlist/{playlist_index}/track` | Play track in a playlist | `integer` | — |
+| **POST** | `/api/v1/zones/{zone_index}/play/subsonic/album/{album_id}` | Play a Subsonic album | — | — |
 | **POST** | `/api/v1/zones/{zone_index}/play/subsonic/{track_id}` | Play Subsonic track by ID | — | — |
 | **POST** | `/api/v1/zones/{zone_index}/play/track` | Play specific track index | `integer` | — |
 | **POST** | `/api/v1/zones/{zone_index}/play/url` | Play arbitrary audio stream URL | `string` | — |
@@ -158,14 +159,20 @@ Radio station lists, Subsonic playlists, track listings, and covers
 
 | Method | Endpoint | Summary | Request | Success response |
 |---|---|---|---|---|
+| **GET** | `/api/v1/media/cover/{cover_id}` | Get a cover image by its Subsonic cover id | — | — |
 | **GET** | `/api/v1/media/playlists` | Get all media playlists | — | array&lt;[`PlaylistInfo`](#playlistinfo)&gt; |
+| **POST** | `/api/v1/media/playlists` | Create a Subsonic playlist | [`CreatePlaylist`](#createplaylist) | [`PlaylistInfo`](#playlistinfo) |
 | **GET** | `/api/v1/media/playlists/by-id/{playlist_id}` | Get playlist details by `playlist_id` | — | [`PlaylistDetails`](#playlistdetails) |
+| **DELETE** | `/api/v1/media/playlists/by-id/{playlist_id}` | Delete a Subsonic playlist | — | — |
+| **PATCH** | `/api/v1/media/playlists/by-id/{playlist_id}` | Change a Subsonic playlist | [`PatchPlaylist`](#patchplaylist) | [`PlaylistDetails`](#playlistdetails) |
 | **GET** | `/api/v1/media/playlists/by-id/{playlist_id}/tracks` | Get playlist tracks by `playlist_id` | — | array&lt;[`MediaTrackInfo`](#mediatrackinfo)&gt; |
+| **PUT** | `/api/v1/media/playlists/by-id/{playlist_id}/tracks` | Replace the tracks of a Subsonic playlist | [`ReplaceTracks`](#replacetracks) | [`PlaylistDetails`](#playlistdetails) |
 | **GET** | `/api/v1/media/playlists/{playlist_index}` | Get playlist details | — | [`PlaylistDetails`](#playlistdetails) |
 | **GET** | `/api/v1/media/playlists/{playlist_index}/cover` | Get playlist cover image | — | — |
 | **GET** | `/api/v1/media/playlists/{playlist_index}/tracks` | Get playlist tracks | — | array&lt;[`MediaTrackInfo`](#mediatrackinfo)&gt; |
 | **GET** | `/api/v1/media/playlists/{playlist_index}/tracks/{track_index}` | Get track details | — | [`MediaTrackInfo`](#mediatrackinfo) |
 | **GET** | `/api/v1/media/playlists/{playlist_index}/tracks/{track_index}/cover` | Get track cover image | — | — |
+| **GET** | `/api/v1/media/search` | Search the music library, the playlists and the radio stations | — | [`SearchResponse`](#searchresponse) |
 
 ## Schemas
 
@@ -198,6 +205,15 @@ Type: `full`, `partial`, `none`
 | `name` | `string` | yes | — |
 | `volume` | `integer` | yes | — |
 | `zone_index` | `integer` | yes | — |
+
+### CreatePlaylist
+
+Body of `POST /media/playlists`.
+
+| Field | Type | Required | Description |
+|---|---|:---:|---|
+| `name` | `string` | yes | Name of the new playlist. |
+| `track_ids` | array&lt;`string`&gt; | no | Subsonic track ids to start with, in order. |
 
 ### EqBand
 
@@ -255,6 +271,16 @@ Type: `low_shelf`, `high_shelf`, `peaking`, `low_pass`, `high_pass`
 | `id` | `string` | yes | — |
 | `title` | `string` | yes | — |
 | `track` | `integer` | yes | — |
+
+### PatchPlaylist
+
+Body of `PATCH /media/playlists/by-id/&#123;playlist_id&#125;`: the three operations of `updatePlaylist`.
+
+| Field | Type | Required | Description |
+|---|---|:---:|---|
+| `add_track_ids` | array&lt;`string`&gt; | no | Subsonic track ids appended to the end. |
+| `name` | `string` or `null` | no | New name. |
+| `remove_positions` | array&lt;`integer`&gt; | no | Positions (0-based, in the playlist as it is now) of tracks to remove. |
 
 ### PlaybackControl
 
@@ -324,6 +350,14 @@ Repeat mode for zone playback.
 
 Type: `off`, `track`, `playlist`
 
+### ReplaceTracks
+
+Body of `PUT /media/playlists/by-id/&#123;playlist_id&#125;/tracks`.
+
+| Field | Type | Required | Description |
+|---|---|:---:|---|
+| `track_ids` | array&lt;`string`&gt; | yes | The complete new content, in order. |
+
 ### Row
 
 One line of the listener table: a listener, and what an operator needs to know about
@@ -339,6 +373,32 @@ binding it.
 | `protocol` | [`Protocol`](#protocol) | yes | Transport protocol. |
 | `service` | `string` | yes | Service that owns the listener. |
 | `via` | `string` or `null` | no | The `bind` entry this address came from when that was an interface name or `loopback`, for example `eth0`. Absent when the address was written as an address or is the default. |
+
+### SearchItem
+
+One search result. The identifier has a field per kind, there is no generic one.
+
+| Field | Type | Required | Description |
+|---|---|:---:|---|
+| `album_id` | `string` or `null` | no | Subsonic album id (kind `album`). Plays with `POST /zones/&#123;zone&#125;/play/subsonic/album/&#123;album_id&#125;`. |
+| `cover_art` | `string` or `null` | no | Path of a cover image, see `GET /media/cover/&#123;cover_id&#125;`. |
+| `duration` | `integer` | yes | Seconds, 0 if unknown. |
+| `index` | `integer` or `null` | no | Current unified index of the playlist (kinds `playlist` and `radio`). |
+| `kind` | `string` | yes | `track`, `album`, `playlist` or `radio`. |
+| `playlist_id` | `string` or `null` | no | Stable reference (kinds `playlist` and `radio`, where `radio` is the list `snapdog:radio`). |
+| `subtitle` | `string` or `null` | no | Artist, or album for a track. Absent for a playlist. |
+| `title` | `string` | yes | — |
+| `track` | `integer` or `null` | no | Position of the station in the radio list (kind `radio`), the `track` to play it with. |
+| `track_id` | `string` or `null` | no | Subsonic track id (kind `track`). Plays with `POST /zones/&#123;zone&#125;/play/subsonic/&#123;track_id&#125;`. |
+
+### SearchResponse
+
+Body of `GET /media/search`.
+
+| Field | Type | Required | Description |
+|---|---|:---:|---|
+| `items` | array&lt;[`SearchItem`](#searchitem)&gt; | yes | — |
+| `next_offset` | `integer` or `null` | no | Offset of the next page, `null` when no kind filled its page. |
 
 ### SeekPayload
 
