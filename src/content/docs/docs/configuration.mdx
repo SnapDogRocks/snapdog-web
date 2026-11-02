@@ -136,6 +136,8 @@ Manages the embedded Snapcast synchronizer backend.
   Skips certificate checks for self-signed certificates.
 * **`refresh_secs`** (Integer, default: `60`)
   Seconds between reads of the Subsonic playlist list. A change sends the WebSocket event [`playlists_changed`](/docs/api-websocket#playlists_changed). Subsonic cannot push, so a change made in another Subsonic client shows up within this interval. Each read is one request to the Subsonic server. `0` turns the background read off, the list is then only read on demand. A failed read keeps the last good list and logs a warning.
+* **`playlist_write`** (Boolean, default: `false`)
+  Lets the REST API create, rename, reorder and delete Subsonic playlists (`POST`, `PATCH`, `PUT` and `DELETE` under `/api/v1/media/playlists`, see [Media & Subsonic Playlists](/docs/api-rest#10-media--subsonic-playlists)). Off by default: authentication is optional in SnapDog, so with this on anyone who can reach the API can change the playlists of your music library, within the rights of the Subsonic user above. The radio list in the configuration file is never writable through the API.
 
 #### `[subsonic.cache]`
 * **`path`** (String)

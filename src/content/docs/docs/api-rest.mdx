@@ -95,6 +95,62 @@ Health endpoints are mounted at the server root, outside the `/api/v1` prefix.
   * `/health/ready` — Returns plain text `ready`.
   * `/health/live` — Returns plain text `live`.
 
+### List Network Listeners
+One row per listener of the server: service, protocol, address, port, what creates the socket, and how far the service honours a `bind` setting. Use it to derive firewall rules. A port of `0` means a random port at every start.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/system/listeners`
+* **Response `200 OK`:**
+  ```json schema=Row
+  {
+    "service": "HTTP API",
+    "protocol": "tcp",
+    "address": "192.168.1.10",
+    "port": 5555,
+    "backend": "axum",
+    "bind_support": "full",
+    "note": "[http].bind, one listener per address",
+    "via": "eth0"
+  }
+  ```
+  The response is an array of such objects. `bind_support` is `full`, `partial` or `none`. `via` is present only when the address came from an interface name or `loopback` in a `bind` setting.
+
+### Container Updater
+These endpoints talk to the updater sidecar of the Docker deployment. They need `SNAPDOG_UPDATER_URL` and `UPDATER_TOKEN` (see `deploy/docker-compose.yml`). Without them, and outside the Docker deployment, every one of them answers `503 Service Unavailable`. A sidecar that does not answer, or refuses, makes them answer `502 Bad Gateway`.
+
+* **`GET /api/v1/system/updates`** reads the state of the updater.
+* **`POST /api/v1/system/updates/check`** asks the sidecar to look for a newer release now. It answers with the state once the check has started. A check or update that already runs makes the sidecar refuse, which shows up as `502`.
+* **`POST /api/v1/system/updates/apply`** applies the available update now. The sidecar pulls the new image, verifies it and restarts the server, so the connection drops while this runs. It does nothing if no update is available.
+* **`POST /api/v1/system/updates/config`** changes the update mode and the maintenance window. The body is rejected with `422` when it is malformed or has an unknown field.
+
+All four answer `200 OK` with the state of the updater:
+
+```json schema=UpdateStatus
+{
+  "state": "idle",
+  "updateAvailable": true,
+  "currentVersion": "0.30.0",
+  "availableVersion": "0.31.0",
+  "updateMode": "automatic",
+  "maintenanceTime": "02:00",
+  "timezone": "Europe/Berlin",
+  "lastError": null,
+  "progress": null
+}
+```
+
+The request body of `/api/v1/system/updates/config`:
+
+```json schema=UpdateConfig
+{
+  "mode": "automatic",
+  "maintenanceTime": "02:00",
+  "timezone": "Europe/Berlin"
+}
+```
+
+`mode` is `manual` (checks and applies only when asked) or `automatic` (applies new releases at `maintenanceTime`, read in `timezone`). `state` is for example `idle`, `checking` or `updating`, and `progress` is an object with a `phase` while an update runs.
+
 ---
 
 ## 4. Zone Management & Playback
@@ -406,6 +462,19 @@ Quickly overwrite current EQ settings with a standard curve.
 * **Request Body:** `"bass_boost"` (supported: `flat`, `bass_boost`, `loudness`, `vocals`, `treble_boost`)
 * **Response `200 OK`:** Returns loaded `EqConfig`.
 
+### List EQ Presets
+Returns every preset name that the `eq/preset` calls accept, with the bands each one sets.
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/eq/presets`
+* **Response `200 OK`:**
+  ```json schema=EqPreset
+  {
+    "name": "flat",
+    "bands": []
+  }
+  ```
+  The response is an array of such objects in a fixed order, one per preset name. A preset other than `flat` lists the bands it sets, each one like the bands of the zone EQ above.
+
 ### Modify Single Zone EQ Band
 * **Method:** `PUT`
 * **Endpoint:** `/api/v1/zones/{zone_index}/eq/{band_index}`
@@ -706,6 +775,117 @@ Returns the list of tracks belonging to the specified playlist.
 * **Method:** `GET`
 * **Endpoint:** `/api/v1/media/playlists/{playlist_index}/tracks/{track_index}/cover`
 * **Response `200 OK`:** Raw image bytes (`Content-Type: image/*`).
+
+### Search the Library, the Playlists and the Radio Stations
+Searches four kinds at once: tracks and albums of the Subsonic server, playlists, and radio stations. Tracks and albums come from the `search3` call of the Subsonic server, so what matches follows the rules of that server (some match word prefixes, some any substring). Playlists and radio stations are matched by SnapDog on a case-insensitive substring of the name.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/media/search`
+* **Query parameters:**
+  * `q` (required): text to search for, at least two characters.
+  * `kind`: comma-separated kinds out of `track`, `album`, `playlist` and `radio`. The default is all four.
+  * `limit`: results per kind. The default is `20`, the maximum `100`.
+  * `offset`: results to skip per kind. The default is `0`.
+* **Response `200 OK`:**
+  ```json schema=SearchResponse
+  {
+    "items": [
+      {
+        "kind": "track",
+        "title": "Acoustic Song",
+        "subtitle": "The Band",
+        "duration": 240,
+        "track_id": "101",
+        "cover_art": "/api/v1/media/cover/al-7"
+      },
+      {
+        "kind": "album",
+        "title": "Unplugged",
+        "subtitle": "The Band",
+        "duration": 2400,
+        "album_id": "7",
+        "cover_art": "/api/v1/media/cover/al-7"
+      },
+      {
+        "kind": "playlist",
+        "title": "My Acoustic Playlist",
+        "duration": 1200,
+        "playlist_id": "subsonic:42",
+        "index": 1
+      }
+    ],
+    "next_offset": null
+  }
+  ```
+  A result has one identifier field for its kind and no generic `id`:
+
+  | `kind` | Identifier | Play it with |
+  |---|---|---|
+  | `track` | `track_id` | `POST /api/v1/zones/{zone_index}/play/subsonic/{track_id}` |
+  | `album` | `album_id` | `POST /api/v1/zones/{zone_index}/play/subsonic/album/{album_id}` |
+  | `playlist` | `playlist_id` and `index` | `POST /api/v1/zones/{zone_index}/play/playlist/by-id` |
+  | `radio` | `playlist_id` (`snapdog:radio`), `index` and `track` | `POST /api/v1/zones/{zone_index}/play/playlist/by-id` with the `track` of the result |
+
+  `search3` reports no total, so there is no total here either. `next_offset` is the offset of the next page and is `null` when no kind filled its page.
+* **Errors:** `400 Bad Request` for a `q` shorter than two characters or an unknown `kind`, and `502 Bad Gateway` when the Subsonic server fails.
+
+### Get a Cover by its Cover Id
+A search result has no playlist index to build a playlist cover path from. This endpoint proxies the cover of a result by its Subsonic cover id, with the caching headers of the other cover routes.
+
+* **Method:** `GET`
+* **Endpoint:** `/api/v1/media/cover/{cover_id}`, with the cover id percent-encoded.
+* **Response `200 OK`:** Raw image bytes (`Content-Type: image/*`).
+* **Errors:** `404 Not Found` when the cover does not exist, and `503 Service Unavailable` when Subsonic is not configured.
+
+### Play a Subsonic Album
+Queues the tracks of the album and starts the first one. An album is not part of the unified playlist list, so the zone state names it in `playlist_name` and has no `playlist_index` and no `playlist_id`. A search result of the kind `album` carries the `album_id`.
+
+* **Method:** `POST`
+* **Endpoint:** `/api/v1/zones/{zone_index}/play/subsonic/album/{album_id}`
+* **Response `200 OK`:** Empty body. `404 Not Found` when the zone does not exist.
+
+### Create and Change Subsonic Playlists
+These endpoints write to the Subsonic server, within the rights of the Subsonic user in the configuration. They are **off by default**. Set `[subsonic].playlist_write = true` to turn them on (see [configuration](/docs/configuration#subsonic)). Authentication is optional in SnapDog, so with this on anyone who can reach the API can change the playlists of the music library. While it is off, every endpoint here answers `403 Forbidden` with the error `read_only`. The radio list `snapdog:radio` is never writable through the API and always answers `403`.
+
+Creating or deleting a playlist moves the indices of the playlists behind it. Address a playlist by its `playlist_id`. SnapDog sends the WebSocket event [`playlists_changed`](/docs/api-websocket#playlists_changed) after every write.
+
+| Method and endpoint | Purpose |
+|---|---|
+| `POST /api/v1/media/playlists` | Create a playlist. Answers `201 Created` with the new playlist as `PlaylistInfo`. |
+| `PATCH /api/v1/media/playlists/by-id/{playlist_id}` | Rename, append tracks and remove tracks by position, in one call. Answers `200 OK` with `PlaylistDetails`. |
+| `PUT /api/v1/media/playlists/by-id/{playlist_id}/tracks` | Replace the complete content and the order. Answers `200 OK` with `PlaylistDetails`. |
+| `DELETE /api/v1/media/playlists/by-id/{playlist_id}` | Delete a playlist. Answers `204 No Content`. The playlists behind it move up by one index. |
+
+Request body of the `POST`:
+
+```json schema=CreatePlaylist
+{
+  "name": "Evening",
+  "track_ids": ["101", "102"]
+}
+```
+
+Request body of the `PATCH`. All three keys are optional, and at least one must be set:
+
+```json schema=PatchPlaylist
+{
+  "name": "Late Evening",
+  "add_track_ids": ["103"],
+  "remove_positions": [0]
+}
+```
+
+`remove_positions` are 0-based positions in the playlist as it is now. A zone that plays the playlist keeps its current track and uses the new content from the next track on.
+
+Request body of the `PUT`:
+
+```json schema=ReplaceTracks
+{
+  "track_ids": ["102", "101", "103"]
+}
+```
+
+Errors: `400 Bad Request` for an empty name or a `PATCH` with nothing to change, `404 Not Found` for an unknown `playlist_id`, `502 Bad Gateway` when the Subsonic server refuses or fails, and `503 Service Unavailable` when Subsonic is not configured.
 
 ---
 
