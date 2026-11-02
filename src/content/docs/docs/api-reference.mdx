@@ -19,7 +19,12 @@ System and platform administration endpoints
 
 | Method | Endpoint | Summary | Request | Success response |
 |---|---|---|---|---|
+| **GET** | `/api/v1/system/listeners` | List every network listener of the server. | — | array&lt;[`Row`](#row)&gt; |
 | **GET** | `/api/v1/system/status` | Retrieve basic system status statistics. | — | [`SystemStatus`](#systemstatus) |
+| **GET** | `/api/v1/system/updates` | Read the state of the container updater sidecar. | — | [`UpdateStatus`](#updatestatus) |
+| **POST** | `/api/v1/system/updates/apply` | Apply the available update now. | — | [`UpdateStatus`](#updatestatus) |
+| **POST** | `/api/v1/system/updates/check` | Ask the sidecar to look for a newer release now. | — | [`UpdateStatus`](#updatestatus) |
+| **POST** | `/api/v1/system/updates/config` | Change the update mode and maintenance window of the sidecar. | [`UpdateConfig`](#updateconfig) | [`UpdateStatus`](#updatestatus) |
 | **GET** | `/api/v1/system/version` | Retrieve application and platform version details. | — | [`VersionInfo`](#versioninfo) |
 
 ### zones
@@ -43,6 +48,7 @@ Multi-zone control, playback, and presence management
 | **POST** | `/api/v1/zones/{zone_index}/pause` | Pause zone playback | — | — |
 | **POST** | `/api/v1/zones/{zone_index}/play` | Resume zone playback | — | — |
 | **POST** | `/api/v1/zones/{zone_index}/play/playlist` | Play unified playlist | [`PlaylistPayload`](#playlistpayload) | — |
+| **POST** | `/api/v1/zones/{zone_index}/play/playlist/by-id` | Play playlist by `playlist_id` | [`PlaylistByIdPayload`](#playlistbyidpayload) | — |
 | **POST** | `/api/v1/zones/{zone_index}/play/playlist/{playlist_index}/track` | Play track in a playlist | `integer` | — |
 | **POST** | `/api/v1/zones/{zone_index}/play/subsonic/{track_id}` | Play Subsonic track by ID | — | — |
 | **POST** | `/api/v1/zones/{zone_index}/play/track` | Play specific track index | `integer` | — |
@@ -50,6 +56,8 @@ Multi-zone control, playback, and presence management
 | **GET** | `/api/v1/zones/{zone_index}/playback` | Get zone playback status | — | `string` |
 | **GET** | `/api/v1/zones/{zone_index}/playlist` | Get zone playlist index | — | `integer` |
 | **PUT** | `/api/v1/zones/{zone_index}/playlist` | Set zone playlist | `integer` | — |
+| **GET** | `/api/v1/zones/{zone_index}/playlist/by-id` | Get zone playlist reference | — | `string` |
+| **PUT** | `/api/v1/zones/{zone_index}/playlist/by-id` | Set zone playlist by `playlist_id` | `string` | — |
 | **GET** | `/api/v1/zones/{zone_index}/playlist/count` | Get playlist track count | — | `integer` |
 | **GET** | `/api/v1/zones/{zone_index}/playlist/info` | Get active playlist summary info | — | [`ZonePlaylistInfo`](#zoneplaylistinfo) |
 | **GET** | `/api/v1/zones/{zone_index}/playlist/name` | Get active playlist name | — | `string` |
@@ -116,6 +124,7 @@ Parametric EQ curves, bands, and presets for zones and clients
 | **PUT** | `/api/v1/clients/{client_index}/eq` | Set client Equalizer configuration | [`EqConfig`](#eqconfig) | [`EqConfig`](#eqconfig) |
 | **POST** | `/api/v1/clients/{client_index}/eq/preset` | Apply client Equalizer preset | `string` | [`EqConfig`](#eqconfig) |
 | **PUT** | `/api/v1/clients/{client_index}/eq/{band_index}` | Update specific client Equalizer band | [`EqBand`](#eqband) | [`EqConfig`](#eqconfig) |
+| **GET** | `/api/v1/eq/presets` | List EQ presets | — | array&lt;[`EqPreset`](#eqpreset)&gt; |
 | **GET** | `/api/v1/zones/{zone_index}/eq` | Get zone Equalizer configuration | — | [`EqConfig`](#eqconfig) |
 | **PUT** | `/api/v1/zones/{zone_index}/eq` | Set zone Equalizer configuration | [`EqConfig`](#eqconfig) | [`EqConfig`](#eqconfig) |
 | **POST** | `/api/v1/zones/{zone_index}/eq/preset` | Apply Equalizer preset | `string` | [`EqConfig`](#eqconfig) |
@@ -150,6 +159,8 @@ Radio station lists, Subsonic playlists, track listings, and covers
 | Method | Endpoint | Summary | Request | Success response |
 |---|---|---|---|---|
 | **GET** | `/api/v1/media/playlists` | Get all media playlists | — | array&lt;[`PlaylistInfo`](#playlistinfo)&gt; |
+| **GET** | `/api/v1/media/playlists/by-id/{playlist_id}` | Get playlist details by `playlist_id` | — | [`PlaylistDetails`](#playlistdetails) |
+| **GET** | `/api/v1/media/playlists/by-id/{playlist_id}/tracks` | Get playlist tracks by `playlist_id` | — | array&lt;[`MediaTrackInfo`](#mediatrackinfo)&gt; |
 | **GET** | `/api/v1/media/playlists/{playlist_index}` | Get playlist details | — | [`PlaylistDetails`](#playlistdetails) |
 | **GET** | `/api/v1/media/playlists/{playlist_index}/cover` | Get playlist cover image | — | — |
 | **GET** | `/api/v1/media/playlists/{playlist_index}/tracks` | Get playlist tracks | — | array&lt;[`MediaTrackInfo`](#mediatrackinfo)&gt; |
@@ -166,6 +177,12 @@ Request body for applying a speaker correction.
 |---|---|:---:|---|
 | `custom` | [`EqConfig`](#eqconfig) or `null` | no | — |
 | `speaker` | `string` or `null` | no | Speaker name (from spinorama). Mutually exclusive with `custom`. |
+
+### BindSupport
+
+How far a service honours a `bind` setting.
+
+Type: `full`, `partial`, `none`
 
 ### ClientInfo
 
@@ -203,6 +220,15 @@ Full EQ configuration for a zone.
 | `enabled` | `boolean` | yes | Whether the EQ is active. When `false`, audio passes through unmodified. |
 | `preset` | `string` or `null` | no | Name of the preset this config was loaded from, if any. |
 
+### EqPreset
+
+A named EQ preset with the bands it applies.
+
+| Field | Type | Required | Description |
+|---|---|:---:|---|
+| `bands` | array&lt;[`EqBand`](#eqband)&gt; | yes | Bands the preset sets. Empty for `flat`. |
+| `name` | `string` | yes | Preset name, as accepted by the `eq/preset` calls of zones and clients. |
+
 ### ErrorBody
 
 Standard REST API error response body.
@@ -236,12 +262,23 @@ Playback control command sent from client to server.
 
 Type: `object` or `object` or `object` or `object` or `object` or `object` or `object` or `object` or `object` or `object` or `object`
 
+### PlaylistByIdPayload
+
+Body of `POST /zones/&#123;zone_index&#125;/play/playlist/by-id`.
+
+| Field | Type | Required | Description |
+|---|---|:---:|---|
+| `playlist_id` | `string` | yes | Stable playlist reference (`snapdog:radio`, `subsonic:&lt;id&gt;`). |
+| `track` | `integer` | no | Track index to start at (0-based, default 0). |
+
 ### PlaylistDetails
 
 | Field | Type | Required | Description |
 |---|---|:---:|---|
-| `id` | `integer` | yes | — |
+| `id` | `integer` | yes | Unified playlist index. Deprecated. Use `index`. Removed with SnapDog 1.0, which breaks compatibility of `/api/v1` for clients that still read it. |
+| `index` | `integer` | yes | Unified playlist index (0-based). Moves when the list changes, see `playlist_id`. |
 | `name` | `string` | yes | — |
+| `playlist_id` | `string` | yes | Stable reference: `snapdog:radio` or `subsonic:&lt;subsonic id&gt;`. |
 | `tracks` | `integer` | yes | — |
 
 ### PlaylistInfo
@@ -250,15 +287,18 @@ Type: `object` or `object` or `object` or `object` or `object` or `object` or `o
 |---|---|:---:|---|
 | `cover_art` | `string` or `null` | no | — |
 | `duration` | `integer` | yes | — |
-| `id` | `integer` | yes | — |
+| `id` | `integer` | yes | Unified playlist index. Deprecated. Use `index`. Removed with SnapDog 1.0, which breaks compatibility of `/api/v1` for clients that still read it. |
+| `index` | `integer` | yes | Unified playlist index (0-based). Moves when the list changes, see `playlist_id`. |
 | `name` | `string` | yes | — |
+| `playlist_id` | `string` | yes | Stable reference: `snapdog:radio` or `subsonic:&lt;subsonic id&gt;`. |
 | `song_count` | `integer` | yes | — |
 
 ### PlaylistPayload
 
 | Field | Type | Required | Description |
 |---|---|:---:|---|
-| `id` | `integer` | yes | — |
+| `id` | `integer` or `null` | no | Unified playlist index. Deprecated. Use `index`. Removed with SnapDog 1.0, which breaks compatibility of `/api/v1` for clients that still read it. |
+| `index` | `integer` or `null` | no | Unified playlist index (0-based). |
 | `track` | `integer` | no | — |
 
 ### ProductInfo
@@ -272,11 +312,33 @@ an integrator can confirm it matches this device's firmware.
 | `application_number` | `string` | yes | `ApplicationNumber` / order number, formatted `0xFF01`. |
 | `hardware_version` | `integer` | yes | Hardware revision. |
 
+### Protocol
+
+Transport protocol of a listener.
+
+Type: `tcp`, `udp`
+
 ### RepeatMode
 
 Repeat mode for zone playback.
 
 Type: `off`, `track`, `playlist`
+
+### Row
+
+One line of the listener table: a listener, and what an operator needs to know about
+binding it.
+
+| Field | Type | Required | Description |
+|---|---|:---:|---|
+| `address` | `string` | yes | Address, `0.0.0.0` or `::` for every interface of that family. |
+| `backend` | `string` | yes | What creates the socket. |
+| `bind_support` | [`BindSupport`](#bindsupport) | yes | Whether a `bind` setting reaches this socket. |
+| `note` | `string` | yes | What the bind support level means for this service, in one sentence. |
+| `port` | `integer` | yes | Port. `0` means a random port at every start. |
+| `protocol` | [`Protocol`](#protocol) | yes | Transport protocol. |
+| `service` | `string` | yes | Service that owns the listener. |
+| `via` | `string` or `null` | no | The `bind` entry this address came from when that was an interface name or `loopback`, for example `eth0`. Absent when the address was written as an address or is the default. |
 
 ### SeekPayload
 
@@ -330,6 +392,42 @@ Full zone state pushed from server to client via custom message.
 | `volume` | `integer` | yes | Zone volume (0–100). |
 | `year` | `integer` or `null` | no | Release year. |
 
+### UpdateConfig
+
+New update schedule for the container updater sidecar.
+
+| Field | Type | Required | Description |
+|---|---|:---:|---|
+| `maintenanceTime` | `string` | yes | Local time of day for automatic updates, `HH:MM`. |
+| `mode` | `string` | yes | `manual` only checks and applies when asked, `automatic` applies new releases at `maintenanceTime`. |
+| `timezone` | `string` | yes | IANA time zone the maintenance time is read in. |
+
+### UpdateProgress
+
+Progress of a running update.
+
+| Field | Type | Required | Description |
+|---|---|:---:|---|
+| `detail` | `string` or `null` | no | Further detail about the phase, if any. |
+| `phase` | `string` | yes | Current phase of the update. |
+
+### UpdateStatus
+
+State of the container updater sidecar, as reported by the sidecar itself.
+The sidecar may add further fields; the ones listed here are what the `WebUI` reads.
+
+| Field | Type | Required | Description |
+|---|---|:---:|---|
+| `availableVersion` | `string` or `null` | no | Newest release found by the last check, if any. |
+| `currentVersion` | `string` or `null` | no | Version of the running image, if known. |
+| `lastError` | `string` or `null` | no | Error of the last check or update, if it failed. |
+| `maintenanceTime` | `string` | yes | Local time of day for automatic updates, `HH:MM`. |
+| `progress` | [`UpdateProgress`](#updateprogress) or `null` | no | — |
+| `state` | `string` | yes | Updater state, for example `idle`, `checking`, `updating`. |
+| `timezone` | `string` | yes | IANA time zone for `maintenanceTime`. |
+| `updateAvailable` | `boolean` | yes | Whether `availableVersion` is newer than `currentVersion`. |
+| `updateMode` | `string` | yes | `manual` or `automatic`. |
+
 ### VersionInfo
 
 | Field | Type | Required | Description |
@@ -367,6 +465,7 @@ Type: `integer` or `string`
 |---|---|:---:|---|
 | `index` | `integer` or `null` | no | — |
 | `name` | `string` or `null` | no | — |
+| `playlist_id` | `string` or `null` | no | Stable reference of the active playlist (`snapdog:radio`, `subsonic:&lt;id&gt;`). |
 | `total` | `integer` or `null` | no | — |
 | `track_count` | `integer` or `null` | no | — |
 | `track_index` | `integer` or `null` | no | — |
@@ -388,6 +487,7 @@ Type: `integer` or `string`
 | `disc_number` | `integer` or `null` | no | — |
 | `duration_ms` | `integer` | yes | — |
 | `genre` | `string` or `null` | no | — |
+| `playlist_id` | `string` or `null` | no | Stable reference of the active playlist (`snapdog:radio`, `subsonic:&lt;id&gt;`). |
 | `playlist_index` | `integer` or `null` | no | — |
 | `playlist_name` | `string` or `null` | no | — |
 | `playlist_total` | `integer` or `null` | no | — |
