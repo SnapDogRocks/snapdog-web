@@ -134,6 +134,8 @@ Manages the embedded Snapcast synchronizer backend.
   Transcoding stream request format: `"raw"`, `"flac"`, `"mp3"`, or `"opus"`.
 * **`tls_skip_verify`** (Boolean, default: `false`)
   Skips certificate checks for self-signed certificates.
+* **`refresh_secs`** (Integer, default: `60`)
+  Seconds between reads of the Subsonic playlist list. A change sends the WebSocket event [`playlists_changed`](/docs/api-websocket#playlists_changed). Subsonic cannot push, so a change made in another Subsonic client shows up within this interval. Each read is one request to the Subsonic server. `0` turns the background read off, the list is then only read on demand. A failed read keeps the last good list and logs a warning.
 
 #### `[subsonic.cache]`
 * **`path`** (String)
@@ -152,6 +154,14 @@ Manages the embedded Snapcast synchronizer backend.
   Broker password.
 * **`base_topic`** (String, default: `"snapdog/"`)
   Base namespace path under which states are published and commands are received. A trailing slash is added automatically if omitted.
+
+#### Playlist topics
+The zone state (`zones/<n>/state`) carries `playlist_index` and `playlist_id` (`null` while no playlist is active). `playlist_id` is `snapdog:radio` or `subsonic:<subsonic id>` and stays valid when the list changes. `playlist_index` moves when a playlist is added or removed.
+
+* **`zones/<n>/playlist/set`** — takes the playlist **index** as a non-negative integer.
+* **`zones/<n>/playlist/by-id/set`** — takes the **`playlist_id`** as plain text, for example `subsonic:42`. An unknown id is logged and ignored.
+
+Use `playlist/by-id/set` to select a playlist in a way that survives changes to the list. `<n>` is the 1-based position of the zone in `snapdog.toml`.
 
 ### `[knx]`
 * **`role`** (String, default: `"client"`)

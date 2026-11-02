@@ -199,11 +199,17 @@ Read or select the unified playlist assigned to a zone, or move between the
 available radio/Subsonic playlists.
 
 * **Methods and endpoints:**
-  * `GET /api/v1/zones/{zone_index}/playlist` — returns the active zero-based playlist index.
-  * `PUT /api/v1/zones/{zone_index}/playlist` — accepts a JSON integer playlist index.
+  * `GET /api/v1/zones/{zone_index}/playlist` — returns the active zero-based playlist **index**.
+  * `PUT /api/v1/zones/{zone_index}/playlist` — accepts a JSON integer playlist **index**.
+  * `GET /api/v1/zones/{zone_index}/playlist/by-id` — returns the active `playlist_id` as a JSON string, or `""` if no playlist is active.
+  * `PUT /api/v1/zones/{zone_index}/playlist/by-id` — accepts a bare JSON string with a `playlist_id`, for example `"subsonic:42"`. If the zone is playing, playback switches to that playlist, otherwise it is loaded.
   * `POST /api/v1/zones/{zone_index}/next/playlist` — selects the next playlist.
   * `POST /api/v1/zones/{zone_index}/previous/playlist` — selects the previous playlist.
-* **Response `404 Not Found`:** The requested zone does not exist.
+* **Response `404 Not Found`:** The requested zone does not exist. On the `by-id` endpoints, an unknown `playlist_id` also returns `404`.
+
+<Aside type="caution" title="by-id takes the playlist_id, all other paths take the index">
+  The path segment `by-id` marks an endpoint that takes the `playlist_id` (`snapdog:radio` or `subsonic:<subsonic id>`). Every playlist path without `by-id` takes the unified playlist **index**. The `id` fields of older responses hold the index, not the `playlist_id`, so do not mix them up. The index moves when a playlist is created or removed, when radio stations are configured or removed, and while the Subsonic server cannot be reached. Store the `playlist_id` and use the index only to address an index endpoint right away.
+</Aside>
 
 ### Retrieve Current Track Details
 * **Method:** `GET`
@@ -239,6 +245,7 @@ Returns all tags of the currently playing stream.
     "source": "subsonic_playlist",
     "cover_url": "/api/v1/zones/1/cover",
     "playlist_index": 1,
+    "playlist_id": "subsonic:42",
     "playlist_name": "My Acoustic Playlist",
     "playlist_total": 5,
     "playlist_track_index": 1,
@@ -249,6 +256,8 @@ Returns all tags of the currently playing stream.
     "can_prev": false
   }
   ```
+
+`playlist_id` is the stable reference of the active playlist (`null` if none is active). `playlist_index` is its current position in the unified list and can change, see [Playlist Selection and Navigation](#playlist-selection-and-navigation).
 
 `cover_url` is usually an API path such as `/api/v1/zones/1/cover`; receiver integrations may also provide an absolute HTTP(S) URL.
 
@@ -303,13 +312,22 @@ Instructs a zone to immediately play a specific track, URL stream, or Subsonic p
 * **Endpoints & Requests:**
   * `/api/v1/zones/{zone_index}/play/track` — Request Body: track index (e.g. `2`).
   * `/api/v1/zones/{zone_index}/play/url` — Request Body: absolute URL string.
-  * `/api/v1/zones/{zone_index}/play/playlist` — Request Body:
+  * `/api/v1/zones/{zone_index}/play/playlist` — Request Body (the playlist **index**):
     ```json
     {
-      "id": 1,
+      "index": 1,
       "track": 0
     }
     ```
+    `id` is still accepted instead of `index`. Deprecated. Use `index`. Removed with SnapDog 1.0, which breaks compatibility of `/api/v1` for clients that still read it. Sending both with different values returns `400 Bad Request`. New clients must send `index` only.
+  * `/api/v1/zones/{zone_index}/play/playlist/by-id` — Request Body (the `playlist_id`; `track` defaults to `0`):
+    ```json
+    {
+      "playlist_id": "subsonic:42",
+      "track": 0
+    }
+    ```
+    An unknown `playlist_id` returns `404 Not Found`.
   * `/api/v1/zones/{zone_index}/play/playlist/{playlist_index}/track` — Request Body: track index. The current handler accepts the playlist path segment for compatibility and selects the track within the zone's active playlist.
   * `/api/v1/zones/{zone_index}/play/subsonic/{track_id}` — Starts a Subsonic server file stream.
 
@@ -342,7 +360,7 @@ Helper endpoints to fetch specific zone configuration properties individually.
   * `/api/v1/zones/{zone_index}/icon` — Returns the zone icon tag as a JSON String.
   * `/api/v1/zones/{zone_index}/playback` — Returns the active playback status (`"playing"`, `"paused"`, or `"stopped"`) as a JSON String.
   * `/api/v1/zones/{zone_index}/playlist/name` — Returns the active playlist name as a JSON String.
-  * `/api/v1/zones/{zone_index}/playlist/info` — Returns the playlist details object (id, name, track count).
+  * `/api/v1/zones/{zone_index}/playlist/info` — Returns the active playlist summary (`index`, `playlist_id`, `name`, `total`, `track_count`, `track_index`).
   * `/api/v1/zones/{zone_index}/playlist/count` — Returns the number of tracks in the active playlist.
   * `/api/v1/zones/{zone_index}/clients` — Returns an array of client speaker indices currently assigned to this zone.
 
@@ -591,42 +609,63 @@ Activates or deactivates the physical button programming state (equivalent to pr
 
 SnapDog integrates with internet radio streams and Subsonic-compatible servers (e.g. Navidrome, Gonic). These endpoints allow retrieving and browsing playlists, tracks, and associated cover art.
 
+### Playlist identity: `playlist_id` and `index`
+Every playlist has two identifiers:
+
+| Field | Meaning | Use it for |
+|---|---|---|
+| `playlist_id` | Stable reference: `snapdog:radio` for the radio list, `subsonic:<subsonic id>` for a Subsonic playlist. | Remembering a selection, comparing, "currently playing", keys of lists, the `by-id` endpoints. |
+| `index` | Zero-based position in the unified list. | Addressing an index endpoint immediately after reading the list. |
+
+The index moves when a playlist is created or removed in Subsonic, when radio stations are configured or removed, and for a short time while the Subsonic server cannot be reached. Never store an index, store the `playlist_id`.
+
+<Aside type="caution" title="by-id takes the playlist_id, all other paths take the index">
+  The `by-id` path segment takes the `playlist_id` (percent-encode it in the path, for example `subsonic%3A42`). The paths without it, such as `/api/v1/media/playlists/{playlist_index}`, take the index.
+</Aside>
+
+<Aside type="caution" title="Deprecated: id">
+  The `id` field of `PlaylistInfo`, `PlaylistDetails` and of the play body has the same value as `index`. Deprecated. Use `index`. Removed with SnapDog 1.0, which breaks compatibility of `/api/v1` for clients that still read it.
+</Aside>
+
+A client that finds no `playlist_id` and no `index` in a playlist talks to an older server and may fall back to `id`.
+
 ### List Unified Playlists
 Returns a list of all playlists available, combining the local Radio streams list (index `0`) and all Subsonic server playlists (indices `1` and higher).
 
 * **Method:** `GET`
 * **Endpoint:** `/api/v1/media/playlists`
 * **Response `200 OK`:**
-  ```json
-  [
-    {
-      "id": 0,
-      "name": "Radio",
-      "song_count": 12,
-      "duration": 0,
-      "cover_art": "/assets/radio-cover.png"
-    },
-    {
-      "id": 1,
-      "name": "My Acoustic Playlist",
-      "song_count": 5,
-      "duration": 1200,
-      "cover_art": "/api/v1/media/playlists/1/cover"
-    }
-  ]
+  ```json schema=PlaylistInfo
+  {
+    "id": 1,
+    "index": 1,
+    "playlist_id": "subsonic:42",
+    "name": "My Acoustic Playlist",
+    "song_count": 5,
+    "duration": 1200,
+    "cover_art": "/api/v1/media/playlists/1/cover"
+  }
   ```
+  The response is an array of such objects. The radio list is the first element, with `"index": 0` and `"playlist_id": "snapdog:radio"`. `id` is deprecated and repeats `index`.
+
+The list changes when Subsonic playlists change. SnapDog reads the Subsonic list every `[subsonic].refresh_secs` seconds (default `60`, `0` turns the background read off, see [configuration](/docs/configuration#subsonic)) and sends the WebSocket event [`playlists_changed`](/docs/api-websocket#playlists_changed) when something changed. Reload this endpoint after that event and after every WebSocket reconnect.
 
 ### Get Playlist Details
 * **Method:** `GET`
-* **Endpoint:** `/api/v1/media/playlists/{playlist_index}`
+* **Endpoints:**
+  * `/api/v1/media/playlists/{playlist_index}` — takes the index.
+  * `/api/v1/media/playlists/by-id/{playlist_id}` — takes the `playlist_id` (percent-encoded). An unknown `playlist_id` returns `404 Not Found`.
 * **Response `200 OK`:**
-  ```json
+  ```json schema=PlaylistDetails
   {
     "id": 1,
+    "index": 1,
+    "playlist_id": "subsonic:42",
     "name": "My Acoustic Playlist",
     "tracks": 5
   }
   ```
+  `id` is deprecated and repeats `index`.
 
 ### Get Playlist Cover Art
 Returns the cover image binary (PNG/JPEG/GIF) for the specified playlist.
@@ -636,10 +675,13 @@ Returns the cover image binary (PNG/JPEG/GIF) for the specified playlist.
 * **Response `200 OK`:** Raw image bytes (`Content-Type: image/*`).
 
 ### List Tracks in Playlist
-Returns the list of tracks belonging to the specified unified playlist index.
+Returns the list of tracks belonging to the specified playlist.
 
 * **Method:** `GET`
-* **Endpoint:** `/api/v1/media/playlists/{playlist_index}/tracks`
+* **Endpoints:**
+  * `/api/v1/media/playlists/{playlist_index}/tracks` — takes the index.
+  * `/api/v1/media/playlists/by-id/{playlist_id}/tracks` — takes the `playlist_id` (percent-encoded).
+* **Query parameters (both endpoints):** `limit` (maximum number of tracks) and `offset` (tracks to skip, default `0`). With either one, the same array is cut and the response header `X-Total-Count` carries the full number of tracks. Without both, the whole list is returned and no `X-Total-Count` header is sent.
 * **Response `200 OK`:**
   ```json
   [

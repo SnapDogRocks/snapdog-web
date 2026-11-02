@@ -46,6 +46,7 @@ All WebSocket messages are JSON objects containing a `"type"` string that identi
 | Event | Purpose |
 |---|---|
 | `zone_changed` | Full zone playback, source, metadata, playlist navigation, and zone volume update. |
+| `playlists_changed` | The list of playlists, a playlist index, or a playlist name may have changed. |
 | `zone_volume_changed` | Lightweight zone volume/mute update. |
 | `zone_progress` | Periodic position and optional buffer progress update. |
 | `client_state_changed` | Client connection, volume, mute, zone assignment, or SnapDog capability update. |
@@ -81,6 +82,8 @@ Fired whenever a zone's playback state, active source, track metadata, playlist 
   "track_index": 2,
   "track_count": 12,
   "playlist": 1,
+  "playlist_index": 1,
+  "playlist_id": "subsonic:42",
   "playlist_name": "Acoustic Evening",
   "playlist_total": 4,
   "can_playlist_next": true,
@@ -92,7 +95,38 @@ Fired whenever a zone's playback state, active source, track metadata, playlist 
 }
 ```
 
+Playlist fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `playlist_index` | number \| null | Current unified playlist index (0-based), `null` if no playlist is active. The index moves when the list changes. |
+| `playlist_id` | string \| null | Stable reference of the active playlist: `snapdog:radio` or `subsonic:<subsonic id>`. Use it to remember or compare a playlist. |
+| `playlist` | number \| null | **Deprecated.** Same value as `playlist_index`. |
+
+<Aside type="caution" title="Deprecated: playlist">
+  The field `playlist` repeats `playlist_index`. Deprecated. Use `playlist_index`. Removed with SnapDog 1.0, which breaks compatibility of `/api/v1` for clients that still read it. A client that finds neither `playlist_index` nor `playlist_id` talks to an older server and may fall back to `playlist`.
+</Aside>
+
+To select a playlist by its stable reference over REST, use the [`by-id` endpoints](/docs/api-rest#playlist-selection-and-navigation). They take the `playlist_id`, while the paths without `by-id` take the index.
+
 When `playback` is `"playing"` or new track metadata arrives, clients should clear any previously displayed `playback_error` for that zone.
+
+### `playlists_changed`
+Fired when the list of playlists, a playlist index, or a playlist name may have changed, for example after a playlist was created or removed in Subsonic, after radio stations were configured, or after the Subsonic server became reachable again.
+
+```json
+{
+  "type": "playlists_changed",
+  "total": 7
+}
+```
+
+| Field | Type | Required | Description |
+|---|---|:---:|---|
+| `type` | string | yes | Always `playlists_changed`. |
+| `total` | number | yes | Number of playlists now, radio list included. |
+
+Reload `GET /api/v1/media/playlists` when this event arrives, and also after every reconnect. SnapDog reads the Subsonic playlist list every `[subsonic].refresh_secs` seconds (default `60`, `0` turns the read off), so a change made in another Subsonic client shows up within that interval. See [Media & Subsonic Playlists](/docs/api-rest#10-media--subsonic-playlists) for the identifiers.
 
 ### `zone_volume_changed`
 Fired when a zone's master volume or mute state is altered.
