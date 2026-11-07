@@ -5,14 +5,27 @@ description: Install the SnapDog integration for Home Assistant with HACS or by 
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-The SnapDog integration shows your zones in Home Assistant as media players and offers volume, mute, playback, playlists and the equalizer as entities and services. It talks to the [REST API](/docs/api-rest) and listens to the [WebSocket API](/docs/api-websocket), so state changes appear without polling.
+The SnapDog integration shows your zones in Home Assistant as media players. It talks to the [REST API](/docs/api-rest) and listens to the [WebSocket API](/docs/api-websocket), so state changes appear without polling.
 
 The integration lives in its own repository, [`SnapDogRocks/snapdog-homeassistant`](https://github.com/SnapDogRocks/snapdog-homeassistant). It is not yet part of the HACS default list and not part of Home Assistant core. Until it is, you install it as a custom repository or copy it by hand. Both ways are supported.
+
+## What you get
+
+* One **media player per zone**: play, pause, stop, next and previous, seek, volume, mute, shuffle and repeat, with title, artist, album, position and the playlist that is playing.
+* A **media browser** with the playlists of the server and their tracks. You can also pick a playlist by name as the source of a zone.
+* One device for the server and one per zone. Entities are unavailable while the WebSocket is down, and the state is read again when it comes back.
+
+These come with the next release (0.2.0), after 0.1.0:
+
+* **Search** in the media browser for tracks, albums, playlists and radio stations, and **covers** in the browser, in search results and for the track on air.
+* **Actions** to create, rename, fill, reorder and delete playlists on the media server (`snapdog.create_playlist` and five more). The server has to allow it with `playlist_write = true` in its `[subsonic]` section.
+
+Clients as devices, the equalizer and speaker correction are not part of the integration yet.
 
 ## Requirements
 
 * Home Assistant **2026.10** or newer.
-* SnapDog **0.30.0** or newer. The integration needs `GET /api/v1/eq/presets` and the corrected API contract from that release.
+* SnapDog **0.31.0** or newer. The integration needs the stable `playlist_id`, the `by-id` playlist endpoints and the `playlists_changed` event from that release.
 * Network access from Home Assistant to the SnapDog server (port `5555` by default).
 * The API key, if you enabled Bearer authentication in `snapdog.toml` (`[http].api_keys`).
 
@@ -49,7 +62,7 @@ Use this if you do not run HACS. You will not get update notices.
 
 1. Go to **Settings → Devices & services → Add integration** and search for **SnapDog**.
 2. Enter the host name or IP address of the SnapDog server, the port and, if you use one, the API key.
-3. Confirm. Every zone becomes a media player, every client a device.
+3. Confirm. Every zone becomes a media player, and the server becomes a device that the zones belong to.
 
 </Steps>
 
