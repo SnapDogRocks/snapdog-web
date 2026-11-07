@@ -42,6 +42,12 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Integrations',
+          items: [
+            { label: 'Home Assistant', link: '/docs/home-assistant' },
+          ],
+        },
+        {
           label: 'Developer Manual',
           items: [
             { label: 'REST API Guide', link: '/docs/api-rest' },
