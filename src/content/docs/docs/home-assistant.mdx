@@ -13,12 +13,11 @@ The integration lives in its own repository, [`SnapDogRocks/snapdog-homeassistan
 
 * One **media player per zone**: play, pause, stop, next and previous, seek, volume, mute, shuffle and repeat, with title, artist, album, position and the playlist that is playing.
 * A **media browser** with the playlists of the server and their tracks. You can also pick a playlist by name as the source of a zone.
-* One device for the server and one per zone. Entities are unavailable while the WebSocket is down, and the state is read again when it comes back.
-
-These come with the next release (0.2.0), after 0.1.0:
-
 * **Search** in the media browser for tracks, albums, playlists and radio stations, and **covers** in the browser, in search results and for the track on air.
 * **Actions** to create, rename, fill, reorder and delete playlists on the media server (`snapdog.create_playlist` and five more). The server has to allow it with `playlist_write = true` in its `[subsonic]` section.
+* One device for the server and one per zone. Entities are unavailable while the WebSocket is down, and the state is read again when it comes back.
+
+Search, covers and the playlist actions need version 0.2.0 of the integration.
 
 Clients as devices, the equalizer and speaker correction are not part of the integration yet.
 
