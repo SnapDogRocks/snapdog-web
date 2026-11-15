@@ -9,7 +9,8 @@ reference, and SnapDog OS installation guides.
 
 - [Astro](https://astro.build/)
 - [Starlight](https://starlight.astro.build/) documentation
-- MDX and Tailwind CSS
+- MDX and Tailwind CSS 4
+- pnpm
 - Vercel deployment
 
 ## Development
@@ -18,14 +19,14 @@ Requires Node.js 22 or newer.
 
 ```bash
 pnpm install
-pnpm run dev
+pnpm dev
 ```
 
 Open <http://localhost:4321>. Production output is generated with:
 
 ```bash
-pnpm run build
-pnpm run preview
+pnpm build
+pnpm preview
 ```
 
 ## Content layout
