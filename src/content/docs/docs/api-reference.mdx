@@ -17,164 +17,166 @@ Contract: **SnapDog REST API 1.0.0** · OpenAPI 3.1.0
 
 System and platform administration endpoints
 
-| Method | Endpoint | Summary | Request | Success response |
-|---|---|---|---|---|
-| **GET** | `/api/v1/system/listeners` | List every network listener of the server. | — | array&lt;[`Row`](#row)&gt; |
-| **GET** | `/api/v1/system/status` | Retrieve basic system status statistics. | — | [`SystemStatus`](#systemstatus) |
-| **GET** | `/api/v1/system/updates` | Read the state of the container updater sidecar. | — | [`UpdateStatus`](#updatestatus) |
-| **POST** | `/api/v1/system/updates/apply` | Apply the available update now. | — | [`UpdateStatus`](#updatestatus) |
-| **POST** | `/api/v1/system/updates/check` | Ask the sidecar to look for a newer release now. | — | [`UpdateStatus`](#updatestatus) |
-| **POST** | `/api/v1/system/updates/config` | Change the update mode and maintenance window of the sidecar. | [`UpdateConfig`](#updateconfig) | [`UpdateStatus`](#updatestatus) |
-| **GET** | `/api/v1/system/version` | Retrieve application and platform version details. | — | [`VersionInfo`](#versioninfo) |
+| Method | Endpoint | Summary | Parameters | Request | Success response | Errors |
+|---|---|---|---|---|---|---|
+| **GET** | `/api/v1/system/listeners` | List every network listener of the server. | — | — | array&lt;[`Row`](#row)&gt; | `401` Missing or invalid API key (plain-text body) |
+| **GET** | `/api/v1/system/status` | Retrieve basic system status statistics. | — | — | [`SystemStatus`](#systemstatus) | `401` Missing or invalid API key (plain-text body) |
+| **GET** | `/api/v1/system/updates` | Read the state of the container updater sidecar. | — | — | [`UpdateStatus`](#updatestatus) | `401` Missing or invalid API key (plain-text body)<br />`502` The updater sidecar did not answer or refused<br />`503` No updater sidecar is configured |
+| **POST** | `/api/v1/system/updates/apply` | Apply the available update now. | — | — | [`UpdateStatus`](#updatestatus) | `401` Missing or invalid API key (plain-text body)<br />`502` The updater sidecar did not answer or refused (for example an operation is running)<br />`503` No updater sidecar is configured |
+| **POST** | `/api/v1/system/updates/check` | Ask the sidecar to look for a newer release now. | — | — | [`UpdateStatus`](#updatestatus) | `401` Missing or invalid API key (plain-text body)<br />`502` The updater sidecar did not answer or refused (for example an operation is running)<br />`503` No updater sidecar is configured |
+| **POST** | `/api/v1/system/updates/config` | Change the update mode and maintenance window of the sidecar. | — | [`UpdateConfig`](#updateconfig) | [`UpdateStatus`](#updatestatus) | `401` Missing or invalid API key (plain-text body)<br />`422` Malformed body or unknown field (plain-text rejection)<br />`502` The updater sidecar did not answer or rejected the schedule<br />`503` No updater sidecar is configured |
+| **GET** | `/api/v1/system/version` | Retrieve application and platform version details. | — | — | [`VersionInfo`](#versioninfo) | `401` Missing or invalid API key (plain-text body) |
 
 ### zones
 
 Multi-zone control, playback, and presence management
 
-| Method | Endpoint | Summary | Request | Success response |
-|---|---|---|---|---|
-| **GET** | `/api/v1/zones` | Get all zones details | — | array&lt;[`ZoneInfo`](#zoneinfo)&gt; |
-| **GET** | `/api/v1/zones/count` | Get total number of zones | — | `integer` |
-| **GET** | `/api/v1/zones/{zone_index}` | Get zone details by index | — | [`ZoneInfo`](#zoneinfo) |
-| **GET** | `/api/v1/zones/{zone_index}/clients` | Get zone clients index list | — | array&lt;`integer`&gt; |
-| **GET** | `/api/v1/zones/{zone_index}/cover` | Get zone cover art image | — | — |
-| **GET** | `/api/v1/zones/{zone_index}/icon` | Get zone emoji icon | — | `string` |
-| **GET** | `/api/v1/zones/{zone_index}/mute` | Get zone mute status | — | `boolean` |
-| **PUT** | `/api/v1/zones/{zone_index}/mute` | Set zone mute status | `boolean` | — |
-| **POST** | `/api/v1/zones/{zone_index}/mute/toggle` | Toggle zone mute status | — | — |
-| **GET** | `/api/v1/zones/{zone_index}/name` | Get zone name | — | `string` |
-| **POST** | `/api/v1/zones/{zone_index}/next` | Skip to next track | — | — |
-| **POST** | `/api/v1/zones/{zone_index}/next/playlist` | Switch to next playlist | — | — |
-| **POST** | `/api/v1/zones/{zone_index}/pause` | Pause zone playback | — | — |
-| **POST** | `/api/v1/zones/{zone_index}/play` | Resume zone playback | — | — |
-| **POST** | `/api/v1/zones/{zone_index}/play/playlist` | Play unified playlist | [`PlaylistPayload`](#playlistpayload) | — |
-| **POST** | `/api/v1/zones/{zone_index}/play/playlist/by-id` | Play playlist by `playlist_id` | [`PlaylistByIdPayload`](#playlistbyidpayload) | — |
-| **POST** | `/api/v1/zones/{zone_index}/play/playlist/{playlist_index}/track` | Play track in a playlist | `integer` | — |
-| **POST** | `/api/v1/zones/{zone_index}/play/subsonic/album/{album_id}` | Play a Subsonic album | — | — |
-| **POST** | `/api/v1/zones/{zone_index}/play/subsonic/{track_id}` | Play Subsonic track by ID | — | — |
-| **POST** | `/api/v1/zones/{zone_index}/play/track` | Play specific track index | `integer` | — |
-| **POST** | `/api/v1/zones/{zone_index}/play/url` | Play arbitrary audio stream URL | `string` | — |
-| **GET** | `/api/v1/zones/{zone_index}/playback` | Get zone playback status | — | `string` |
-| **GET** | `/api/v1/zones/{zone_index}/playlist` | Get zone playlist index | — | `integer` |
-| **PUT** | `/api/v1/zones/{zone_index}/playlist` | Set zone playlist | `integer` | — |
-| **GET** | `/api/v1/zones/{zone_index}/playlist/by-id` | Get zone playlist reference | — | `string` |
-| **PUT** | `/api/v1/zones/{zone_index}/playlist/by-id` | Set zone playlist by `playlist_id` | `string` | — |
-| **GET** | `/api/v1/zones/{zone_index}/playlist/count` | Get playlist track count | — | `integer` |
-| **GET** | `/api/v1/zones/{zone_index}/playlist/info` | Get active playlist summary info | — | [`ZonePlaylistInfo`](#zoneplaylistinfo) |
-| **GET** | `/api/v1/zones/{zone_index}/playlist/name` | Get active playlist name | — | `string` |
-| **GET** | `/api/v1/zones/{zone_index}/presence` | Get presence occupancy status | — | `boolean` |
-| **PUT** | `/api/v1/zones/{zone_index}/presence` | Set presence occupancy status | `boolean` | — |
-| **GET** | `/api/v1/zones/{zone_index}/presence/enable` | Get presence detection enable status | — | `boolean` |
-| **PUT** | `/api/v1/zones/{zone_index}/presence/enable` | Set presence detection enable status | `boolean` | — |
-| **GET** | `/api/v1/zones/{zone_index}/presence/timeout` | Get presence timeout delay | — | `integer` |
-| **PUT** | `/api/v1/zones/{zone_index}/presence/timeout` | Set presence timeout delay | `integer` | — |
-| **GET** | `/api/v1/zones/{zone_index}/presence/timer` | Get presence timer active status | — | `boolean` |
-| **POST** | `/api/v1/zones/{zone_index}/previous` | Skip to previous track | — | — |
-| **POST** | `/api/v1/zones/{zone_index}/previous/playlist` | Switch to previous playlist | — | — |
-| **GET** | `/api/v1/zones/{zone_index}/repeat` | Get zone repeat mode | — | [`RepeatMode`](#repeatmode) |
-| **PUT** | `/api/v1/zones/{zone_index}/repeat` | Set zone repeat mode | [`RepeatMode`](#repeatmode) | — |
-| **POST** | `/api/v1/zones/{zone_index}/repeat/toggle` | Toggle zone repeat mode | — | — |
-| **GET** | `/api/v1/zones/{zone_index}/shuffle` | Get zone shuffle status | — | `boolean` |
-| **PUT** | `/api/v1/zones/{zone_index}/shuffle` | Set zone shuffle status | `boolean` | — |
-| **POST** | `/api/v1/zones/{zone_index}/shuffle/toggle` | Toggle zone shuffle status | — | — |
-| **POST** | `/api/v1/zones/{zone_index}/stop` | Stop zone playback | — | — |
-| **GET** | `/api/v1/zones/{zone_index}/track` | Get active track index | — | `integer` |
-| **GET** | `/api/v1/zones/{zone_index}/track/album` | Get active track album | — | `string` |
-| **GET** | `/api/v1/zones/{zone_index}/track/artist` | Get active track artist | — | `string` |
-| **GET** | `/api/v1/zones/{zone_index}/track/duration` | Get active track duration | — | `integer` |
-| **GET** | `/api/v1/zones/{zone_index}/track/metadata` | Get track metadata | — | [`ZoneTrackMetadata`](#zonetrackmetadata) |
-| **GET** | `/api/v1/zones/{zone_index}/track/playing` | Get track playing state | — | `boolean` |
-| **GET** | `/api/v1/zones/{zone_index}/track/position` | Get active track playback position | — | `integer` |
-| **PUT** | `/api/v1/zones/{zone_index}/track/position` | Seek track position | [`SeekPayload`](#seekpayload) | — |
-| **GET** | `/api/v1/zones/{zone_index}/track/progress` | Get track progress percentage | — | `number` |
-| **PUT** | `/api/v1/zones/{zone_index}/track/progress` | Seek track progress percentage | `number` | — |
-| **GET** | `/api/v1/zones/{zone_index}/track/title` | Get active track title | — | `string` |
-| **GET** | `/api/v1/zones/{zone_index}/volume` | Get zone volume level | — | `integer` |
-| **PUT** | `/api/v1/zones/{zone_index}/volume` | Set zone volume level | [`VolumeValue`](#volumevalue) | `integer` |
+| Method | Endpoint | Summary | Parameters | Request | Success response | Errors |
+|---|---|---|---|---|---|---|
+| **GET** | `/api/v1/zones` | Get all zones details | — | — | array&lt;[`ZoneInfo`](#zoneinfo)&gt; | `401` Missing or invalid API key (plain-text body) |
+| **GET** | `/api/v1/zones/count` | Get total number of zones | — | — | `integer` | `401` Missing or invalid API key (plain-text body) |
+| **GET** | `/api/v1/zones/{zone_index}` | Get zone details by index | path `zone_index` | — | [`ZoneInfo`](#zoneinfo) | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/clients` | Get zone clients index list | path `zone_index` | — | array&lt;`integer`&gt; | `401` Missing or invalid API key (plain-text body) |
+| **GET** | `/api/v1/zones/{zone_index}/cover` | Get zone cover art image | path `zone_index` | — | `image/*` | `401` Missing or invalid API key (plain-text body) |
+| **GET** | `/api/v1/zones/{zone_index}/icon` | Get zone emoji icon | path `zone_index` | — | `string` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/mute` | Get zone mute status | path `zone_index` | — | `boolean` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **PUT** | `/api/v1/zones/{zone_index}/mute` | Set zone mute status | path `zone_index` | `boolean` | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/mute/toggle` | Toggle zone mute status | path `zone_index` | — | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/name` | Get zone name | path `zone_index` | — | `string` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/next` | Skip to next track | path `zone_index` | — | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/next/playlist` | Switch to next playlist | path `zone_index` | — | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/pause` | Pause zone playback | path `zone_index` | — | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/play` | Resume zone playback | path `zone_index` | — | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/play/playlist` | Play unified playlist | path `zone_index` | [`PlaylistPayload`](#playlistpayload) | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/play/playlist/by-id` | Play playlist by `playlist_id` | path `zone_index` | [`PlaylistByIdPayload`](#playlistbyidpayload) | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone or playlist not found |
+| **POST** | `/api/v1/zones/{zone_index}/play/playlist/{playlist_index}/track` | Play track in a playlist | path `zone_index`<br />path `playlist_index` | `integer` | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone or playlist not found |
+| **POST** | `/api/v1/zones/{zone_index}/play/subsonic/album/{album_id}` | Play a Subsonic album | path `zone_index`<br />path `album_id` | — | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/play/subsonic/{track_id}` | Play Subsonic track by ID | path `zone_index`<br />path `track_id` | — | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone or track not found |
+| **POST** | `/api/v1/zones/{zone_index}/play/track` | Play specific track index | path `zone_index` | `integer` | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/play/url` | Play arbitrary audio stream URL | path `zone_index` | `string` | 200 OK, empty body | `400` Invalid URL schema (must be http or https)<br />`401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/playback` | Get zone playback status | path `zone_index` | — | `string` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/playlist` | Get zone playlist index | path `zone_index` | — | `integer` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **PUT** | `/api/v1/zones/{zone_index}/playlist` | Set zone playlist | path `zone_index` | `integer` | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/playlist/by-id` | Get zone playlist reference | path `zone_index` | — | `string` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **PUT** | `/api/v1/zones/{zone_index}/playlist/by-id` | Set zone playlist by `playlist_id` | path `zone_index` | `string` | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone or playlist not found |
+| **GET** | `/api/v1/zones/{zone_index}/playlist/count` | Get playlist track count | path `zone_index` | — | `integer` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/playlist/info` | Get active playlist summary info | path `zone_index` | — | [`ZonePlaylistInfo`](#zoneplaylistinfo) | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/playlist/name` | Get active playlist name | path `zone_index` | — | `string` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/presence` | Get presence occupancy status | path `zone_index` | — | `boolean` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **PUT** | `/api/v1/zones/{zone_index}/presence` | Set presence occupancy status | path `zone_index` | `boolean` | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/presence/enable` | Get presence detection enable status | path `zone_index` | — | `boolean` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **PUT** | `/api/v1/zones/{zone_index}/presence/enable` | Set presence detection enable status | path `zone_index` | `boolean` | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/presence/timeout` | Get presence timeout delay | path `zone_index` | — | `integer` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **PUT** | `/api/v1/zones/{zone_index}/presence/timeout` | Set presence timeout delay | path `zone_index` | `integer` | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/presence/timer` | Get presence timer active status | path `zone_index` | — | `boolean` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/previous` | Skip to previous track | path `zone_index` | — | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/previous/playlist` | Switch to previous playlist | path `zone_index` | — | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/repeat` | Get zone repeat mode | path `zone_index` | — | [`RepeatMode`](#repeatmode) | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **PUT** | `/api/v1/zones/{zone_index}/repeat` | Set zone repeat mode | path `zone_index` | [`RepeatMode`](#repeatmode) | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/repeat/toggle` | Toggle zone repeat mode | path `zone_index` | — | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/shuffle` | Get zone shuffle status | path `zone_index` | — | `boolean` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **PUT** | `/api/v1/zones/{zone_index}/shuffle` | Set zone shuffle status | path `zone_index` | `boolean` | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/shuffle/toggle` | Toggle zone shuffle status | path `zone_index` | — | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/stop` | Stop zone playback | path `zone_index` | — | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/track` | Get active track index | path `zone_index` | — | `integer` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/track/album` | Get active track album | path `zone_index` | — | `string` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/track/artist` | Get active track artist | path `zone_index` | — | `string` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/track/duration` | Get active track duration | path `zone_index` | — | `integer` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/track/metadata` | Get track metadata | path `zone_index` | — | [`ZoneTrackMetadata`](#zonetrackmetadata) | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/track/playing` | Get track playing state | path `zone_index` | — | `boolean` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/track/position` | Get active track playback position | path `zone_index` | — | `integer` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **PUT** | `/api/v1/zones/{zone_index}/track/position` | Seek track position | path `zone_index` | [`SeekPayload`](#seekpayload) | 200 OK, empty body | `400` Invalid payload (both or neither field provided)<br />`401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/track/progress` | Get track progress percentage | path `zone_index` | — | `number` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **PUT** | `/api/v1/zones/{zone_index}/track/progress` | Seek track progress percentage | path `zone_index` | `number` | 200 OK, empty body | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/track/title` | Get active track title | path `zone_index` | — | `string` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **GET** | `/api/v1/zones/{zone_index}/volume` | Get zone volume level | path `zone_index` | — | `integer` | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **PUT** | `/api/v1/zones/{zone_index}/volume` | Set zone volume level | path `zone_index` | [`VolumeValue`](#volumevalue) | `integer` | `400` Invalid volume value<br />`401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
 
 ### clients
 
 Individual speaker volume, mute, latency, and zone assignment
 
-| Method | Endpoint | Summary | Request | Success response |
-|---|---|---|---|---|
-| **GET** | `/api/v1/clients` | Get all clients details | — | array&lt;[`ClientInfo`](#clientinfo)&gt; |
-| **GET** | `/api/v1/clients/count` | Get total number of clients | — | `integer` |
-| **GET** | `/api/v1/clients/{client_index}` | Get client details by index | — | [`ClientInfo`](#clientinfo) |
-| **GET** | `/api/v1/clients/{client_index}/connected` | Get client connection status | — | `boolean` |
-| **GET** | `/api/v1/clients/{client_index}/icon` | Get client icon name | — | `string` |
-| **GET** | `/api/v1/clients/{client_index}/latency` | Get client latency setting | — | `integer` |
-| **PUT** | `/api/v1/clients/{client_index}/latency` | Set client latency setting | `integer` | `integer` |
-| **GET** | `/api/v1/clients/{client_index}/mute` | Get client mute status | — | `boolean` |
-| **PUT** | `/api/v1/clients/{client_index}/mute` | Set client mute status | `boolean` | `boolean` |
-| **POST** | `/api/v1/clients/{client_index}/mute/toggle` | Toggle client mute status | — | `boolean` |
-| **GET** | `/api/v1/clients/{client_index}/name` | Get client friendly name | — | `string` |
-| **PUT** | `/api/v1/clients/{client_index}/name` | Set client friendly name | `string` | `string` |
-| **GET** | `/api/v1/clients/{client_index}/volume` | Get client volume level | — | `integer` |
-| **PUT** | `/api/v1/clients/{client_index}/volume` | Set client volume level | [`VolumeValue`](#volumevalue) | `integer` |
-| **GET** | `/api/v1/clients/{client_index}/zone` | Get client zone assignment | — | `integer` |
-| **PUT** | `/api/v1/clients/{client_index}/zone` | Set client zone assignment | `integer` | `integer` |
+| Method | Endpoint | Summary | Parameters | Request | Success response | Errors |
+|---|---|---|---|---|---|---|
+| **GET** | `/api/v1/clients` | Get all clients details | — | — | array&lt;[`ClientInfo`](#clientinfo)&gt; | `401` Missing or invalid API key (plain-text body) |
+| **GET** | `/api/v1/clients/count` | Get total number of clients | — | — | `integer` | `401` Missing or invalid API key (plain-text body) |
+| **GET** | `/api/v1/clients/{client_index}` | Get client details by index | path `client_index` | — | [`ClientInfo`](#clientinfo) | `401` Missing or invalid API key (plain-text body)<br />`404` Client not found |
+| **GET** | `/api/v1/clients/{client_index}/connected` | Get client connection status | path `client_index` | — | `boolean` | `401` Missing or invalid API key (plain-text body)<br />`404` Client not found |
+| **GET** | `/api/v1/clients/{client_index}/icon` | Get client icon name | path `client_index` | — | `string` | `401` Missing or invalid API key (plain-text body)<br />`404` Client not found |
+| **GET** | `/api/v1/clients/{client_index}/latency` | Get client latency setting | path `client_index` | — | `integer` | `401` Missing or invalid API key (plain-text body)<br />`404` Client not found |
+| **PUT** | `/api/v1/clients/{client_index}/latency` | Set client latency setting | path `client_index` | `integer` | `integer` | `401` Missing or invalid API key (plain-text body)<br />`404` Client not found |
+| **GET** | `/api/v1/clients/{client_index}/mute` | Get client mute status | path `client_index` | — | `boolean` | `401` Missing or invalid API key (plain-text body)<br />`404` Client not found |
+| **PUT** | `/api/v1/clients/{client_index}/mute` | Set client mute status | path `client_index` | `boolean` | `boolean` | `401` Missing or invalid API key (plain-text body)<br />`404` Client not found |
+| **POST** | `/api/v1/clients/{client_index}/mute/toggle` | Toggle client mute status | path `client_index` | — | `boolean` | `401` Missing or invalid API key (plain-text body)<br />`404` Client not found |
+| **GET** | `/api/v1/clients/{client_index}/name` | Get client friendly name | path `client_index` | — | `string` | `401` Missing or invalid API key (plain-text body)<br />`404` Client not found |
+| **PUT** | `/api/v1/clients/{client_index}/name` | Set client friendly name | path `client_index` | `string` | `string` | `401` Missing or invalid API key (plain-text body)<br />`404` Client not found |
+| **GET** | `/api/v1/clients/{client_index}/volume` | Get client volume level | path `client_index` | — | `integer` | `401` Missing or invalid API key (plain-text body)<br />`404` Client not found |
+| **PUT** | `/api/v1/clients/{client_index}/volume` | Set client volume level | path `client_index` | [`VolumeValue`](#volumevalue) | `integer` | `400` Invalid volume value<br />`401` Missing or invalid API key (plain-text body)<br />`404` Client not found |
+| **GET** | `/api/v1/clients/{client_index}/zone` | Get client zone assignment | path `client_index` | — | `integer` | `401` Missing or invalid API key (plain-text body)<br />`404` Client not found |
+| **PUT** | `/api/v1/clients/{client_index}/zone` | Set client zone assignment | path `client_index` | `integer` | `integer` | `401` Missing or invalid API key (plain-text body)<br />`404` Client or Zone not found |
 
 ### equalizer
 
 Parametric EQ curves, bands, and presets for zones and clients
 
-| Method | Endpoint | Summary | Request | Success response |
-|---|---|---|---|---|
-| **GET** | `/api/v1/clients/{client_index}/eq` | Get client Equalizer configuration | — | [`EqConfig`](#eqconfig) |
-| **PUT** | `/api/v1/clients/{client_index}/eq` | Set client Equalizer configuration | [`EqConfig`](#eqconfig) | [`EqConfig`](#eqconfig) |
-| **POST** | `/api/v1/clients/{client_index}/eq/preset` | Apply client Equalizer preset | `string` | [`EqConfig`](#eqconfig) |
-| **PUT** | `/api/v1/clients/{client_index}/eq/{band_index}` | Update specific client Equalizer band | [`EqBand`](#eqband) | [`EqConfig`](#eqconfig) |
-| **GET** | `/api/v1/eq/presets` | List EQ presets | — | array&lt;[`EqPreset`](#eqpreset)&gt; |
-| **GET** | `/api/v1/zones/{zone_index}/eq` | Get zone Equalizer configuration | — | [`EqConfig`](#eqconfig) |
-| **PUT** | `/api/v1/zones/{zone_index}/eq` | Set zone Equalizer configuration | [`EqConfig`](#eqconfig) | [`EqConfig`](#eqconfig) |
-| **POST** | `/api/v1/zones/{zone_index}/eq/preset` | Apply Equalizer preset | `string` | [`EqConfig`](#eqconfig) |
-| **PUT** | `/api/v1/zones/{zone_index}/eq/{band_index}` | Update specific Equalizer band | [`EqBand`](#eqband) | [`EqConfig`](#eqconfig) |
+| Method | Endpoint | Summary | Parameters | Request | Success response | Errors |
+|---|---|---|---|---|---|---|
+| **GET** | `/api/v1/clients/{client_index}/eq` | Get client Equalizer configuration | path `client_index` | — | [`EqConfig`](#eqconfig) | `401` Missing or invalid API key (plain-text body)<br />`404` Client not found<br />`422` Client does not support EQ (not a SnapDog client) |
+| **PUT** | `/api/v1/clients/{client_index}/eq` | Set client Equalizer configuration | path `client_index` | [`EqConfig`](#eqconfig) | [`EqConfig`](#eqconfig) | `400` Too many bands or validation error<br />`401` Missing or invalid API key (plain-text body)<br />`404` Client not found<br />`422` Client does not support EQ (not a SnapDog client) |
+| **POST** | `/api/v1/clients/{client_index}/eq/preset` | Apply client Equalizer preset | path `client_index` | `string` | [`EqConfig`](#eqconfig) | `400` Unknown preset name<br />`401` Missing or invalid API key (plain-text body)<br />`404` Client not found<br />`422` Client does not support EQ (not a SnapDog client) |
+| **PUT** | `/api/v1/clients/{client_index}/eq/{band_index}` | Update specific client Equalizer band | path `client_index`<br />path `band_index` | [`EqBand`](#eqband) | [`EqConfig`](#eqconfig) | `400` Validation error<br />`401` Missing or invalid API key (plain-text body)<br />`404` Client or band not found<br />`422` Client does not support EQ (not a SnapDog client) |
+| **GET** | `/api/v1/eq/presets` | List EQ presets | — | — | array&lt;[`EqPreset`](#eqpreset)&gt; | `401` Missing or invalid API key (plain-text body) |
+| **GET** | `/api/v1/zones/{zone_index}/eq` | Get zone Equalizer configuration | path `zone_index` | — | [`EqConfig`](#eqconfig) | `401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **PUT** | `/api/v1/zones/{zone_index}/eq` | Set zone Equalizer configuration | path `zone_index` | [`EqConfig`](#eqconfig) | [`EqConfig`](#eqconfig) | `400` Too many bands or validation error<br />`401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **POST** | `/api/v1/zones/{zone_index}/eq/preset` | Apply Equalizer preset | path `zone_index` | `string` | [`EqConfig`](#eqconfig) | `400` Unknown preset name<br />`401` Missing or invalid API key (plain-text body)<br />`404` Zone not found |
+| **PUT** | `/api/v1/zones/{zone_index}/eq/{band_index}` | Update specific Equalizer band | path `zone_index`<br />path `band_index` | [`EqBand`](#eqband) | [`EqConfig`](#eqconfig) | `400` Validation error<br />`401` Missing or invalid API key (plain-text body)<br />`404` Zone or band not found |
 
 ### speakers
 
 Speaker profiles database and correction applications
 
-| Method | Endpoint | Summary | Request | Success response |
-|---|---|---|---|---|
-| **GET** | `/api/v1/clients/{client_index}/speaker` | Get client speaker correction | — | [`EqConfig`](#eqconfig) |
-| **PUT** | `/api/v1/clients/{client_index}/speaker` | Apply speaker correction profile | [`ApplySpeakerRequest`](#applyspeakerrequest) | [`EqConfig`](#eqconfig) |
-| **GET** | `/api/v1/speakers` | List available speaker profiles | — | array&lt;`string`&gt; |
-| **GET** | `/api/v1/speakers/{name}/profile` | Get speaker correction profile | — | [`EqConfig`](#eqconfig) |
+| Method | Endpoint | Summary | Parameters | Request | Success response | Errors |
+|---|---|---|---|---|---|---|
+| **GET** | `/api/v1/clients/{client_index}/speaker` | Get client speaker correction | path `client_index` | — | [`EqConfig`](#eqconfig) | `401` Missing or invalid API key (plain-text body)<br />`404` Client not found<br />`422` Client does not support speaker correction (not a SnapDog client) |
+| **PUT** | `/api/v1/clients/{client_index}/speaker` | Apply speaker correction profile | path `client_index` | [`ApplySpeakerRequest`](#applyspeakerrequest) | [`EqConfig`](#eqconfig) | `400` Invalid request payload (e.g., mutually exclusive options, validation failed)<br />`401` Missing or invalid API key (plain-text body)<br />`404` Client or speaker profile not found<br />`422` Client does not support speaker correction (not a SnapDog client) |
+| **GET** | `/api/v1/speakers` | List available speaker profiles | — | — | array&lt;`string`&gt; | `401` Missing or invalid API key (plain-text body)<br />`503` Speaker database unavailable |
+| **GET** | `/api/v1/speakers/{name}/profile` | Get speaker correction profile | path `name` | — | [`EqConfig`](#eqconfig) | `401` Missing or invalid API key (plain-text body)<br />`404` Speaker profile not found |
 
 ### knx
 
 KNX home automation integration status and control
 
-| Method | Endpoint | Summary | Request | Success response |
-|---|---|---|---|---|
-| **GET** | `/api/v1/knx/knxprod` | Download the KNX ETS product database | — | — |
-| **GET** | `/api/v1/knx/product-info` | Product identity (version / order number / hardware revision) of the embedded `.knxprod`. | — | [`ProductInfo`](#productinfo) |
-| **GET** | `/api/v1/knx/programming-mode` | Get KNX programming mode status | — | `boolean` |
-| **PUT** | `/api/v1/knx/programming-mode` | Set KNX programming mode status | `boolean` | `boolean` |
+| Method | Endpoint | Summary | Parameters | Request | Success response | Errors |
+|---|---|---|---|---|---|---|
+| **GET** | `/api/v1/knx/knxprod` | Download the KNX ETS product database | — | — | 200 OK, empty body | `401` Missing or invalid API key (plain-text body) |
+| **GET** | `/api/v1/knx/product-info` | Product identity (version / order number / hardware revision) of the embedded `.knxprod`. | — | — | [`ProductInfo`](#productinfo) | `401` Missing or invalid API key (plain-text body) |
+| **GET** | `/api/v1/knx/programming-mode` | Get KNX programming mode status | — | — | `boolean` | `401` Missing or invalid API key (plain-text body)<br />`409` KNX device mode not active<br />`503` The KNX device task did not answer within two seconds |
+| **PUT** | `/api/v1/knx/programming-mode` | Set KNX programming mode status | — | `boolean` | `boolean` | `401` Missing or invalid API key (plain-text body)<br />`409` KNX device mode not active<br />`503` The KNX device task did not answer within two seconds |
 
 ### media
 
 Radio station lists, Subsonic playlists, track listings, and covers
 
-| Method | Endpoint | Summary | Request | Success response |
-|---|---|---|---|---|
-| **GET** | `/api/v1/media/cover/{cover_id}` | Get a cover image by its Subsonic cover id | — | — |
-| **GET** | `/api/v1/media/playlists` | Get all media playlists | — | array&lt;[`PlaylistInfo`](#playlistinfo)&gt; |
-| **POST** | `/api/v1/media/playlists` | Create a Subsonic playlist | [`CreatePlaylist`](#createplaylist) | [`PlaylistInfo`](#playlistinfo) |
-| **GET** | `/api/v1/media/playlists/by-id/{playlist_id}` | Get playlist details by `playlist_id` | — | [`PlaylistDetails`](#playlistdetails) |
-| **DELETE** | `/api/v1/media/playlists/by-id/{playlist_id}` | Delete a Subsonic playlist | — | — |
-| **PATCH** | `/api/v1/media/playlists/by-id/{playlist_id}` | Change a Subsonic playlist | [`PatchPlaylist`](#patchplaylist) | [`PlaylistDetails`](#playlistdetails) |
-| **GET** | `/api/v1/media/playlists/by-id/{playlist_id}/tracks` | Get playlist tracks by `playlist_id` | — | array&lt;[`MediaTrackInfo`](#mediatrackinfo)&gt; |
-| **PUT** | `/api/v1/media/playlists/by-id/{playlist_id}/tracks` | Replace the tracks of a Subsonic playlist | [`ReplaceTracks`](#replacetracks) | [`PlaylistDetails`](#playlistdetails) |
-| **GET** | `/api/v1/media/playlists/{playlist_index}` | Get playlist details | — | [`PlaylistDetails`](#playlistdetails) |
-| **GET** | `/api/v1/media/playlists/{playlist_index}/cover` | Get playlist cover image | — | — |
-| **GET** | `/api/v1/media/playlists/{playlist_index}/tracks` | Get playlist tracks | — | array&lt;[`MediaTrackInfo`](#mediatrackinfo)&gt; |
-| **GET** | `/api/v1/media/playlists/{playlist_index}/tracks/{track_index}` | Get track details | — | [`MediaTrackInfo`](#mediatrackinfo) |
-| **GET** | `/api/v1/media/playlists/{playlist_index}/tracks/{track_index}/cover` | Get track cover image | — | — |
-| **GET** | `/api/v1/media/search` | Search the music library, the playlists and the radio stations | — | [`SearchResponse`](#searchresponse) |
+| Method | Endpoint | Summary | Parameters | Request | Success response | Errors |
+|---|---|---|---|---|---|---|
+| **GET** | `/api/v1/media/cover/{cover_id}` | Get a cover image by its Subsonic cover id | path `cover_id` | — | `image/*` | `401` Missing or invalid API key (plain-text body)<br />`404` Cover not found<br />`503` Subsonic is not configured |
+| **GET** | `/api/v1/media/playlists` | Get all media playlists | — | — | array&lt;[`PlaylistInfo`](#playlistinfo)&gt; | `401` Missing or invalid API key (plain-text body) |
+| **POST** | `/api/v1/media/playlists` | Create a Subsonic playlist | — | [`CreatePlaylist`](#createplaylist) | [`PlaylistInfo`](#playlistinfo) | `400` Empty name<br />`401` Missing or invalid API key (plain-text body)<br />`403` Writing playlists is off<br />`502` Subsonic refused or failed<br />`503` Subsonic is not configured |
+| **GET** | `/api/v1/media/playlists/by-id/{playlist_id}` | Get playlist details by `playlist_id` | path `playlist_id` | — | [`PlaylistDetails`](#playlistdetails) | `401` Missing or invalid API key (plain-text body)<br />`404` Playlist not found<br />`502` Upstream request failed |
+| **DELETE** | `/api/v1/media/playlists/by-id/{playlist_id}` | Delete a Subsonic playlist | path `playlist_id` | — | 204 No Content | `401` Missing or invalid API key (plain-text body)<br />`403` Writing playlists is off, or the radio list<br />`404` Playlist not found<br />`502` Subsonic refused or failed |
+| **PATCH** | `/api/v1/media/playlists/by-id/{playlist_id}` | Change a Subsonic playlist | path `playlist_id` | [`PatchPlaylist`](#patchplaylist) | [`PlaylistDetails`](#playlistdetails) | `400` Nothing to change, or an empty name<br />`401` Missing or invalid API key (plain-text body)<br />`403` Writing playlists is off, or the radio list<br />`404` Playlist not found<br />`502` Subsonic refused or failed |
+| **GET** | `/api/v1/media/playlists/by-id/{playlist_id}/tracks` | Get playlist tracks by `playlist_id` | path `playlist_id`<br />query `limit` (optional)<br />query `offset` (optional) | — | array&lt;[`MediaTrackInfo`](#mediatrackinfo)&gt; | `401` Missing or invalid API key (plain-text body)<br />`404` Playlist not found<br />`502` Upstream request failed |
+| **PUT** | `/api/v1/media/playlists/by-id/{playlist_id}/tracks` | Replace the tracks of a Subsonic playlist | path `playlist_id` | [`ReplaceTracks`](#replacetracks) | [`PlaylistDetails`](#playlistdetails) | `401` Missing or invalid API key (plain-text body)<br />`403` Writing playlists is off, or the radio list<br />`404` Playlist not found<br />`502` Subsonic refused or failed |
+| **GET** | `/api/v1/media/playlists/{playlist_index}` | Get playlist details | path `playlist_index` | — | [`PlaylistDetails`](#playlistdetails) | `401` Missing or invalid API key (plain-text body)<br />`404` Playlist not found<br />`502` Upstream request failed |
+| **GET** | `/api/v1/media/playlists/{playlist_index}/cover` | Get playlist cover image | path `playlist_index` | — | `image/*` | `401` Missing or invalid API key (plain-text body)<br />`404` Playlist or cover not found |
+| **GET** | `/api/v1/media/playlists/{playlist_index}/tracks` | Get playlist tracks | path `playlist_index`<br />query `limit` (optional)<br />query `offset` (optional) | — | array&lt;[`MediaTrackInfo`](#mediatrackinfo)&gt; | `401` Missing or invalid API key (plain-text body)<br />`404` Playlist not found<br />`502` Upstream request failed |
+| **GET** | `/api/v1/media/playlists/{playlist_index}/tracks/{track_index}` | Get track details | path `playlist_index`<br />path `track_index` | — | [`MediaTrackInfo`](#mediatrackinfo) | `401` Missing or invalid API key (plain-text body)<br />`404` Playlist or track not found<br />`502` Upstream request failed |
+| **GET** | `/api/v1/media/playlists/{playlist_index}/tracks/{track_index}/cover` | Get track cover image | path `playlist_index`<br />path `track_index` | — | `image/*` | `401` Missing or invalid API key (plain-text body)<br />`404` Track or cover not found |
+| **GET** | `/api/v1/media/search` | Search the music library, the playlists and the radio stations | query `q`<br />query `kind` (optional)<br />query `limit` (optional)<br />query `offset` (optional) | — | [`SearchResponse`](#searchresponse) | `400` q shorter than two characters, or an unknown kind<br />`401` Missing or invalid API key (plain-text body)<br />`502` Upstream request failed |
 
 ## Schemas
+
+These are the types that the endpoints above use. The types of the [binary protocol](/docs/api-binary-protocol) are not part of the REST contract and are not listed.
 
 ### ApplySpeakerRequest
 
@@ -281,12 +283,6 @@ Body of `PATCH /media/playlists/by-id/&#123;playlist_id&#125;`: the three operat
 | `add_track_ids` | array&lt;`string`&gt; | no | Subsonic track ids appended to the end. |
 | `name` | `string` or `null` | no | New name. |
 | `remove_positions` | array&lt;`integer`&gt; | no | Positions (0-based, in the playlist as it is now) of tracks to remove. |
-
-### PlaybackControl
-
-Playback control command sent from client to server.
-
-Type: `object` or `object` or `object` or `object` or `object` or `object` or `object` or `object` or `object` or `object` or `object`
 
 ### PlaylistByIdPayload
 
@@ -415,42 +411,6 @@ Body of `GET /media/search`.
 | `radios` | `integer` | yes | — |
 | `version` | `string` | yes | — |
 | `zones` | `integer` | yes | — |
-
-### TrackMetadata
-
-Full zone state pushed from server to client via custom message.
-
-| Field | Type | Required | Description |
-|---|---|:---:|---|
-| `album` | `string` | yes | Album name. |
-| `album_artist` | `string` or `null` | no | Album artist (may differ from track artist). |
-| `artist` | `string` | yes | Track artist. |
-| `bitrate_kbps` | `integer` or `null` | no | Audio bitrate in kbps. |
-| `can_next` | `boolean` | yes | Whether next track is available. |
-| `can_playlist_next` | `boolean` | yes | Whether there's a next playlist. |
-| `can_playlist_prev` | `boolean` | yes | Whether there's a previous playlist. |
-| `can_prev` | `boolean` | yes | Whether previous track is available. |
-| `content_type` | `string` or `null` | no | MIME content type. |
-| `cover_url` | `string` or `null` | no | Absolute cover art URL. |
-| `disc_number` | `integer` or `null` | no | Disc number. |
-| `duration_ms` | `integer` | yes | Total track duration in milliseconds. |
-| `genre` | `string` or `null` | no | Genre tag. |
-| `muted` | `boolean` | yes | Whether the zone is muted. |
-| `playback` | `string` | yes | Playback state: "playing", "paused", "stopped". |
-| `playlist` | `integer` or `null` | no | Current playlist index (0-based). |
-| `playlist_name` | `string` or `null` | no | Name of the active playlist. |
-| `playlist_total` | `integer` or `null` | no | Total number of playlists available. |
-| `position_ms` | `integer` | yes | Current playback position in milliseconds. |
-| `repeat` | [`RepeatMode`](#repeatmode) | yes | Repeat mode. |
-| `seekable` | `boolean` | yes | Whether seeking is supported. |
-| `shuffle` | `boolean` | yes | Whether shuffle is enabled. |
-| `source` | `string` | yes | Active source type. |
-| `title` | `string` | yes | Track title. |
-| `track_count` | `integer` or `null` | no | Total tracks in playlist. |
-| `track_index` | `integer` or `null` | no | Current track index in playlist (0-based). |
-| `track_number` | `integer` or `null` | no | Track number within the album. |
-| `volume` | `integer` | yes | Zone volume (0–100). |
-| `year` | `integer` or `null` | no | Release year. |
 
 ### UpdateConfig
 
