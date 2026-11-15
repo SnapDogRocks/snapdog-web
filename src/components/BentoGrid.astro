@@ -20,11 +20,10 @@
       <div class="relative z-10 flex flex-col gap-2 max-w-md">
         <div class="flex items-center gap-2">
           <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-green-500/10 border border-green-500/20 text-green-400 rounded-md">Live Sync</span>
-          <span class="text-xs font-mono text-neutral-400">&lt; 2ms drift</span>
         </div>
         <h3 class="text-lg font-semibold mt-1">Multi-Room Synchronized Audio</h3>
         <p class="text-xs text-neutral-400 leading-relaxed">
-          Leverages the Snapcast protocol to distribute low-latency PCM streams to client nodes over standard Wi-Fi or Ethernet. Network drift is kept under 2ms for seamless synchronization.
+          Built on the Snapcast protocol: audio streams go to every client over standard Wi-Fi or Ethernet, and the clients play in sync so rooms do not echo against each other.
         </p>
       </div>
 
@@ -98,7 +97,7 @@
         <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-md w-fit"><abbr title="Digital Signal Processor">DSP</abbr> Engine</span>
         <h3 class="text-lg font-semibold mt-1">Parametric Equalizer</h3>
         <p class="text-xs text-neutral-400 leading-relaxed">
-          Calibrate acoustics per zone using multi-band parametric <abbr title="Equalizer">EQ</abbr> curves. Tune speakers to your room boundaries or load correction profiles from <a href="https://www.spinorama.org" target="_blank" rel="noopener noreferrer" class="text-amber-400 hover:underline">Spinorama</a> database measurements.
+          Calibrate acoustics per zone using parametric <abbr title="Equalizer">EQ</abbr> curves with up to 10 bands. Tune speakers to your room boundaries or load correction profiles from <a href="https://www.spinorama.org" target="_blank" rel="noopener noreferrer" class="text-amber-400 hover:underline">Spinorama</a> database measurements.
         </p>
       </div>
 
@@ -128,15 +127,15 @@
         <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-sky-500/10 border border-sky-500/20 text-sky-400 rounded-md w-fit"><abbr title="Message Queuing Telemetry Transport">MQTT</abbr></span>
         <h3 class="text-lg font-semibold mt-1">Smart Home Integration</h3>
         <p class="text-xs text-neutral-400 leading-relaxed">
-          Publishes zone states and controls automatically to Home Assistant. Uses <abbr title="Message Queuing Telemetry Transport">MQTT</abbr> autodiscovery to expose clients as media players without custom configuration.
+          The dedicated <a href="/docs/home-assistant" class="text-sky-400 hover:underline">SnapDog Home Assistant integration</a> (HACS custom repository) gives you real media players, a media browser, search, cover art and per-client EQ. Optionally, <abbr title="Message Queuing Telemetry Transport">MQTT</abbr> discovery (off by default) adds zone and client controls and sensors.
         </p>
       </div>
 
       <!-- MQTT Telemetry Feed Visual -->
       <div class="mt-4 font-mono text-[9px] text-sky-400 bg-black/40 border border-white/5 rounded-xl p-3 flex flex-col gap-1 min-h-[80px]">
         <div class="flex justify-between border-b border-white/5 pb-1 mb-1 text-neutral-400">
-          <span>topic: snapdog/discovery</span>
-          <span><abbr title="Message Queuing Telemetry Transport">MQTT</abbr> 3.1</span>
+          <span>example messages</span>
+          <span><abbr title="Message Queuing Telemetry Transport">MQTT</abbr> 3.1.1</span>
         </div>
         <div class="truncate opacity-80 group-hover:opacity-100 transition-opacity">
           &gt; publish <span class="text-amber-400">"state"</span>: <span class="text-green-400">"playing"</span>
@@ -154,9 +153,12 @@
     <div class="glass-card shadow-glow-card rounded-2xl p-4 sm:p-6 flex flex-col justify-between overflow-hidden group hover:border-amber-500/30 hover:shadow-glow-amber/5 relative min-h-[260px]">
       <div class="relative z-10 flex flex-col gap-2">
         <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-md w-fit">Building Automation</span>
-        <h3 class="text-lg font-semibold mt-1"><abbr title="Konnex building automation standard">KNX</abbr> Integration Modes</h3>
+        <h3 class="text-lg font-semibold mt-1"><abbr title="KNX (building automation standard)">KNX</abbr> Integration Modes</h3>
         <p class="text-xs text-neutral-400 leading-relaxed">
-          Supports both Group Address listening and native Device Mode. In Device Mode, you can import the <a href="https://github.com/SnapDogRocks/snapdog/raw/main/knx/snapdog.knxprod" class="text-purple-400 hover:underline font-mono">snapdog.knxprod</a> product database into <abbr title="Engineering Tool Software">ETS</abbr> to configure the server directly.
+          Works as a KNXnet/IP client that maps group addresses to zones and clients, or as a device that <abbr title="Engineering Tool Software">ETS</abbr> can program. For device mode, import the <a href="https://github.com/SnapDogRocks/snapdog/raw/main/knx/snapdog.knxprod" class="text-purple-400 hover:underline font-mono">snapdog.knxprod</a> product database into ETS.
+        </p>
+        <p class="text-[10px] text-neutral-500 leading-relaxed">
+          KNX support in SnapDog is unofficial. It is not certified or endorsed by the KNX Association and is not meant for professional installations.
         </p>
       </div>
 
@@ -168,7 +170,7 @@
         </div>
         <div class="h-6 w-[1px] bg-white/10"></div>
         <div class="flex flex-col gap-1">
-          <span class="text-neutral-400 uppercase text-[8px]">Action Telegram</span>
+          <span class="text-neutral-400 uppercase text-[8px]">Example telegram</span>
           <span class="text-amber-400 font-semibold group-hover:scale-105 transition-transform duration-300">0x01 (Play)</span>
         </div>
       </div>
@@ -178,25 +180,25 @@
     <div class="glass-card shadow-glow-card rounded-2xl p-4 sm:p-6 flex flex-col justify-between overflow-hidden group hover:border-amber-500/30 hover:shadow-glow-amber/5 relative min-h-[260px]">
       <div class="relative z-10 flex flex-col gap-2">
         <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-md w-fit">Resiliency</span>
-        <h3 class="text-lg font-semibold mt-1">Smart Buffer Caching</h3>
+        <h3 class="text-lg font-semibold mt-1">Buffering &amp; Pre-Caching</h3>
         <p class="text-xs text-neutral-400 leading-relaxed">
-          Dynamic client buffering prevents dropouts caused by Wi-Fi disruptions or local network latency spikes. Configurable pre-cache sizes ensure stable, continuous playback.
+          Snapcast clients play from a buffer, which absorbs short Wi-Fi hiccups. Subsonic tracks can also be pre-cached in a local folder with a configurable size limit, so the next track is ready when it is needed.
         </p>
       </div>
 
       <!-- Caching Buffer visual -->
       <div class="mt-4 flex flex-col gap-2 bg-black/20 border border-white/5 rounded-xl p-3 min-h-[80px]">
         <div class="flex justify-between items-center text-[9px] font-mono">
-          <span class="text-neutral-400">Buffer Size</span>
-          <span class="text-amber-400">30s (100%)</span>
+          <span class="text-neutral-400">Buffer</span>
+          <span class="text-amber-400">filled</span>
         </div>
         <div class="w-full h-3 rounded-full bg-white/5 overflow-hidden relative">
           <!-- Filled state -->
-          <div class="h-full bg-amber-500/80 rounded-full group-hover:bg-amber-400 transition-all duration-700 w-[92%] relative">
+          <div class="h-full bg-amber-500/80 rounded-full group-hover:bg-amber-400 transition-all duration-700 w-[90%] relative">
             <div class="absolute right-0 top-0 bottom-0 w-4 bg-white/20 animate-pulse"></div>
           </div>
         </div>
-        <span class="text-[8px] font-mono text-neutral-400 text-right">92% Cached • 320kbps <abbr title="Advanced Audio Coding">AAC</abbr></span>
+        <span class="text-[8px] font-mono text-neutral-400 text-right">Illustrative</span>
       </div>
     </div>
 
@@ -275,33 +277,29 @@
 
       <div class="relative z-10 flex flex-col gap-2 max-w-md">
         <span class="px-2 py-0.5 text-[9px] uppercase font-mono tracking-wider bg-orange-500/10 border border-orange-500/20 text-orange-400 rounded-md w-fit">Operating System</span>
-        <h3 class="text-lg font-semibold mt-1">Real-time Embedded <abbr title="Operating System">OS</abbr></h3>
+        <h3 class="text-lg font-semibold mt-1">Purpose-built Receiver <abbr title="Operating System">OS</abbr></h3>
         <p class="text-xs text-neutral-400 leading-relaxed">
-          A custom, read-only Linux kernel system built for Raspberry Pi. Mounts in RAM to prevent SD card corruption, boots in under 4 seconds, and prioritizes low-jitter audio execution.
+          A minimal Linux image for Raspberry Pi with an I2S DAC. The root filesystem is read-only and all changing state lives on a separate writable /data partition, which protects the SD card and keeps settings across updates. It boots in seconds and is set up from your browser.
         </p>
       </div>
 
-      <!-- Linux pseudo-terminal console -->
+      <!-- Illustrative layout (no measured values) -->
       <div class="mt-4 font-mono text-[9px] bg-stone-950 border border-white/5 rounded-xl p-3 flex flex-col gap-1 min-h-[100px] overflow-hidden select-text text-neutral-300">
         <div class="flex justify-between items-center text-[8px] text-neutral-400 border-b border-white/5 pb-1 mb-1">
-          <span>kernel: v6.6.21-rt-snapdog</span>
-          <span>uptime: 42d 12h</span>
+          <span>filesystem layout</span>
+          <span>illustrative</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-neutral-400">[ 0.0451 ]</span>
-          <span>Pinning audio handler thread to <span class="text-amber-400 font-bold"><abbr title="Central Processing Unit">CPU</abbr> Core 3</span></span>
+          <span class="text-neutral-400">/</span>
+          <span>root filesystem <span class="text-green-400">read-only</span> (A/B slots for updates)</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-neutral-400">[ 0.0821 ]</span>
-          <span>Set scheduling policy: <span class="text-green-400">SCHED_FIFO</span> (Priority 99)</span>
+          <span class="text-neutral-400">/data</span>
+          <span>Wi-Fi, client settings, update schedule <span class="text-amber-400">writable</span></span>
         </div>
         <div class="flex items-center gap-2 opacity-80">
-          <span class="text-neutral-400">[ 0.1205 ]</span>
-          <span>Audio buffer pre-allocated: <span class="text-amber-400">65536 bytes <abbr title="Advanced Linux Sound Architecture">ALSA</abbr> ringbuffer</span></span>
-        </div>
-        <div class="flex items-center gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
-          <span class="text-neutral-400">[ 0.1982 ]</span>
-          <span><abbr title="Advanced Linux Sound Architecture">ALSA</abbr>: Initialized SnapDog-HiFi <abbr title="Digital-to-Analog Converter">DAC</abbr> [PCM5122]</span>
+          <span class="text-neutral-400">&gt;</span>
+          <span>snapdog-ctrl starts the audio services</span>
         </div>
       </div>
     </div>

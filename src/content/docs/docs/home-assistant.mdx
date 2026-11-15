@@ -1,13 +1,17 @@
 ---
 title: Home Assistant
-description: Install the SnapDog integration for Home Assistant with HACS or by hand, before it is part of the HACS default list.
+description: Install the SnapDog integration for Home Assistant with HACS or by hand, and learn what it gives you.
 ---
 
 import { Aside, Steps } from '@astrojs/starlight/components';
 
-The SnapDog integration shows your zones in Home Assistant as media players. It talks to the [REST API](/docs/api-rest) and listens to the [WebSocket API](/docs/api-websocket), so state changes appear without polling.
+The SnapDog integration shows your zones in Home Assistant as media players and your speakers as devices. It talks to the [REST API](/docs/api-rest) and listens to the [WebSocket API](/docs/api-websocket), so state changes appear without polling.
 
 The integration lives in its own repository, [`SnapDogRocks/snapdog-homeassistant`](https://github.com/SnapDogRocks/snapdog-homeassistant). It is not yet part of the HACS default list and not part of Home Assistant core. Until it is, you install it as a custom repository or copy it by hand. Both ways are supported.
+
+<Aside type="caution">
+  The integration is early software (version 0.x, currently 0.3.1). Entities and options may still change between releases, so read the release notes before you update.
+</Aside>
 
 ## What you get
 
@@ -15,16 +19,17 @@ The integration lives in its own repository, [`SnapDogRocks/snapdog-homeassistan
 * A **media browser** with the playlists of the server and their tracks. You can also pick a playlist by name as the source of a zone.
 * **Search** in the media browser for tracks, albums, playlists and radio stations, and **covers** in the browser, in search results and for the track on air.
 * **Actions** to create, rename, fill, reorder and delete playlists on the media server (`snapdog.create_playlist` and five more). The server has to allow it with `playlist_write = true` in its `[subsonic]` section.
-* One device for the server and one per zone. Entities are unavailable while the WebSocket is down, and the state is read again when it comes back.
+* **Devices** for the server, for every zone and for every client (speaker). Entities are unavailable while the WebSocket is down, and the state is read again when it comes back.
+* **Client entities**: volume (up to the maximum the server allows for that client), mute, latency, the zone the client plays in (choosing another zone moves it) and whether it is connected. A SnapDog client also has an equalizer switch, an equalizer preset and a speaker correction. A plain Snapcast client has none of these three.
+* **Client actions**: `snapdog.move_client`, `snapdog.rename_client`, `snapdog.apply_speaker_profile`, `snapdog.set_client_eq` and `snapdog.set_client_eq_band`. Target the volume entity or the device of the client. The bands of `set_client_eq_band` count from 1.
+* **Eight languages**: English, German, French, Spanish, Italian, Dutch, Polish and Portuguese.
 
-Search, covers and the playlist actions need version 0.2.0 of the integration.
-
-Clients as devices, the equalizer and speaker correction are not part of the integration yet.
+Search, covers and the playlist actions need version 0.2.0 of the integration. Client devices and the client actions need version 0.3.0.
 
 ## Requirements
 
 * Home Assistant **2026.10** or newer.
-* SnapDog **0.31.0** or newer. The integration needs the stable `playlist_id`, the `by-id` playlist endpoints and the `playlists_changed` event from that release.
+* SnapDog **0.31.0** or newer. The integration needs the stable `playlist_id`, the `by-id` playlist endpoints, the `playlists_changed` event and `GET /api/v1/eq/presets` from that release.
 * Network access from Home Assistant to the SnapDog server (port `5555` by default).
 * The API key, if you enabled Bearer authentication in `snapdog.toml` (`[http].api_keys`).
 
@@ -57,17 +62,48 @@ Use this if you do not run HACS. You will not get update notices.
 
 ## Set up the integration
 
+### Discovery
+
+The server announces itself as `_snapdog._tcp` on the local network. Home Assistant therefore usually offers it under **Settings → Devices & services** without you doing anything. Select **Add** there and confirm.
+
+### Add it by hand
+
 <Steps>
 
 1. Go to **Settings → Devices & services → Add integration** and search for **SnapDog**.
-2. Enter the host name or IP address of the SnapDog server, the port and, if you use one, the API key.
-3. Confirm. Every zone becomes a media player, and the server becomes a device that the zones belong to.
+2. Fill in the form:
+   * **Host**: the host name or IP address of the SnapDog server.
+   * **Port**: `5555` by default.
+   * **API key**: only if you enabled authentication in `snapdog.toml`.
+   * **Use HTTPS**: switch it on if you reach the server over TLS.
+   * **Verify the certificate**: on by default. Switch it off only for a self-signed certificate that you trust.
+3. Confirm. Every zone becomes a media player, and the server and every client become devices.
 
 </Steps>
+
+Behind a reverse proxy, a host name such as `play.example.com` with **Use HTTPS** on and port `443` works.
+
+### Change the address
+
+Open the integration entry, select the three dots and choose **Reconfigure**. You can change host, port, API key and the two TLS options. Leave the API key empty to keep the current one.
+
+### New API key
+
+If the server rejects the key later, Home Assistant asks for a new one. Your entities are kept.
+
+### A fixed address
+
+An address that you entered by hand, or changed with **Reconfigure**, is not overwritten by announcements from the server. A server announces every address it has, including ones that Home Assistant cannot reach, such as the bridge network of its container. Only an entry that was created from a discovery follows announcements, and only to an address that answers.
 
 <Aside type="note">
   If you update SnapDog, update the integration too. The integration refuses servers older than its minimum version and says so in the setup dialog.
 </Aside>
+
+## Good to know
+
+* **Zones are identified by their position in `snapdog.toml`**, as the API paths, MQTT topics and KNX addresses are. Add new `[[zone]]` blocks at the end of the file only. Inserting, deleting or reordering a block moves the zones behind it, and your history, areas and automations then point to different zones. The integration raises a repair issue when it notices a zone at another position.
+* **Clients are identified by their MAC address.** Reordering `[[client]]` blocks changes nothing. Changing the MAC address of a block makes it a new device.
+* **Mute needs a connected client in the zone.** SnapDog mutes through the Snapcast group, which exists only while a client is connected. Without one, the mute command changes nothing.
 
 ## When the integration becomes official
 

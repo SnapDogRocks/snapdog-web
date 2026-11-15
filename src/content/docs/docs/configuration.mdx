@@ -5,7 +5,11 @@ description: In-depth reference for every option inside the snapdog.toml configu
 
 import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-SnapDog is configured using a single `snapdog.toml` file. The server parses this file at startup (defaults to `/etc/snapdog/snapdog.toml`, or specified via the `--config` CLI argument).
+SnapDog is configured using a single `snapdog.toml` file. The server parses this file at startup. You point it to the file with `--config <PATH>`. There is no default path: without `--config` (or `--knx-device`) the server prints its help and exits with status 1. The path `/etc/snapdog/snapdog.toml` comes from the Docker image's default command, the systemd unit (through `/etc/default/snapdog`) and the `.deb` package's default file.
+
+To check a file without starting anything, run `snapdog --config snapdog.toml --check-config`. It loads the file, applies the checks and exits. A problem with the `[mqtt]` section makes it exit with status 1, even though a running server would only switch MQTT off.
+
+Values given on the command line override the file, and the result is validated again afterwards. See the [CLI reference](/docs/cli).
 
 ---
 
@@ -24,10 +28,11 @@ Handles server execution settings, logging outputs, and local state directories.
 * **`log_level`** (String, default: `"info"`)
   Sets logging verbosity. Options: `trace`, `debug`, `info`, `warn`, `error`.
 * **`log_file`** (String, optional)
-  Path to a local log file. If set, logs will rotate daily in addition to standard output.
+  Path to a local log file, written in addition to standard output. The date is inserted before the extension (`snapdog.log` becomes `snapdog.2026-10-25.log`). A new file starts at midnight UTC. SnapDog keeps 14 daily files and deletes older ones at start and then hourly, but only files named exactly in that pattern. If the file cannot be opened, SnapDog logs a warning and continues with standard output.
 * **`state_dir`** (String, default: `platform-dependent`)
   Directory where SnapDog saves state files like EQ configurations, current volume levels, and dynamic client mappings.
-  * Defaults to `/var/lib/snapdog` under `systemd` or platform data folders (`~/.local/state/snapdog` on Linux, `~/Library/Application Support/SnapDog` on macOS).
+  * Defaults to `/var/lib/snapdog` when the server runs under `systemd`. Otherwise it is `$XDG_STATE_HOME/snapdog` or `~/.local/state/snapdog` on Linux, `~/Library/Application Support/SnapDog` on macOS and `%LOCALAPPDATA%\SnapDog` on Windows.
+  * A leading `~` in `state_dir`, `log_file`, the Subsonic cache path and the TLS paths means your home directory.
 
 ### `[audio]`
 Controls formatting and preemption rules for audio streams.
@@ -35,9 +40,9 @@ Controls formatting and preemption rules for audio streams.
 * **`sample_rate`** (Integer, default: `48000`)
   Sets the target resampling frequency in Hz. All sources are resampled to this rate before encoding. Supported values: `44100`, `48000`, `88200`, `96000`, `176400`, or `192000`.
 * **`bit_depth`** (Integer, default: `16`)
-  PCM encoding bit depth. Options: `16`, `24`, or `32` bits.
+  PCM encoding bit depth. Options: `16`, `24`, or `32` bits. With the `flac` codec, a value above 24 is lowered to 24 with a warning.
 * **`channels`** (Integer, default: `2`)
-  Number of output channels (e.g. `2` for stereo, `1` for mono).
+  Number of output channels, from `1` to `8` (e.g. `2` for stereo, `1` for mono).
 * **`source_conflict`** (String, default: `"last_wins"`)
   Preemption rules when multiple sources try to play on the same zone:
   * `"last_wins"`: The newest request (e.g. starting a Spotify stream or manual radio click) overrides the active source.
@@ -52,8 +57,10 @@ Configures the REST API, WebSocket notifications, and static WebUI hosting.
 
 * **`port`** (Integer, default: `5555`)
   The TCP port on which the web server listens.
-* **`bind`** (String, default: `"::"`)
-  Listen interface IP. The default `::` listens on IPv6 and, on dual-stack systems, IPv4 as well. Set `"0.0.0.0"` for IPv4-only all-interface binding or a concrete IP address for one interface.
+* **`webui`** (String, default: `"current"`)
+  Which web interface is served at `/`: `"current"` or `"legacy"`. The legacy interface stays available at `/legacy`. The `--webui` flag overrides this for one run.
+* **`bind`** (String or list of strings, default: `"::"`)
+  Where the web server listens. An entry is an IP address, the word `loopback` (`127.0.0.1` and `::1`) or the name of a network interface such as `"eth0"`. A list listens on each entry. If unset, `[network].bind` applies, then `::`. The default `::` listens on IPv6 and, on dual-stack systems, IPv4 as well. Use `"0.0.0.0"` for IPv4 only. An unknown interface name stops the start and lists the interfaces that exist.
 * **`base_url`** (String, default: `"http://localhost:5555"`)
   External base URL of the server (e.g., `http://192.168.1.50:5555` or `https://music.example.com`). Used by integrations that need absolute URLs, such as MQTT discovery and some cover-art metadata.
 * **`tls_cert`** (String, optional)
@@ -63,34 +70,46 @@ Configures the REST API, WebSocket notifications, and static WebUI hosting.
 * **`api_keys`** (Array of Strings, optional)
   If configured, activates token authentication. REST requests use `Authorization: Bearer <key>`; WebSocket connections to `/ws` pass the same key as `?token=<key>`.
 * **`api_docs`** (Boolean, default: `true`)
-  Exposes the embedded **Scalar API Reference** UI dynamically at `http://<host>:<port>/docs`. Only applicable if the binary was compiled with the `api-docs` feature flag.
+  Serves the OpenAPI document at `/api/v1/openapi.json`. It sits behind the API key like the rest of `/api/v1`. Only applicable if the binary was compiled with the `api-docs` feature flag, which the released binaries are.
+* **`api_console`** (Boolean, default: `false`)
+  Serves the interactive **Scalar API Reference** console at `http://<host>:<port>/docs`. It needs `api_docs = true` as well. A browser cannot send the `Authorization` header when it opens a page, so the console is not behind the API key, and the page contains the whole OpenAPI document. SnapDog logs a warning at startup when it is on. Turn it on only on a network you trust.
 
 <Aside type="note">
   For detail specifications of the Scalar interactive console and multi-language code generators, see the [REST API Reference](/docs/api-rest#2-interactive-scalar-console).
 </Aside>
 
+### `[network]`
+* **`bind`** (String or list of strings, optional)
+  The addresses all services listen on, unless a service has its own `bind` (`[http].bind`, `[airplay].bind`, `[snapcast].streaming_bind`, `[knx].bind`). An entry is an IP address, `loopback` or an interface name. Without it, each service keeps its default (the web server `::`, the others every IPv4 interface). The Snapcast streaming port and the KNX device server listen on exactly one address, so they use `[network].bind` only if it resolves to one address. `bind` is not a security boundary, so use your firewall as well. Inside a bridged Docker container, publish the port on one host address instead.
+
 ### `[snapcast]`
-Manages the embedded Snapcast synchronizer backend.
+Settings for the Snapcast audio stream.
+
+<Aside type="note">
+  The released binaries run the Snapcast server embedded in SnapDog. In that mode, `address`, `jsonrpc_tcp_port`, `managed` and `verbose` have no effect. SnapDog ignores a non-default value and logs a warning. They apply only to builds made with the `snapcast-process` feature, which drives an external `snapserver`.
+</Aside>
 
 * **`address`** (String, default: `"127.0.0.1"`)
-  The hostname or IP address of the Snapcast server.
+  Address of an external `snapserver`. Only used by `snapcast-process` builds.
 * **`jsonrpc_tcp_port`** (Integer, default: `1705`)
-  TCP port used to communicate JSON-RPC control events. `jsonrpc_port` is accepted as an alias.
+  JSON-RPC control port of an external `snapserver`. `jsonrpc_port` is accepted as an alias. Only used by `snapcast-process` builds. The embedded server has no JSON-RPC listener.
 * **`streaming_port`** (Integer, default: `1704`)
-  TCP port where Snapcast client devices connect to pull the encoded PCM audio data.
+  TCP port where Snapcast client devices connect to pull the encoded audio data. The port has no authentication, so whoever can reach it can receive the audio.
+* **`streaming_bind`** (String, optional)
+  One address the streaming port listens on, for example `"192.168.10.5"`, or `"127.0.0.1"` for clients on the same host only. Without it, SnapDog uses `[network].bind` if that is a single address, otherwise all interfaces.
 * **`codec`** (String, default: `"flac"`)
   Streaming compression encoder. Options: `"pcm"`, `"flac"`, `"f32lz4"`, `"f32lz4e"` (encrypted floats).
 * **`encryption_psk`** (String, optional)
-  Pre-shared key (PSK) used to encrypt the stream when `codec = "f32lz4e"` is active.
+  Pre-shared key (PSK) used to encrypt the stream when `codec = "f32lz4e"` is active. Pass the same key to every client with `--encryption-psk`. If you leave it unset, SnapDog uses a built-in default key. That key is public and protects nothing, so SnapDog warns about it. An empty value (in the file or in `SNAPDOG_SNAPCAST_ENCRYPTION_PSK`) is never used as a key. With `f32lz4e`, an empty key stops the start. With another codec, it is ignored.
 * **`group_volume_mode`** (String, default: `"compressed"`)
   Defines how zone-level volume adjustments scale connected client speakers:
   * `"absolute"`: Changes the volume of all clients to match the zone volume.
   * `"relative"`: Scales each client proportionally (`client_vol * zone_vol / 100`).
   * `"compressed"`: Soft relative scaling using a square-root curve, ensuring quiet clients do not drop too quickly.
 * **`managed`** (Boolean, default: `true`)
-  If true, starts the built-in Rust snapcast server inside the daemon process.
+  If true, starts an external `snapserver` as a child process. Only used by `snapcast-process` builds. The embedded server always runs, and `false` is ignored there.
 * **`verbose`** (Boolean, default: `false`)
-  Enables verbose console logging for the underlying Snapcast protocol encoder.
+  Shows the console output of the external `snapserver` child process. Only used by `snapcast-process` builds.
 * **`unknown_clients`** (String, default: `"accept"`)
   Action when an unconfigured MAC address connects:
   * `"accept"`: Admits the speaker and assigns it to the `default_zone`.
@@ -118,10 +137,16 @@ Manages the embedded Snapcast synchronizer backend.
   Restricts the AirPlay receiver to bind to specific network interfaces.
 
 ### `[spotify]`
-* **`name`** (String)
-  Device name advertised to Spotify Connect clients.
+* **`name`** (String, optional)
+  Device name shown in the Spotify app. With one zone, the device has exactly this name. With several zones, each device is called `"<name> <zone name>"`, because every zone runs its own device. If you leave it out or blank, the zone name is used. A `spotify_name` on a zone always wins. Changing a name makes the device appear as a new one in the Spotify app.
 * **`bitrate`** (Integer, default: `320`)
   Streaming bitrate. Options: `96`, `160`, or `320` kbps.
+* **`port`** (Integer, default: `7100`)
+  TCP port of the Spotify Connect discovery server. Zone 1 uses this port, zone 2 the next one, and so on (7100, 7101, ...). Open these ports in your firewall. `0` picks a random port at every start.
+* **`zeroconf_backend`** (String, default: `"libmdns"`)
+  How Spotify Connect is announced: `"libmdns"`, `"avahi"` or `"dns-sd"`. `libmdns` announces on the interface of the default route only. `avahi` hands the announcement to the host's avahi daemon and covers all interfaces.
+* **`bind`** (not supported)
+  Spotify Connect cannot be bound to an address. Setting `bind` here is an error.
 
 ### `[subsonic]`
 * **`url`** (String)
@@ -147,15 +172,35 @@ Manages the embedded Snapcast synchronizer backend.
 
 ### `[mqtt]`
 * **`broker`** (String)
-  MQTT broker host and port (e.g. `192.168.1.10:1883`).
+  Broker address. Accepted forms are `host:port`, `mqtt://host[:port]` and `tcp://host[:port]` for a plain connection (default port `1883`), and `mqtts://host[:port]`, `ssl://host[:port]` and `tls://host[:port]` for TLS (default port `8883`). Do not put credentials in the address. IPv6 literals in brackets work for plain connections only. TLS always verifies the certificate and the host name, and there is no switch to turn that off.
 * **`client_id`** (String, default: `"snapdog"`)
-  Unique client ID.
+  Client ID. It must be unique per broker, because a second client with the same ID makes the broker drop the first.
 * **`username`** (String, optional)
   Broker username.
 * **`password`** (String, optional)
-  Broker password.
+  Broker password. It needs a `username`. Prefer `password_file` or the environment variable over writing it into the file.
+* **`password_file`** (String, optional)
+  File that holds the password, one line, with a trailing newline dropped. Useful for Docker secrets. You cannot set it together with `password`.
 * **`base_topic`** (String, default: `"snapdog/"`)
   Base namespace path under which states are published and commands are received. A trailing slash is added automatically if omitted.
+* **`ca_file`** (String, optional)
+  PEM file with the CA certificate that signed the broker's certificate. It replaces the system trust store for this connection. TLS only.
+* **`client_cert`** and **`client_key`** (String, optional)
+  PEM files for mutual TLS. Both are needed together. The key must be an unencrypted PKCS#8 key (a `PRIVATE KEY` block). Convert an older key with `openssl pkey -in old.key -out client.key`. TLS only.
+* **`clear_legacy_topics`** (Boolean, optional)
+  Deletes retained messages that earlier releases left on the broker. Unset, SnapDog removes only `{base}/status`. `true` also removes the old `media_player` discovery topics (set it for one start). `false` deletes nothing.
+
+SnapDog refuses unknown keys in `[mqtt]` and `[mqtt.homeassistant]`, so a typo such as `ca_flie` is an error and not silently ignored. A wrong `[mqtt]` section switches MQTT off with an error and the rest of the server keeps running. `--check-config` exits with status 1 in that case.
+
+#### `[mqtt.homeassistant]`
+Optional MQTT discovery for Home Assistant. Without this table, SnapDog announces nothing.
+
+* **`discovery`** (Boolean, default: off)
+  `true` announces the zones and clients as Home Assistant entities. `false` announces nothing and deletes the entities of an earlier run.
+* **`discovery_prefix`** (String, default: `"homeassistant"`)
+  Home Assistant's discovery prefix.
+* **`status_topic`** (String, default: `"homeassistant/status"`)
+  Topic on which Home Assistant announces `online` after it starts. SnapDog then sends the discovery message again.
 
 #### Playlist topics
 The zone state (`zones/<n>/state`) carries `playlist_index` and `playlist_id` (`null` while no playlist is active). `playlist_id` is `snapdog:radio` or `subsonic:<subsonic id>` and stays valid when the list changes. `playlist_index` moves when a playlist is added or removed.
@@ -166,6 +211,11 @@ The zone state (`zones/<n>/state`) carries `playlist_index` and `playlist_id` (`
 Use `playlist/by-id/set` to select a playlist in a way that survives changes to the list. `<n>` is the 1-based position of the zone in `snapdog.toml`.
 
 ### `[knx]`
+
+<Aside type="caution">
+  KNX support in SnapDog is unofficial. It is not certified or endorsed by the KNX Association and is not meant for professional installations.
+</Aside>
+
 * **`role`** (String, default: `"client"`)
   KNX integration mode: `"client"` (connects to gateway tunnel) or `"device"` (registers as an ETS-programmable device). The older key name `mode` is accepted as an alias.
 * **`url`** (String, optional)
@@ -175,7 +225,23 @@ Use `playlist/by-id/set` to select a playlist in a way that survives changes to 
 * **`persist_ets_config`** (Boolean, optional)
   Saves ETS parameter changes to local persistent memory across restarts.
 * **`start_prog_mode`** (Boolean, default: `false`)
-  Starts with KNX physical programming mode enabled for ETS addressing.
+  Starts with KNX physical programming mode enabled for ETS addressing. The `--knx-prog-mode` flag sets it.
+* **`bind`** (String, optional)
+  Local IPv4 address (or an interface with exactly one IPv4 address) that the device role uses for the KNX multicast group. Port 3671 itself stays on all interfaces.
+* **`restart_after_ets`** (Boolean, default: `true`)
+  Restarts SnapDog when ETS finishes a programming session, so the new parameters apply at once (device role).
+* **`heartbeat_minutes`** (Integer, default: `5`)
+  Interval of the cyclic `server_online` message.
+* **`sync_system_clock`** (Boolean, default: `false`)
+  Also sets the operating system clock from the received KNX time. Best effort, and it needs privileges. The `--knx-sync-system-clock` flag sets it.
+
+Global group addresses, all optional:
+
+* **`server_online`**: cyclic "server online" heartbeat (send).
+* **`all_stop`**: stops every zone (receive).
+* **`all_mute`** and **`all_mute_status`**: mute or unmute every zone (receive), and its status (send).
+* **`system_fault`**: alarm while the server is unhealthy (send).
+* **`knx_time`**: KNX time of day (receive). It drives presence schedules.
 
 ---
 
@@ -192,10 +258,14 @@ Multiple zones can be defined using array of tables.
   Manual override for the Snapcast audio sink path.
 * **`airplay_name`** (String, optional)
   Override for the AirPlay receiver name.
+* **`spotify_name`** (String, optional)
+  Override for the Spotify Connect device name. The default is the zone name, or the `[spotify].name` rules above.
+* **`seek_interval_secs`** (Integer, default: `10`)
+  How far one KNX seek step jumps, from `1` to `60` seconds.
 * **`group_volume_mode`** (String, optional)
   Zone-specific override for `[snapcast].group_volume_mode`. Options: `"absolute"`, `"relative"`, or `"compressed"`.
 * **`knx`** (Table, optional)
-  Explicit group addresses for this zone. Supported keys include `play`, `pause`, `stop`, `track_next`, `track_previous`, `control_status`, `volume`, `volume_status`, `volume_dim`, `mute`, `mute_status`, `mute_toggle`, track metadata/status fields, playlist controls, shuffle/repeat controls, and presence controls. Unconfigured group addresses are ignored.
+  Explicit group addresses for this zone. Supported keys include `play`, `pause`, `stop`, `play_pause`, `track_next`, `track_previous`, `track_step`, `track_step_updown`, `track_position`, `track_seek`, `track_seek_updown`, `track_number`, `track_number_status`, `control_status`, `volume`, `volume_status`, `volume_dim`, `mute`, `mute_status`, `mute_toggle`, track metadata/status fields, `playlist`, `playlist_status`, `playlist_next`, `playlist_previous`, `playlist_step`, `playlist_step_updown`, `playlist_name_status`, shuffle/repeat controls, and presence controls. Unconfigured group addresses are ignored.
 * **`presence`** (Table, optional)
   Presence-activated playback and auto-off settings. `auto_off_delay` defaults to `900` seconds; `default_source` and schedule entry `source` values use `none`, `radio:<index>`, or `playlist:<id>`. Schedule entries use `from` and `to` in 24-hour `HH:MM` format, and overlapping or overnight ranges are rejected.
 
@@ -205,13 +275,17 @@ Defines output speaker hardware mapped to zones.
 * **`name`** (String)
   Friendly name for the speaker (e.g. `"Living Room Left"`).
 * **`mac`** (String)
-  Lowercase MAC address identifying the client device.
+  MAC address identifying the client device. SnapDog converts it to lowercase when it loads the file.
 * **`zone`** (String)
   Initial zone mapping. Must match a defined `[[zone]].name`.
 * **`icon`** (String, default: `"🎵"`)
   Icon or emoji used in the WebUI.
 * **`max_volume`** (Integer, default: `100`)
   Limits the maximum volume output (0-100) to protect speaker hardware.
+* **`default_volume`** (Integer, default: `50`)
+  Initial volume (0-100) applied when the client first connects.
+* **`default_latency`** (Integer, default: `0`)
+  Initial audio latency in milliseconds (Snapcast latency compensation).
 * **`knx`** (Table, optional)
   Explicit group addresses for this client. Supported keys: `volume`, `volume_status`, `volume_dim`, `mute`, `mute_status`, `mute_toggle`, `latency`, `latency_status`, `zone`, `zone_status`, and `connected_status`.
 
@@ -234,8 +308,11 @@ The server applies these environment variables after loading `snapdog.toml`:
 * **`SNAPDOG_HTTP_PORT`** — Overrides `[http].port`.
 * **`SNAPDOG_HTTP_API_KEYS`** — Comma-separated API keys replacing `[http].api_keys`.
 * **`SNAPDOG_SUBSONIC_PASSWORD`** — Overrides `[subsonic].password` when Subsonic is configured.
-* **`SNAPDOG_MQTT_PASSWORD`** — Overrides `[mqtt].password` when MQTT is configured.
-* **`SNAPDOG_SNAPCAST_ENCRYPTION_PSK`** — Overrides `[snapcast].encryption_psk`.
+* **`SNAPDOG_MQTT_PASSWORD`** — Overrides `[mqtt].password` when MQTT is configured. It also wins over `password_file`.
+* **`SNAPDOG_MQTT_USERNAME`**, **`SNAPDOG_MQTT_CA_FILE`**, **`SNAPDOG_MQTT_CLIENT_CERT`**, **`SNAPDOG_MQTT_CLIENT_KEY`** — Override the matching `[mqtt]` keys. A variable that is set but empty counts as unset.
+* **`SNAPDOG_SNAPCAST_ENCRYPTION_PSK`** — Overrides `[snapcast].encryption_psk`. An empty value is ignored with a warning.
+
+The verified-update Docker stack also uses `SNAPDOG_UPDATER_URL` and `UPDATER_TOKEN`. The server reads them to pass update checks from the web UI to the updater sidecar. The URL must start with `http://` and the token must be at least 32 characters. See [Docker installation](/docs/install-docker#verified-updates).
 
 ## Next Steps
 

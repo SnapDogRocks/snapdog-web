@@ -7,6 +7,12 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 
 **SnapDog** is a premium, open-source multi-room synchronized audio controller that runs as a single binary on Linux, macOS, and Windows. It embeds a completely rewritten [Snapcast](https://github.com/badaix/snapcast) compatible server in pure Rust, runs AirPlay and Spotify Connect receivers per zone, streams from Subsonic/Navidrome media servers, plays internet radio, and bridges everything tightly to MQTT and KNX.
 
+The server comes with a web UI on port `5555`, a [REST API](/docs/api-rest) and a [WebSocket API](/docs/api-websocket). **snapdog-client** is the player that runs on each speaker, and on macOS a menu-bar app starts and stops the server.
+
+:::note
+KNX support in SnapDog is unofficial. It is not certified or endorsed by the KNX Association and is not meant for professional installations.
+:::
+
 ---
 
 ## Architecture Overview
@@ -27,7 +33,7 @@ SnapDog's core is designed for low latency, lossless synchronization, and robust
     Per-zone parametric equalizer and Spinorama speaker correction profile database (over 1,000+ speakers).
   </Card>
   <Card title="Smart Home Bridges" icon="random">
-    Zero-config Home Assistant integration via MQTT and programmable KNX client/device modules.
+    A dedicated [Home Assistant integration](/docs/home-assistant) provides media players. Optional MQTT discovery (`[mqtt.homeassistant] discovery = true`) adds number, switch, select, button and sensor entities. KNX runs as client or as an ETS-programmable device. KNX support is unofficial, see the note above.
   </Card>
   <Card title="SnapDog OS" icon="laptop">
     A custom, minimal Buildroot Linux image that turns any Raspberry Pi into a dedicated high-fidelity receiver.
