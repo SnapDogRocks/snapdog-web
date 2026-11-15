@@ -12,6 +12,14 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'SnapDog',
+      favicon: '/favicon.svg',
+      head: [
+        { tag: 'link', attrs: { rel: 'icon', href: '/favicon.ico', sizes: '32x32' } },
+        { tag: 'link', attrs: { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' } },
+        { tag: 'meta', attrs: { name: 'theme-color', content: '#0a0a0a' } },
+        { tag: 'meta', attrs: { property: 'og:image', content: 'https://snapdog.cc/snapdog-hero.jpg' } },
+        { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' } },
+      ],
       logo: {
         src: './src/assets/logo.svg',
       },
