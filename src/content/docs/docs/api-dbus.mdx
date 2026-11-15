@@ -14,9 +14,23 @@ On Linux deployments, both the **SnapDog Server** and **SnapDog Client** registe
 The `snapdog` server registers an MPRIS2 interface for each configured audio zone, exposing each zone as a separate media player device.
 
 ### Interface & Bus Details
-* **Bus Name:** `org.mpris.MediaPlayer2.snapdog.zone{N}` (where `{N}` is the 1-based index of the zone).
+* **Bus Name:** `org.mpris.MediaPlayer2.snapdog.zone{N}` (where `{N}` is the 1-based index of the zone). When another process already holds that name, the server tries `org.mpris.MediaPlayer2.snapdog.instance{2..10}.zone{N}` in turn. If none is free, it logs a warning and skips the zone.
 * **Object Path:** `/org/mpris/MediaPlayer2`
 * **Bus Type:** Session Bus when `DBUS_SESSION_BUS_ADDRESS` is available; otherwise System Bus fallback for headless services.
+
+<Aside type="caution" title="System bus policy">
+  On the system bus, the D-Bus daemon only lets callers reach names that the policy file `snapdog/dbus/snapdog.conf` (installed as `/usr/share/dbus-1/system.d/snapdog.conf`) lists. The file names each bus name one by one, the plain name and the `instance2` to `instance10` variants, for the zones 1 to 16. A zone above 16 works on the session bus, but on the system bus nobody can call it until you add its names to the policy file. The server logs a warning for such a zone. The client has a matching policy file, `snapdog-client.conf`.
+</Aside>
+
+### Root Interface (`org.mpris.MediaPlayer2`)
+Every zone also serves the MPRIS2 root interface on the same object path.
+
+| Member | Value |
+| :--- | :--- |
+| **`Identity`** (`String`) | `SnapDog — {zone name}` |
+| **`CanQuit` / `CanRaise` / `HasTrackList`** (`Boolean`) | `false` |
+| **`SupportedUriSchemes` / `SupportedMimeTypes`** (`Array of Strings`) | Empty |
+| **`Quit()` / `Raise()`** | Accepted and ignored. |
 
 ### Implemented Methods (`org.mpris.MediaPlayer2.Player`)
 
@@ -29,23 +43,24 @@ The `snapdog` server registers an MPRIS2 interface for each configured audio zon
 | **`Next()`** | — | Skips to the next track in the queue. |
 | **`Previous()`** | — | Skips to the previous track or restarts the song. |
 | **`Seek(Offset)`** | `Offset` (`Int64` microseconds) | Seeks relative to the current play position. |
-| **`SetPosition(Id, Pos)`**| `Id` (`ObjectPath`), `Pos` (`Int64` us) | Seeks to an absolute position. |
+| **`SetPosition(Id, Pos)`**| `Id` (`ObjectPath`), `Pos` (`Int64` us) | Seeks to an absolute position. The track id is ignored. |
+| **`OpenUri(Uri)`** | `Uri` (`String`) | Accepted and ignored. |
 
 ### Implemented Properties (`org.mpris.MediaPlayer2.Player`)
 
 * **`PlaybackStatus`** (`String`) — `"Playing"`, `"Paused"`, or `"Stopped"`.
-* **`Volume`** (`Double`) — Volume level between `0.0` (mute) and `1.0` (100%).
+* **`Volume`** (`Double`) — Volume level between `0.0` and `1.0` (100%). A muted zone reads `0.0`. Writing sends a volume command to the zone, rounded to whole percent. The property changes once the zone has applied it.
 * **`Position`** (`Int64`) — Current play position in microseconds.
 * **`Metadata`** (`Dict`) — Standard Xesam metadata tags:
   - `mpris:trackid` (`ObjectPath`) — `/org/mpris/MediaPlayer2/snapdog/zone{id}/track`.
   - `mpris:length` (`Int64`) — Track length in microseconds.
-  - `mpris:artUrl` (`String`) — HTTP cover art link (e.g. `http://<host>:<port>/api/v1/zones/{id}/cover`).
+  - `mpris:artUrl` (`String`) — HTTP cover art link (e.g. `http://<host>:<port>/api/v1/zones/{id}/cover`). `<host>` is the single address configured in `[http].bind` and `localhost` when there is none or more than one.
   - `xesam:title` (`String`) — Track or stream title.
   - `xesam:artist` (`Array of Strings`) — Artist array.
   - `xesam:album` (`String`) — Album title.
 * **`CanPlay` / `CanPause` / `CanSeek` / `CanGoNext` / `CanGoPrevious` / `CanControl`** (`Boolean`) — Capabilities flags.
-* **`Shuffle`** (`Boolean`) — Read-write shuffle state.
-* **`LoopStatus`** (`String`) — Read-write repeat state: `"None"`, `"Track"`, or `"Playlist"`.
+* **`Shuffle`** (`Boolean`) — Shuffle state. Writing sends a command to the zone, the value changes once the zone confirms it.
+* **`LoopStatus`** (`String`) — Repeat state: `"None"`, `"Track"`, or `"Playlist"`. Writing sends a command to the zone and any other value than `"Track"` or `"Playlist"` selects `"None"`. The value changes once the zone confirms it.
 * **`Rate` / `MinimumRate` / `MaximumRate`** (`Double`) — Fixed at `1.0`.
 
 ### Server Command-Line Examples
@@ -115,6 +130,9 @@ The `snapdog-client` player registers an MPRIS2 interface on speaker endpoints, 
 | **`Next()`** | — | Skips to the next track. |
 | **`Previous()`** | — | Skips to the previous track. |
 | **`Seek(Offset)`** | `Offset` (`Int64` microseconds) | Sends seek offset command to the server. |
+| **`SetPosition(Id, Pos)`** | `Id` (`ObjectPath`), `Pos` (`Int64` us) | Accepted and ignored. |
+| **`OpenUri(Uri)`** | `Uri` (`String`) | Accepted and ignored. |
+| **`Quit()` / `Raise()`** (root interface) | — | Accepted and ignored. |
 
 ### Implemented Properties (`org.mpris.MediaPlayer2.Player`)
 
@@ -164,10 +182,10 @@ The `snapdog-client` player registers an MPRIS2 interface on speaker endpoints, 
 
 ## 3. D-Bus Signals
 
-Both the server and client players emit standard signals:
+Both the server and client players emit `PropertiesChanged`. Only the server emits `Seeked`:
 
-* **`Seeked(Position)`** (`Int64`)
-  Fired under the `org.mpris.MediaPlayer2.Player` interface when a seek operation completes. The payload contains the new position in microseconds.
+* **`Seeked(Position)`** (`Int64`), server only
+  Fired under the `org.mpris.MediaPlayer2.Player` interface when a D-Bus `Seek` or `SetPosition` call is handled. The payload contains the new position in microseconds. A seek through REST, the WebSocket API or the client does not emit it, and the client never emits it.
 * **`PropertiesChanged(Interface, Changed, Invalidated)`**
   Standard D-Bus notification fired under `org.freedesktop.DBus.Properties` whenever properties like `PlaybackStatus`, `Metadata`, `Shuffle`, or `Volume` change. Listening client widgets update their UI states reactively based on this signal.
 
