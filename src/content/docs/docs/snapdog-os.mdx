@@ -6,7 +6,7 @@ description: Dedicated minimal operating system for SnapDog audio receivers.
 import { Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 import InstallerDownloads from '../../../components/InstallerDownloads.astro';
 
-**SnapDog OS** is a custom, minimal Buildroot-based Linux distribution that turns a Raspberry Pi with an I2S soundcard (DAC) into a dedicated, appliance-like audio receiver. It boots in seconds, connects to your network automatically, and requires zero command-line configuration.
+**SnapDog OS** is a custom, minimal Buildroot-based Linux distribution that turns a Raspberry Pi with an I2S soundcard (DAC) into a dedicated, appliance-like audio receiver. It boots in seconds, connects to your network automatically, and requires zero command-line configuration. The Pi plays as a SnapDog client, and it can also run a SnapDog server itself (off by default, switched on in the Web UI).
 
 <Aside type="caution">
   **Beta Release:** SnapDog OS is currently under active development. For production installations, we recommend using standard Raspberry Pi OS with the SnapDog `.deb` client package.
@@ -17,9 +17,9 @@ import InstallerDownloads from '../../../components/InstallerDownloads.astro';
 ## Supported Hardware
 
 SnapDog OS is compiled as a 64-bit (`aarch64`) image running a minimal Linux 6.6 LTS kernel. The following boards are fully supported:
-* **Raspberry Pi 5 / 500**
-* **Raspberry Pi 4 / 400**
-* **Raspberry Pi 3 / 3+**
+* **Raspberry Pi 5**
+* **Raspberry Pi 4**
+* **Raspberry Pi 3**
 * **Raspberry Pi Zero 2 W**
 
 ---
@@ -51,9 +51,9 @@ If you prefer another image writer, download the board-specific image:
 
 | Hardware Board Model | Target Architecture | Latest Stable Image |
 |---|---|---|
-| **Raspberry Pi 5 / 500** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi5-release.img.gz) |
-| **Raspberry Pi 4 / 400** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi4-release.img.gz) |
-| **Raspberry Pi 3 / 3+** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi3-release.img.gz) |
+| **Raspberry Pi 5** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi5-release.img.gz) |
+| **Raspberry Pi 4** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi4-release.img.gz) |
+| **Raspberry Pi 3** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-pi3-release.img.gz) |
 | **Raspberry Pi Zero 2 W** | 64-bit (`aarch64`) | [Download Image (.img.gz)](https://updates.snapdog.cc/os/images/snapdog-os-zero2w-release.img.gz) |
 
 ### Flashing a Manually Downloaded Image
@@ -76,7 +76,7 @@ If you prefer another image writer, download the board-specific image:
 5. Enter your home Wi-Fi details, select your SnapDog server (auto-discovered via mDNS), and select your I2S DAC model. Click **Save**—the Pi will reboot and join your home network.
 
 <Aside type="note">
-  For manual client targeting, setting audio latency offsets, or forcing ALSA soundcard modes using the command-line utility directly, consult the [CLI Reference](/docs/cli#2-snapdog-client-snapdog-client).
+  For manual client targeting, setting audio latency offsets, or choosing a soundcard (`default`, an index from `--list`, or part of the device name; ALSA names such as `hw:1` do not work) using the command-line utility directly, consult the [CLI Reference](/docs/cli#2-snapdog-client).
 </Aside>
 
 ---
@@ -88,8 +88,13 @@ Once the Pi is connected to your local network, you can access the configuration
 * **Dashboard:** Live view of the client hostname, network connections, system load, and uptime.
 * **Network:** Change between Wi-Fi and Ethernet configurations, configure static IPs, or join new wireless networks.
 * **Audio:** Select your I2S DAC overlay (e.g., HiFiBerry, Allo Boss, JustBoom) from the visual list. 
-* **Client Control:** Specify the target SnapDog server manually, test playback, configure latency offsets (to synchronize with other rooms), and set default startup volumes.
-* **Updates:** Check for OTA updates, select the release or beta channel, and configure a local-time maintenance window.
+* **Client:** Enable or disable the client, set the Host ID, choose the volume control (software, hardware DAC, none or MIDI), set the audio offset in milliseconds (to synchronize with other rooms), pick the soundcard, and choose the server by automatic discovery or by address, with a connection test.
+* **Server:** Run a SnapDog server on the Pi itself. It is off by default. Once enabled, you edit zones and clients, sources and integrations in forms, or the complete configuration in an advanced TOML editor. A change is validated by the installed SnapDog binary before it is activated. If the server does not stay healthy after the restart, the previous configuration is restored automatically.
+* **SSH:** Enable SSH and manage the authorized public keys.
+* **Update:** Check for OTA updates, select the stable or beta channel, and set up automatic updates (see below).
+* **System:** Set the timezone, read the logs, reboot, reset to factory defaults, and export or import the device settings. An import reboots the device.
+
+A small player bar shows what is playing and lets you pause, skip, seek and change the volume.
 
 ---
 
@@ -109,12 +114,13 @@ To prevent flash memory wear and SD card corruption from sudden power loss, the 
 
 ### Dual A/B System Updates (RAUC)
 System updates use standard `.raucb` signed bundles:
-* **Background Check:** Daily automated update checks verify signature certificates and verify partition integrity.
+* **Automatic Check:** If you switch on automatic updates, the device checks daily, weekly or monthly at a time you choose (in the device's timezone). Bundles are verified for signature and hardware compatibility before installation.
 * **A/B Rollbacks:** Updates install to the inactive slot and boot as a one-time trial (Raspberry Pi *tryboot*). The new slot is committed only after the system comes up healthy; if it doesn't, the next boot automatically returns to the last known-good slot.
 
 ### Security Hardening
 * **No Default Access:** SSH is disabled by default. When enabled, it is restricted to public-key authentication only (keys uploaded via Web UI).
 * **Authentication:** The Web UI/API password is optional. When set, `snapdog-ctrl` stores a bcrypt hash and requires bearer-token authentication for protected API routes. Changing it also changes the console root password.
+* **Console login:** Until you set a Web UI password, the root password on the physical console (USB serial, or HDMI with a keyboard) is `snapdog`. It does not work over the network. Switching the Web UI password off restores `snapdog`, so set a password if others can reach the device.
 
 ## Next Steps
 
@@ -132,7 +138,7 @@ System updates use standard `.raucb` signed bundles:
   <LinkCard
     title="CLI Reference"
     description="Check command-line switches, volume mixer flags, and soundcard overrides for speaker boards."
-    href="/docs/cli#2-snapdog-client-snapdog-client"
+    href="/docs/cli#2-snapdog-client"
   />
   <LinkCard
     title="Direct Installation"
