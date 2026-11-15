@@ -39,8 +39,6 @@ Authorization: Bearer <token>
 | `GET` | `/api/system/update/status` | Return the RAUC operation, progress, errors, and slots. |
 | `POST` | `/api/system/update/upload` | Upload a multipart signed RAUC bundle (`file` part). |
 | `POST` | `/api/system/update/install` | Install the previously uploaded bundle. |
-| `POST` | `/api/system/update/flash-raw` | Upload a guarded raw `.img` or `.img.gz`. |
-| `POST` | `/api/system/update/flash-raw/confirm` | Confirm the short-lived destructive-flash challenge. |
 | `GET`, `PUT` | `/api/system/update/auto` | Read or configure scheduled updates. |
 | `GET` | `/api/system/update/auto/status` | Read scheduler state, last check/attempt/success/error, and next check time. |
 | `POST` | `/api/system/factory-reset` | Reset persistent configuration. |
@@ -48,7 +46,7 @@ Authorization: Bearer <token>
 | `GET`, `PUT` | `/api/system/timezone` | Read or change the system timezone. |
 
 <Aside type="caution">
-  Firmware uploads can be hundreds of megabytes. Use streaming multipart uploads and do not retry destructive endpoints blindly. The [`snapdog-update` CLI](/docs/snapdog-update) implements the intended checks, progress tracking, challenge flow, and reboot verification.
+  Firmware uploads can be hundreds of megabytes. Use streaming multipart uploads and do not retry destructive endpoints blindly. The [`snapdog-update` CLI](/docs/snapdog-update) implements the intended checks, progress tracking, and reboot verification.
 </Aside>
 
 ## Network, audio, and services
@@ -69,6 +67,10 @@ Authorization: Bearer <token>
 | `GET` | `/api/server/status` | Return local server service state. |
 | `POST` | `/api/server/enable` | Enable and start the local server. |
 | `POST` | `/api/server/disable` | Stop and disable the local server. |
+
+## Captive portal probes
+
+The controller also answers the connectivity checks that phones and desktops send, outside the `/api` prefix: `/hotspot-detect.html`, `/library/test/success.html`, `/generate_204`, `/gen_204`, `/connecttest.txt`, `/redirect` and `/ncsi.txt`. Each one redirects to `/`, the setup UI, so that a device joining the setup access point opens it automatically.
 
 ## Settings and now playing
 
