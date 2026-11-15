@@ -22,6 +22,8 @@ Accept: application/json
   Token authentication requires configuring the `api_keys` array under the `[http]` section of your configuration. See the [Configuration Guide](/docs/configuration#http) for details.
 </Aside>
 
+The health probes (`/health`, `/health/ready` and `/health/live`) are mounted outside the protected routes and need no API key.
+
 ### Authentication Errors
 Requests with missing, malformed, or invalid tokens return a `401 Unauthorized` status with a plain-text body:
 
@@ -33,10 +35,16 @@ Invalid or missing API key
 
 ## 2. Interactive Scalar Console
 
-If SnapDog is compiled with the `api-docs` feature flag and `api_docs = true` is set in the `[http]` section of your configuration, you can access the built-in documentation server directly:
+Two settings in the `[http]` section control the built-in API documentation. Both need a SnapDog build with the `api-docs` feature flag.
 
-* **Scalar Interactive Console:** `http://<device-ip>:5555/docs`
-* **Runtime OpenAPI:** The OpenAPI document is embedded in the Scalar page. The project also generates a standalone JSON file for docs publishing via `cargo run --package xtask -- gen-api-spec openapi.json`.
+| Setting | Default | Effect |
+|---|---|---|
+| `api_docs` | `true` | Serves the OpenAPI document at `GET /api/v1/openapi.json`. The route sits behind the API key when one is configured. |
+| `api_console` | `false` | Also serves the Scalar console at `http://<device-ip>:5555/docs`. It needs `api_docs = true` as well. |
+
+The console is opt-in. Its page embeds the whole OpenAPI document and a browser cannot send a key when it opens the page, so `/docs` is never behind the API key. Enable `api_console` only on networks you trust.
+
+The project also generates a standalone JSON file for docs publishing via `cargo run --package xtask -- gen-api-spec openapi.json`.
 
 ### Console Capabilities
 
@@ -65,7 +73,7 @@ Returns count statistics for configured zones, clients, and radio streams.
 * **Response `200 OK`:**
   ```json schema=SystemStatus
   {
-    "version": "1.0.0",
+    "version": "0.34.1",
     "zones": 2,
     "clients": 4,
     "radios": 12
@@ -80,14 +88,14 @@ Returns detailed package and compilation versions along with the host name.
 * **Response `200 OK`:**
   ```json
   {
-    "version": "1.0.0",
+    "version": "0.34.1",
     "rust_version": "1.78.0",
     "name": "SnapDog Controller"
   }
   ```
 
 ### Health Probes
-Health endpoints are mounted at the server root, outside the `/api/v1` prefix.
+Health endpoints are mounted at the server root, outside the `/api/v1` prefix. They need no API key, even when `[http].api_keys` is set.
 
 * **Method:** `GET`
 * **Endpoints:**
@@ -195,7 +203,7 @@ Zones represent rooms or audio output groups. You can query their states and sen
   ```json
   {
     "error": "not_found",
-    "message": "Zone index 99 does not exist"
+    "message": "zone not found"
   }
   ```
 
@@ -222,12 +230,12 @@ Volume can be adjusted absolutely (`0` to `100`) or relative to the current leve
 * **Method:** `GET` | `PUT`
 * **Endpoint:** `/api/v1/zones/{zone_index}/mute`
 * **Request Body (PUT):** `true` or `false`
-* **Response `200 OK`:** `true`
+* **Response `200 OK`:** Empty body.
 
 ### Toggle Zone Mute State
 * **Method:** `POST`
 * **Endpoint:** `/api/v1/zones/{zone_index}/mute/toggle`
-* **Response `200 OK`:** `false` (returns the new resolved mute status)
+* **Response `200 OK`:** Empty body. Read the new state with `GET` on `/api/v1/zones/{zone_index}/mute`.
 
 ### Play / Pause / Stop Commands
 * **Method:** `POST`
@@ -323,7 +331,8 @@ Fetches the cover image binary. If no cover is active, returns the default SnapD
 * **Method:** `GET`
 * **Endpoint:** `/api/v1/zones/{zone_index}/cover`
 * **Response `200 OK`:** Raw image binary stream.
-  * Headers include: `Content-Type: image/jpeg` (or png), `Cache-Control: public, max-age=86400, immutable`, and matching `ETag`.
+  * Headers include `Content-Type: image/jpeg` (or png), `Cache-Control: public, max-age=86400, immutable` and a matching `ETag`. The placeholder PNG answers with `Cache-Control: public, max-age=604800` and the fixed `ETag` `"snapdog-placeholder"`.
+  * The playlist, track and `media/cover` cover endpoints in [section 10](#10-media--subsonic-playlists) send `Cache-Control: public, max-age=86400` without `immutable`.
 
 ### Specific Metadata Tag Endpoints
 Quick shortcuts to pull separate tags.
@@ -351,7 +360,8 @@ Quick shortcuts to pull separate tags.
     "offset_ms": -5000
   }
   ```
-* **Response `200 OK`:** `40000` (returns absolute position in ms)
+* **Response `200 OK` (PUT):** Empty body. `GET` returns the absolute position in ms.
+* **Response `400 Bad Request` (PUT):** Both fields or neither field set.
 
 ### Seek Progress
 Allows querying or seeking via a normalized percentage float (`0.0` to `1.0`).
@@ -359,7 +369,7 @@ Allows querying or seeking via a normalized percentage float (`0.0` to `1.0`).
 * **Method:** `GET` | `PUT`
 * **Endpoint:** `/api/v1/zones/{zone_index}/track/progress`
 * **Request Body (PUT):** `0.5` (seeks to the middle of the track)
-* **Response `200 OK`:** `0.5`
+* **Response `200 OK` (PUT):** Empty body. `GET` returns the fraction as a JSON number.
 
 ### Direct Playback Trigger Endpoints
 Instructs a zone to immediately play a specific track, URL stream, or Subsonic playlist.
@@ -367,7 +377,7 @@ Instructs a zone to immediately play a specific track, URL stream, or Subsonic p
 * **Method:** `POST`
 * **Endpoints & Requests:**
   * `/api/v1/zones/{zone_index}/play/track` — Request Body: track index (e.g. `2`).
-  * `/api/v1/zones/{zone_index}/play/url` — Request Body: absolute URL string.
+  * `/api/v1/zones/{zone_index}/play/url` — Request Body: absolute URL string. Anything other than an absolute `http` or `https` URL returns `400 Bad Request`.
   * `/api/v1/zones/{zone_index}/play/playlist` — Request Body (the playlist **index**):
     ```json
     {
@@ -375,7 +385,7 @@ Instructs a zone to immediately play a specific track, URL stream, or Subsonic p
       "track": 0
     }
     ```
-    `id` is still accepted instead of `index`. Deprecated. Use `index`. Removed with SnapDog 1.0, which breaks compatibility of `/api/v1` for clients that still read it. Sending both with different values returns `400 Bad Request`. New clients must send `index` only.
+    `id` is still accepted instead of `index`. Deprecated. Use `index`. Removed with SnapDog 1.0, which breaks compatibility of `/api/v1` for clients that still read it. Sending both with different values, or neither, returns `400 Bad Request`. New clients must send `index` only.
   * `/api/v1/zones/{zone_index}/play/playlist/by-id` — Request Body (the `playlist_id`; `track` defaults to `0`):
     ```json
     {
@@ -384,7 +394,7 @@ Instructs a zone to immediately play a specific track, URL stream, or Subsonic p
     }
     ```
     An unknown `playlist_id` returns `404 Not Found`.
-  * `/api/v1/zones/{zone_index}/play/playlist/{playlist_index}/track` — Request Body: track index. The current handler accepts the playlist path segment for compatibility and selects the track within the zone's active playlist.
+  * `/api/v1/zones/{zone_index}/play/playlist/{playlist_index}/track` — Request Body: track index (JSON integer). Plays that track of the playlist with the unified index `{playlist_index}`. A negative track index returns `400 Bad Request`.
   * `/api/v1/zones/{zone_index}/play/subsonic/{track_id}` — Starts a Subsonic server file stream.
 
 ### Shuffle & Repeat
@@ -454,6 +464,7 @@ Allows patching specific filters.
   }
   ```
 * **Response `200 OK`:** Returns full modified `EqConfig` object.
+* **Response `400 Bad Request`:** More than 10 bands.
 
 ### Load EQ Preset
 Quickly overwrite current EQ settings with a standard curve.
@@ -571,7 +582,8 @@ Query or modify the user-configured EQ applied locally on the client player boar
 
 * **Method:** `GET` | `PUT`
 * **Endpoint:** `/api/v1/clients/{client_index}/eq`
-* **Response / Request Body:** Same structure as Zone-level EQ. Supports up to 10 bands.
+* **Response / Request Body:** Same structure as Zone-level EQ. Supports up to 10 bands, more returns `400 Bad Request`.
+* **Response `422 Unprocessable Entity`:** The client is not a SnapDog client. The same applies to the client EQ band and preset endpoints below and to the `speaker` endpoints of this section.
 
 ### Modify Single EQ Band on Client
 * **Method:** `PUT`
@@ -593,11 +605,13 @@ SnapDog embeds the Spinorama measurement library. You can select your speaker mo
 * **Method:** `GET`
 * **Endpoint:** `/api/v1/speakers`
 * **Response `200 OK`:** Array of speaker name strings.
+* **Response `503 Service Unavailable`:** The speaker database could not be read. The body is empty.
 
 ### Fetch PEQ Coefficients for Model
 * **Method:** `GET`
 * **Endpoint:** `/api/v1/speakers/{name}/profile`
 * **Response `200 OK`:** Returns `EqConfig` generated from the Spinorama profile curves.
+* **Response `404 Not Found`:** No profile with that name. The body is empty.
 
 ### Get Active Speaker Correction on Client
 * **Method:** `GET`
@@ -625,6 +639,7 @@ Sets either a predefined Spinorama speaker model, or applies custom correction f
     }
   }
   ```
+* **Errors:** `400 Bad Request` when both `speaker` and `custom` are set or when `custom` has more than 10 bands, `404 Not Found` for an unknown client or speaker name, and `422 Unprocessable Entity` for a client that is not a SnapDog client.
 
 ---
 
@@ -651,7 +666,7 @@ of the embedded product database.
 * **Response `200 OK`:**
   ```json
   {
-    "app_version": 11,
+    "app_version": 14,
     "application_number": "0xFF01",
     "hardware_version": 1
   }
@@ -664,6 +679,7 @@ Activates or deactivates the physical button programming state (equivalent to pr
 * **Endpoint:** `/api/v1/knx/programming-mode`
 * **Request Body (PUT):** `true` or `false`
 * **Response `200 OK`:** `true`
+* **Response `503 Service Unavailable`:** The KNX device task did not answer within two seconds.
 * **Response `409 Conflict`:** If the server is configured in client mode instead of device mode.
   ```json
   {

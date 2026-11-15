@@ -11,9 +11,18 @@ SnapDog client boards (`snapdog-client` and SnapDog OS) communicate with the ser
 
 ## 1. Frame Structure & Message Types
 
-All messages are prefixed with a header containing a 2-byte Message Type ID (big-endian), a 4-byte Payload Length (big-endian), and the variable-length payload bytes.
+SnapDog sends its messages over the normal Snapcast TCP connection, so they use the standard Snapcast framing. Every message starts with the 26-byte `BaseMessage` header, all fields little-endian, followed by `size` bytes of payload:
 
-SnapDog extends the protocol using message type IDs `10` through `15`:
+| Offset | Size | Field | Description |
+|---:|---:|---|---|
+| 0 | 2 | `type` | `u16` message type. |
+| 2 | 2 | `id` | `u16` sequence identifier. |
+| 4 | 2 | `refers_to` | `u16` id of the message this one answers, `0` if none. |
+| 6 | 8 | `sent` | Timeval of the sender: `i32` seconds, `i32` microseconds. |
+| 14 | 8 | `received` | Timeval set by the receiver, `0` when sent. |
+| 22 | 4 | `size` | `u32` payload length in bytes. |
+
+The Snapcast core uses the types `0` to `8`. Every type from `9` upward is an application-defined custom type (`MessageType::Custom` in the `snapcast-proto` crate), whose payload is passed on as raw bytes. SnapDog uses the IDs `10` through `15`:
 
 | Type ID | Name | Direction | Format | Description |
 |:---:|---|---|---|---|
@@ -22,7 +31,7 @@ SnapDog extends the protocol using message type IDs `10` through `15`:
 | **`12`** | `MSG_TYPE_FADE_OUT` | Server → Client | Binary | Triggers immediate client-side volume fade-out. |
 | **`13`** | `MSG_TYPE_PLAYBACK_CONTROL` | Client → Server | JSON | Key presses/actions from physical buttons on client hardware. |
 | **`14`** | `MSG_TYPE_TRACK_METADATA` | Server → Client | JSON | Playback status and track tags to render on client OLED/LCD screens. |
-| **`15`** | `MSG_TYPE_COVER_ART` | Server → Client | Binary | Raw cover art image data (JPEG/PNG) streamed in chunks. |
+| **`15`** | `MSG_TYPE_COVER_ART` | Server → Client | Binary | Raw cover art image data (JPEG/PNG) in a single message. |
 
 ---
 
@@ -206,13 +215,18 @@ Pushed to the client upon stream state changes to update local player displays.
 }
 ```
 
+<Aside type="note">
+  In this payload `playlist` is the current playlist index (0-based) and is **not** deprecated. Unlike the REST API and the WebSocket events, the binary protocol has no `playlist_index` or `playlist_id` field. The `index` of the `playlist` command in type 13 addresses the same unified index.
+</Aside>
+
 ---
 
-### Type 15: Cover Art Binary Stream
+### Type 15: Cover Art
 Pushed to clients to render album art thumbnails on color player screens.
 
 * **Payload Format:** Binary
-* **Payload Content:** Raw image binary buffer (JPEG or PNG bytes) with no headers or wrapper frames. Clients can immediately decode and draw the buffer to video buffers.
+* **Payload Content:** Raw image bytes (JPEG or PNG) with no extra header or wrapper inside the payload. The server sends the whole image as one message with one `size` header, not in chunks. Clients can immediately decode and draw the buffer. The server sends it when the cover of the client's zone changes. When the zone has no cover, the payload is empty.
+* **Size limit:** The `snapcast-client` library, which `snapdog-client` builds on, rejects any received message with a payload above 2 MiB (`DEFAULT_MAX_PAYLOAD_SIZE` in `snapcast-proto`). A cover larger than that does not arrive.
 
 ## Next Steps
 

@@ -59,9 +59,66 @@ function contentSchema(content) {
   return preferred?.schema;
 }
 
-function successSchema(responses = {}) {
+const statusText = {
+  200: 'OK',
+  201: 'Created',
+  202: 'Accepted',
+  204: 'No Content',
+};
+
+// What a successful call returns: the JSON schema, the content type of a
+// non-JSON body (for example image/*), or the bare status for an empty body.
+function successCell(responses = {}) {
   const status = Object.keys(responses).find((code) => /^2\d\d$/.test(code));
-  return status ? contentSchema(responses[status]?.content) : undefined;
+  if (!status) return '—';
+  const content = responses[status]?.content;
+  const types = Object.keys(content ?? {});
+  if (types.length === 0) {
+    return status === '204' ? '204 No Content' : `${status} ${statusText[status] ?? ''}, empty body`.trim();
+  }
+  const schema = contentSchema(content);
+  if (schema && Object.keys(schema).length > 0) return schemaType(schema);
+  return types.map((type) => `\`${type}\``).join(', ');
+}
+
+function parameterCell(operation, pathItem) {
+  const all = [...(pathItem.parameters ?? []), ...(operation.parameters ?? [])];
+  if (all.length === 0) return '—';
+  return all
+    .map((parameter) => `${parameter.in} \`${codeCell(parameter.name)}\`${parameter.required ? '' : ' (optional)'}`)
+    .join('<br />');
+}
+
+function errorCell(responses = {}) {
+  const errors = Object.entries(responses).filter(([code]) => !/^2\d\d$/.test(code));
+  if (errors.length === 0) return '—';
+  return errors
+    .map(([code, response]) => `\`${code}\` ${cell(response.description ?? '')}`.trim())
+    .join('<br />');
+}
+
+// Names of the component schemas that some path reaches, directly or through
+// other schemas. The rest belong to other protocols, such as the binary one.
+function reachableSchemas() {
+  const schemas = spec.components?.schemas ?? {};
+  const seen = new Set();
+  const visit = (node) => {
+    if (Array.isArray(node)) return node.forEach(visit);
+    if (!node || typeof node !== 'object') return;
+    for (const [key, value] of Object.entries(node)) {
+      if (key === '$ref' && typeof value === 'string') {
+        const name = refName(value);
+        if (!seen.has(name)) {
+          seen.add(name);
+          visit(schemas[name]);
+        }
+      } else {
+        visit(value);
+      }
+    }
+  };
+  visit(spec.paths);
+  return seen;
 }
 
 const operations = [];
@@ -69,7 +126,7 @@ for (const [path, pathItem] of Object.entries(spec.paths ?? {})) {
   for (const method of methods) {
     const operation = pathItem[method];
     if (!operation) continue;
-    operations.push({ path, method, operation });
+    operations.push({ path, method, operation, pathItem });
   }
 }
 
@@ -101,20 +158,27 @@ for (const tag of tags) {
   const tagDescription = (spec.tags ?? []).find((entry) => entry.name === tag)?.description;
   lines.push(`### ${text(tag)}`, '');
   if (tagDescription) lines.push(text(tagDescription), '');
-  lines.push('| Method | Endpoint | Summary | Request | Success response |');
-  lines.push('|---|---|---|---|---|');
-  for (const { path, method, operation } of tagged) {
+  lines.push('| Method | Endpoint | Summary | Parameters | Request | Success response | Errors |');
+  lines.push('|---|---|---|---|---|---|---|');
+  for (const { path, method, operation, pathItem } of tagged) {
     const request = schemaType(contentSchema(operation.requestBody?.content));
-    const response = schemaType(successSchema(operation.responses));
+    const response = successCell(operation.responses);
     lines.push(
-      `| **${method.toUpperCase()}** | \`${codeCell(path)}\` | ${cell(operation.summary ?? operation.description ?? '—')} | ${request} | ${response} |`,
+      `| **${method.toUpperCase()}** | \`${codeCell(path)}\` | ${cell(operation.summary ?? operation.description ?? '—')} | ${parameterCell(operation, pathItem)} | ${request} | ${response} | ${errorCell(operation.responses)} |`,
     );
   }
   lines.push('');
 }
 
 lines.push('## Schemas', '');
-for (const [name, schema] of Object.entries(spec.components?.schemas ?? {}).sort(([a], [b]) => a.localeCompare(b))) {
+lines.push(
+  'These are the types that the endpoints above use. The types of the [binary protocol](/docs/api-binary-protocol) are not part of the REST contract and are not listed.',
+  '',
+);
+const reachable = reachableSchemas();
+for (const [name, schema] of Object.entries(spec.components?.schemas ?? {})
+  .filter(([name]) => reachable.has(name))
+  .sort(([a], [b]) => a.localeCompare(b))) {
   lines.push(`### ${text(name)}`, '');
   if (schema.description) lines.push(text(schema.description), '');
 
