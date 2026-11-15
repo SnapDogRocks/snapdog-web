@@ -5,16 +5,15 @@ description: Install SnapDog directly using package managers, pre-compiled binar
 
 import { Tabs, TabItem, Aside, LinkCard, CardGrid } from '@astrojs/starlight/components';
 
-**SnapDog** is distributed as lightweight native binaries. The current release workflow publishes Linux (x86_64, aarch64), macOS (x86_64, aarch64), and Windows (x86_64, aarch64) artifacts.
+**SnapDog** is distributed as lightweight native binaries. The current release workflow publishes Linux (x86_64, aarch64), macOS (x86_64, aarch64), and Windows (x86_64 only) artifacts. There is also a macOS menu bar app, described below.
 
 ---
 
-## Operating System Requirements
+## Operating System Notes
 
-Ensure your target machine meets the following requirements:
-* **Linux:** Kernel 5.4 or higher. ALSA (Advanced Linux Sound Architecture) is required for local audio output interfaces.
-* **macOS:** macOS 12 (Monterey) or higher.
-* **Windows:** Windows 10/11 or Windows Server 2019+ (supported when running as a background service).
+* **Linux:** The release binaries are built on Debian 12 (glibc 2.36), so they run on Debian 12 or newer and on distributions with a glibc at least that recent. ALSA is needed on the machine that plays audio, which is where `snapdog-client` runs.
+* **macOS:** The menu bar app targets macOS 15 or newer (see RFC 0006 in the SnapDog repository). I could not verify a minimum macOS version for the plain `snapdog` binary.
+* **Windows:** Only x86_64 builds exist. There is no ARM64 build.
 
 ---
 
@@ -22,7 +21,7 @@ Ensure your target machine meets the following requirements:
 
 <Tabs>
   <TabItem label="Arch Linux (AUR)">
-    AUR helper tools can be used to install the latest pre-compiled binary or build SnapDog directly from the Arch User Repository.
+    The AUR packages install the prebuilt release binaries, the same ones as in the release archives, Debian packages and container images. They do not build from source.
 
     ```bash
     # Install the server and audio client
@@ -34,7 +33,7 @@ Ensure your target machine meets the following requirements:
   </TabItem>
 
   <TabItem label="macOS (Homebrew)">
-    For Apple Silicon or Intel Macs, we maintain a custom Homebrew tap:
+    For Apple Silicon or Intel Macs, there is a Homebrew tap:
 
     ```bash
     # Tap the repository
@@ -49,7 +48,7 @@ Ensure your target machine meets the following requirements:
   </TabItem>
 
   <TabItem label="Debian/Ubuntu (APT)">
-    We distribute native `.deb` packages for Debian and Ubuntu architectures (amd64, arm64).
+    There are native `.deb` packages for Debian and Ubuntu architectures (amd64, arm64).
 
     1. Fetch the archive keyring and check its fingerprint before trusting it:
        ```bash
@@ -81,9 +80,9 @@ Ensure your target machine meets the following requirements:
     </TabItem>
 
   <TabItem label="Windows Service">
-    SnapDog compiles to a native Windows binary (x86_64 and arm64) and can run as an NT Service.
+    SnapDog runs on Windows (x86_64 only) as a native binary and can run as an NT Service.
 
-    1. Download the Windows binary (`snapdog.exe`) for your architecture and place it in `C:\Program Files\SnapDog\`.
+    1. Download the Windows archive from the [GitHub Releases](https://github.com/SnapDogRocks/snapdog/releases) page. It is a `.zip` file named like `snapdog-vX.Y.Z-x86_64-pc-windows-msvc.zip`. Extract it and place `snapdog.exe` (and `snapdog-client.exe` if you want audio output on this machine) in `C:\Program Files\SnapDog\`.
     2. Open a Command Prompt as Administrator and register the service:
        ```cmd
        sc create SnapDog binPath= "\"C:\Program Files\SnapDog\snapdog.exe\" --service --config \"C:\ProgramData\snapdog\snapdog.toml\"" start= auto
@@ -94,17 +93,25 @@ Ensure your target machine meets the following requirements:
 
 ---
 
+## macOS menu bar app
+
+Download `SnapDog-Server-*.dmg` from the [GitHub Releases](https://github.com/SnapDogRocks/snapdog/releases/latest) page. The menu bar app embeds the server binary, starts and stops it for you, and updates itself through Sparkle.
+
+---
+
 ## Direct Binary Download
 
 If you prefer to install the pre-compiled binaries manually:
 
-1. Download the correct archive for your architecture from the [GitHub Releases](https://github.com/SnapDogRocks/snapdog/releases) page.
+1. Download the correct archive for your system from the [GitHub Releases](https://github.com/SnapDogRocks/snapdog/releases) page. Linux and macOS archives are `.tar.gz`, the Windows archive is a `.zip`. Each has a `.sha256` file next to it.
 2. Extract the archive and copy the binary to `/usr/local/bin`:
    ```bash
    tar -xzf snapdog-vX.Y.Z-x86_64-unknown-linux-gnu.tar.gz
-   sudo mv snapdog /usr/local/bin/
-   sudo chmod 755 /usr/local/bin/snapdog
+   cd snapdog-vX.Y.Z-x86_64-unknown-linux-gnu
+   sudo install -m 755 snapdog snapdog-client /usr/local/bin/
    ```
+
+Each archive contains `snapdog`, `snapdog-client`, `snapdog.example.toml`, `LICENSE`, `README.md` and a `packaging/` folder. The folder holds the systemd units, the `/etc/default` files and the D-Bus policies that the Linux packages install.
 
 ---
 
@@ -118,8 +125,11 @@ If you want to compile SnapDog with custom target optimizations, you can build i
 
 ### Build Dependencies
 Ensure your development machine has the required system libraries installed:
-* **Debian/Ubuntu:** `sudo apt install build-essential pkg-config clang libasound2-dev libavahi-compat-libdnssd-dev`
-* **macOS:** Xcode Command Line Tools are sufficient.
+* **Rust:** `rust-toolchain.toml` in the repository pins the exact version, and `rustup` installs it on the first build. The README states a minimum of Rust 1.94.
+* **Node.js and pnpm:** `build.rs` builds the embedded web UI with `pnpm install --frozen-lockfile` and `pnpm run build`. Without a prebuilt `webui/out`, both must be installed. Setting `SKIP_WEBUI_BUILD=1` builds with a placeholder page instead of the web UI.
+* **CMake:** The Docker build installs `cmake` next to the other build tools, so install it as well.
+* **Debian/Ubuntu:** `sudo apt install build-essential cmake pkg-config clang libasound2-dev libavahi-compat-libdnssd-dev`
+* **macOS:** Xcode Command Line Tools, plus CMake (for example `brew install cmake`).
 
 ### Building
 1. Clone the repository:
@@ -129,9 +139,15 @@ Ensure your development machine has the required system libraries installed:
    ```
 2. Build the release binary:
    ```bash
-   cargo build --release -p snapdog
+   cargo build --release --locked -p snapdog
    ```
 3. The compiled binary will be available at `target/release/snapdog`.
+
+The default feature set gives you AirPlay 1 only. The release binaries are built with `--features snapdog/full`, which adds AirPlay 2 and the API documentation, next to Spotify and D-Bus:
+
+```bash
+cargo build --release --locked -p snapdog -p snapdog-client --features snapdog/full
+```
 
 ---
 
@@ -144,7 +160,7 @@ This section is only for the [direct binary download](#direct-binary-download) a
 </Aside>
 
 ### Linux Systemd Service Unit
-Create `/etc/systemd/system/snapdog.service`. It matches the unit the packages ship, with the binary in `/usr/local/bin`:
+Create `/etc/systemd/system/snapdog.service`. This is the unit the packages ship (`snapdog/systemd/snapdog.service` in the repository), with the binary in `/usr/local/bin`:
 
 ```ini
 [Unit]
@@ -154,22 +170,35 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/local/bin/snapdog --config /etc/snapdog/snapdog.toml
+EnvironmentFile=-/etc/default/snapdog
+ExecStart=/usr/local/bin/snapdog $SNAPDOG_ARGS
 Restart=on-failure
 RestartSec=5
 DynamicUser=yes
 SupplementaryGroups=audio
 StateDirectory=snapdog
+LogsDirectory=snapdog
+LogsDirectoryMode=0750
 WorkingDirectory=/var/lib/snapdog
 ConfigurationDirectory=snapdog
 ProtectSystem=strict
 ProtectHome=yes
 NoNewPrivileges=yes
 PrivateTmp=yes
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
 
 [Install]
 WantedBy=multi-user.target
 ```
+
+The unit reads its arguments from `/etc/default/snapdog`. Create that file (the `packaging/` folder of the release archive has an example):
+
+```bash
+echo 'SNAPDOG_ARGS="--config /etc/snapdog/snapdog.toml"' | sudo tee /etc/default/snapdog
+```
+
+`CAP_NET_BIND_SERVICE` lets AirPlay 2 bind UDP 319 and 320 as the unprivileged service user. Without it AirPlay 2 still works, but every connect starts slower.
 
 Then load and start it:
 
@@ -208,10 +237,14 @@ Create `~/Library/LaunchAgents/cc.snapdog.server.plist`:
 
 ## Server Mode Selection
 
-SnapDog supports two primary Snapcast compilation backends. You can select the backend using Cargo feature flags:
+SnapDog can be built with one of two Snapcast backends. You select the backend with Cargo feature flags:
 
-* **`snapcast-embedded` (Default & Recommended):** Integrates the Snapcast server directly into the Rust daemon binary (leveraging our native Rust port of the original C++ Snapcast codebase via the `snapcast-*` crates). This mode is strongly recommended because it manages group synchronization inline, supports proprietary float PCM channels for parametric EQ corrections, and doesn't require maintaining an external binary.
-* **`snapcast-process`:** Spawns and manages a standalone C++ `snapserver` process in the background. Choose this only if you must rely on advanced C++ features or legacy external pipe encoders.
+* **`snapcast-embedded` (default, and the engine in the releases):** The Snapcast server is part of the SnapDog binary, using the `snapcast-*` Rust crates. No external program is needed.
+* **`snapcast-process`:** Spawns and manages a standalone C++ `snapserver` process. The two backends exclude each other, so build it with:
+  ```bash
+  cargo build --release --locked -p snapdog --no-default-features --features snapcast-process
+  ```
+  This also drops the default `spotify` and `dbus` features, because `--no-default-features` removes them. Released binaries use the embedded server only.
 
 ---
 
