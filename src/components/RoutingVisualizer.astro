@@ -176,8 +176,8 @@
         </defs>
 
         <!-- Source Nodes (Lefthand Side Stack) -->
-        <!-- Source 1: AirPlay 2 -->
-        <g id="node-src-airplay" class="cursor-pointer group focus:outline-none" role="button" tabindex="0" aria-label="Select AirPlay 2 source" aria-pressed="true">
+        <!-- Source 1: AirPlay -->
+        <g id="node-src-airplay" class="cursor-pointer group focus:outline-none" role="button" tabindex="0" aria-label="Select AirPlay source" aria-pressed="true">
           <rect x="30" y="34" width="130" height="32" fill="none" pointer-events="all" class="cursor-pointer"></rect>
           <circle cx="50" cy="50" r="16" fill="#0f0f0f" stroke="#f59e0b" stroke-width="1.5" id="src-circle-airplay" class="transition-all duration-300"></circle>
           <circle cx="50" cy="50" r="16" fill="none" stroke="#f59e0b" stroke-width="1.5" id="src-glow-airplay" class="opacity-30 animate-pulse transition-all duration-300"></circle>
@@ -186,7 +186,7 @@
             <rect x="-8" y="-9" width="16" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"></rect>
             <polygon points="-4,6 4,6 0,2" fill="currentColor"></polygon>
           </g>
-          <text x="75" y="55" fill="#ffffff" font-family="monospace" font-size="11" font-weight="bold" id="src-text-airplay" class="transition-colors duration-300">AIRPLAY 2</text>
+          <text x="75" y="55" fill="#ffffff" font-family="monospace" font-size="11" font-weight="bold" id="src-text-airplay" class="transition-colors duration-300">AIRPLAY</text>
         </g>
 
         <!-- Source 2: Spotify Connect -->
@@ -310,9 +310,9 @@
           <circle id="core-led" cx="340" cy="122" r="3" fill="#22c55e" class="animate-pulse"></circle>
           <text x="300" y="203" fill="#f59e0b" font-family="monospace" font-weight="bold" font-size="12" text-anchor="middle" letter-spacing="1.5">SNAPDOG CORE</text>
           <!-- Dynamic Active Input Status -->
-          <text id="core-src-status" x="300" y="215" fill="#e5e5e5" font-family="monospace" font-size="9" text-anchor="middle">INPUT: AIRPLAY 2</text>
+          <text id="core-src-status" x="300" y="215" fill="#e5e5e5" font-family="monospace" font-size="9" text-anchor="middle">INPUT: AIRPLAY</text>
           <!-- Parametric EQ tag -->
-          <text id="core-playback-status" x="300" y="227" fill="#a3a3a3" font-family="monospace" font-size="9" text-anchor="middle">DSP / 5-BAND EQ ACTIVE</text>
+          <text id="core-playback-status" x="300" y="227" fill="#a3a3a3" font-family="monospace" font-size="9" text-anchor="middle">DSP / EQ UP TO 10 BANDS</text>
         </g>
 
         <!-- Room 1 (Living Room) Client -->
@@ -477,7 +477,7 @@
       text: document.getElementById('src-text-airplay'),
       path: document.getElementById('path-src-airplay'),
       color: '#f59e0b',
-      label: 'AIRPLAY 2',
+      label: 'AIRPLAY',
       lineClass: 'flowing-line',
       grad: 'url(#grad-amber-flow)'
     },
@@ -595,7 +595,7 @@
         coreLed.classList.add('animate-pulse');
       }
       if (corePlaybackStatus) {
-        corePlaybackStatus.textContent = 'DSP / 5-BAND EQ ACTIVE';
+        corePlaybackStatus.textContent = 'DSP / EQ UP TO 10 BANDS';
         corePlaybackStatus.style.fill = '#a3a3a3';
       }
       coreNode?.setAttribute('aria-pressed', 'true');

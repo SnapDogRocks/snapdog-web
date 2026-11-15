@@ -42,13 +42,14 @@ import Default from '@astrojs/starlight/components/Footer.astro';
     </div>
     <div class="footer-links">
       <a href="/docs/introduction" class="footer-link" aria-label="Read SnapDog documentation">Docs</a>
-      <a href="https://github.com/SnapDogRocks/snapdog-os" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="View SnapDog GitHub repository">GitHub</a>
+      <a href="https://github.com/SnapDogRocks/snapdog" target="_blank" rel="noopener noreferrer" class="footer-link" aria-label="View SnapDog server on GitHub">GitHub</a>
       <a href="/docs/snapdog-os" class="footer-link" aria-label="Read SnapDog OS installation guide and get download links">SnapDog OS</a>
       <a href="/docs/license" class="footer-link" aria-label="Read SnapDog licensing information">License</a>
       <a href="/imprint" class="footer-link" aria-label="Read SnapDog imprint">Imprint</a>
       <a href="/privacy" class="footer-link" aria-label="Read SnapDog privacy policy">Privacy</a>
     </div>
   </footer>
+  <p class="footer-note">KNX support in SnapDog is unofficial. It is not certified or endorsed by the KNX Association and is not meant for professional installations.</p>
 </div>
 
 <style>
@@ -97,6 +98,12 @@ import Default from '@astrojs/starlight/components/Footer.astro';
   }
   .cc-svg-badge:hover {
     color: var(--sl-color-accent, #fbbf24);
+  }
+  .footer-note {
+    margin: 0;
+    text-align: center;
+    font-size: var(--sl-text-xs, 0.75rem);
+    color: var(--sl-color-gray-4, #737373);
   }
   .footer-links {
     display: flex;
