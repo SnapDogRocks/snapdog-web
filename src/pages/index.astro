@@ -14,6 +14,12 @@ const installers = {
   linuxArm64: { label: 'Linux · ARM64', file: installerRelease.assets.linuxArm64AppImage },
   linuxX64: { label: 'Linux · x64', file: installerRelease.assets.linuxX64AppImage },
 };
+
+const canonicalUrl = 'https://snapdog.cc/';
+const ogTitle = 'SnapDog – Multiroom Audio System';
+const description =
+  'Synchronized multiroom audio for your home. AirPlay, Spotify Connect, Subsonic and internet radio in every zone, with an open source server and a ready-made Raspberry Pi receiver OS.';
+const ogImage = new URL('/snapdog-hero.jpg', canonicalUrl).href;
 ---
 
 <html lang="en" class="scroll-smooth font-sans overflow-x-hidden">
@@ -25,7 +31,19 @@ const installers = {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#0a0a0a" />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <title>SnapDog — Multiroom Audio System</title>
+    <title>SnapDog – Multiroom Audio System</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SnapDog" />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="3072" />
+    <meta property="og:image:height" content="2048" />
+    <meta property="og:image:alt" content="SnapDog multiroom audio" />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body class="min-h-screen bg-[#0a0a0a] text-white flex flex-col items-center justify-start px-4 sm:px-6 relative overflow-x-hidden select-none selection:bg-amber-500/20 selection:text-amber-200">
     
@@ -62,7 +80,7 @@ const installers = {
 
         <!-- Tagline -->
         <p class="text-lg sm:text-xl text-neutral-300 max-w-lg leading-relaxed font-light">
-          Multi-zone audio controller with AirPlay, Spotify, Subsonic, <abbr title="Message Queuing Telemetry Transport">MQTT</abbr>, and <abbr title="Konnex building automation standard">KNX</abbr> integration.
+          Multi-zone audio controller with AirPlay, Spotify, Subsonic and <abbr title="Message Queuing Telemetry Transport">MQTT</abbr> integration, plus unofficial <abbr title="KNX (building automation standard)">KNX</abbr> support.
         </p>
 
         <!-- Interactive Audio Wave -->
@@ -137,7 +155,7 @@ const installers = {
       <section class="py-24 flex flex-col items-center gap-6 text-center max-w-xl">
         <h2 class="text-3xl sm:text-4xl font-semibold tracking-tight font-display text-white">Ready to integrate?</h2>
         <p class="text-xs sm:text-sm text-neutral-400 leading-relaxed">
-          SnapDog is open source and runs on standard Raspberry Pi devices. Check out our comprehensive setup guides, hardware recommendations, and REST API documentation to get started.
+          The SnapDog server and SnapDog OS are open source (GPL-3.0). The server runs on Linux, macOS, Windows and Docker, and SnapDog OS turns a Raspberry Pi into a receiver. The native client apps are proprietary. The documentation covers setup, hardware and the REST API.
         </p>
         <a
           href="/docs/introduction"
@@ -184,13 +202,14 @@ const installers = {
       </div>
       <div class="flex flex-wrap justify-center gap-6 items-center">
         <a href="/docs/introduction" class="hover:text-neutral-300" aria-label="Read SnapDog documentation">Docs</a>
-        <a href="https://github.com/SnapDogRocks/snapdog-os" target="_blank" rel="noopener noreferrer" class="hover:text-neutral-300" aria-label="View SnapDog GitHub repository">GitHub</a>
+        <a href="https://github.com/SnapDogRocks/snapdog" target="_blank" rel="noopener noreferrer" class="hover:text-neutral-300" aria-label="View SnapDog server on GitHub">GitHub</a>
         <a href="/docs/snapdog-os" class="hover:text-neutral-300" aria-label="Read SnapDog OS installation guide and get download links">SnapDog OS</a>
         <a href="/docs/license" class="hover:text-neutral-300" aria-label="Read SnapDog licensing information">License</a>
         <a href="/imprint" class="hover:text-neutral-300" aria-label="Read SnapDog imprint">Imprint</a>
         <a href="/privacy" class="hover:text-neutral-300" aria-label="Read SnapDog privacy policy">Privacy</a>
       </div>
     </footer>
+    <p class="relative z-10 w-full max-w-5xl pb-10 text-center text-[11px] leading-relaxed text-neutral-500">KNX support in SnapDog is unofficial. It is not certified or endorsed by the KNX Association and is not meant for professional installations.</p>
 
     <script is:inline define:vars={{ releaseBase: installerDownloadBase, installers }}>
 

@@ -39,20 +39,25 @@ If neither `--config` nor `--knx-device` is specified, the server prints the hel
 | Option | Shorthand | Type | Description |
 | :--- | :--- | :--- | :--- |
 | `--config <PATH>` | `-c` | String (Path) | Path to the TOML configuration file. |
+| `--check-config` | — | Flag | Validates the configuration, prints warnings, the network interfaces of the host and the planned listeners, then exits without starting any service. *(Requires `--config`)* |
+| `--webui <current\|legacy>` | — | String | Chooses the web interface served at `/` for this run (TOML: `[http].webui`, default `current`). |
 | `--knx-device` | — | Flag | Enables KNX Device mode, causing the server to register as an ETS-programmable device. |
 | `--knx-address <ADDR>` | — | String | The KNX physical address (e.g. `1.1.100`) to advertise in ETS. Defaults to `15.15.255`. *(Requires `--knx-device`)* |
 | `--knx-prog-mode` | — | Flag | Starts the server with KNX programming mode active immediately. *(Requires `--knx-device`)* |
+| `--knx-sync-system-clock` | — | Flag | Lets the KNX Time group object set the operating system clock (best effort, needs privileges). TOML: `[knx].sync_system_clock`. |
 | `--port <PORT>` | `-p` | Integer | Overrides the HTTP API / WebUI listening port (TOML: `[http].port`). |
-| `--bind <IP>` | `-b` | String | Overrides the network address to bind to (e.g. `::`, `0.0.0.0`, or a concrete interface IP). |
+| `--bind <ADDR>[,<ADDR>...]` | `-b` | String list | Overrides the HTTP bind address (TOML: `[http].bind`). Takes one address (e.g. `::`, `0.0.0.0`, or a concrete interface IP) or several, separated by commas. |
 | `--tls-cert <PATH>` | — | String (Path) | Path to a PEM certificate chain to enable HTTPS/TLS. |
 | `--tls-key <PATH>` | — | String (Path) | Path to an unencrypted PEM private key for HTTPS/TLS. |
-| `--codec <CODEC>` | — | String | Resampling compression codec. Options: `pcm`, `flac`, `f32lz4`, `f32lz4e`. |
+| `--codec <CODEC>` | — | String | Snapcast stream codec. It overrides `[snapcast].codec`. Options: `pcm`, `flac`, `f32lz4`, `f32lz4e`. |
 | `--sample-rate <HZ>` | — | Integer | Output sample resampling frequency (e.g., `44100`, `48000`, `96000`). |
 | `--bit-depth <BITS>` | — | Integer | Output audio PCM bit depth. Options: `16`, `24`, `32`. |
 | `--streaming-port <PORT>` | — | Integer | Port for client speaker connections (TOML: `[snapcast].streaming_port`). |
-| `--name <NAME>` | — | String | Overrides the server name used for `mDNS`, MQTT discovery, KNX device naming, and system status. |
+| `--name <NAME>` | — | String | Overrides the server name. It is the mDNS instance name, the Home Assistant device name and the name in the `/system/version` endpoint. |
 | `--log-level <LEVEL>` | `-l` | String | Log level verbosity. Options: `trace`, `debug`, `info`, `warn`, `error`. |
 | `--service` | — | Flag | Runs the binary as a native NT Service. *(Windows builds only)* |
+
+Command-line values override the configuration file. After the overrides are applied, SnapDog validates the result like file values. For example, `--sample-rate 32000` stops the start with a message, because only `44100`, `48000`, `88200`, `96000`, `176400` and `192000` are accepted.
 
 ### Server Boot Examples
 
@@ -68,6 +73,13 @@ If neither `--config` nor `--knx-device` is specified, the server prints the hel
     Temporarily override the web server port and increase logging verbosity to debug connection issues:
     ```bash
     snapdog --config ~/.config/snapdog.toml --port 8080 --log-level debug
+    ```
+  </TabItem>
+
+  <TabItem label="Check a Configuration">
+    Validate a file before you restart the service. The command exits with status `0` when the file is fine:
+    ```bash
+    snapdog --config /etc/snapdog/snapdog.toml --check-config
     ```
   </TabItem>
 
@@ -91,42 +103,41 @@ The client takes an optional positional argument specifying the server connectio
 ```bash
 snapdog-client [URL]
 ```
-The `URL` has the format `<scheme>://<host>[:port]`, where scheme can be `tcp`, `ws` (WebSockets), or `wss` (Secure WebSockets).
-* **mDNS Discovery (Default):** If the URL argument is omitted, the client searches for a local server automatically using `tcp://_snapdog._tcp`.
+Only `tcp://` URLs work. The format is `tcp://[user:password@]<host>[:port]`, and the port defaults to `1704`. The client rejects `ws://` and `wss://` URLs.
+* **mDNS Discovery (Default):** If you leave out the URL, the client browses the local network for a `_snapdog._tcp` service for 5 seconds and connects to the server it finds.
 * **Direct TCP Socket:** Connects directly to the stream socket (e.g. `tcp://192.168.1.50:1704`).
-* **WebSocket Stream:** Connects over HTTP WebSockets (e.g. `ws://192.168.1.50:1780` or secure `wss://myname.cc`).
 
 ### Client Arguments Reference
 
 | Option | Shorthand | Type | Description |
 | :--- | :--- | :--- | :--- |
-| `[URL]` | — | Positional | Connection URL. Defaults to `tcp://_snapdog._tcp` (mDNS). |
+| `[URL]` | — | Positional | Connection URL, `tcp://` only. Without it, the client finds a server through mDNS. |
 | `--instance <ID>` | `-i` | Integer | Instance ID when running multiple client players on the same host (default: `1`). |
 | `--hostID <ID>` | — | String | Unique host identifier. Defaults to the network card's MAC address. |
-| `--soundcard <NAME>` | `-s` | String | PCM audio output device name or index. Defaults to `default`. |
+| `--soundcard <DEVICE>` | `-s` | String | Audio output device. Use `default`, an index from `--list`, or part of a device name or id as `--list` prints it (case does not matter). ALSA names such as `hw:1` do not work and abort the start. Defaults to `default`. |
 | `--list` | `-l` | Flag | Lists all available local PCM soundcard output devices and exits. |
 | `--test-tone` | — | Flag | Plays a brief audio test tone and exits to verify soundcard output. |
 | `--latency <MS>` | — | Integer | Manual latency offset in milliseconds to align with laggy hardware (default: `0`). |
-| `--sampleformat <FMT>` | — | String | Force resampler parameters in format `<rate>:<bits>:<channels>` (e.g., `48000:16:*`). |
-| `--player <BACKEND>` | — | String | Audio player backend and optional arguments in format `<name>[:<params>\|?]` (e.g. `alsa`). |
-| `--mixer <MODE>` | — | String | Volume mixer mode. Options: `software` (default), `hardware:<ctrl>`, `midi:<params>`, or `none`. |
-| `--cert <PATH>` | — | String (Path) | Client certificate file (PEM format) for secure connections. |
-| `--cert-key <PATH>` | — | String (Path) | Client private key file (PEM format) for secure connections. |
-| `--key-password <PW>` | — | String | Password for encrypted private keys. |
-| `--server-cert [PATH]`| — | Optional String (Path) | CA certificate file to verify the server certificate. Use the flag without a value to use default certificate roots. |
-| `--encryption-psk <KEY>`| — | String | Pre-shared key for stream decryption when using `f32lz4e`. |
-| `--daemon [PRIORITY]` | `-d` | Integer | Run in the background (daemonized) with optional process priority `[-20..19]`. *(Unix only)* |
-| `--user <USER[:GROUP]>`| — | String | System user and group to run as when daemonized. *(Unix only)* |
-| `--logsink <SINK>` | — | String | Log sink output target: `null`, `system`, `stdout`, `stderr`, or `file:<path>`. |
+| `--player <BACKEND>` | — | String | Only `null` has an effect: it discards the audio and opens no device. Any other value is ignored with a warning, because playback always uses the system audio output. Choose the device with `--soundcard`. |
+| `--mixer <MODE>` | — | String | Volume mixer mode: `software` (default), `hardware:<control>`, `midi:<interface>:<ch>[:<cc>]`, `x32:<host>:<ch>[,<ch>][:<port>]` or `none`. See below. |
+| `--mixer-sync <MODE>` | — | String | Which way volume flows with a mixer that reports its own changes (only `x32` so far). `both` (default): the server sets the mixer and changes at the mixer go back to the server. `out`: the server sets the mixer and changes at the mixer stay until the next server volume. |
+| `--encryption-psk <KEY>`| — | String | Pre-shared key for stream decryption when using `f32lz4e`. Without it, the built-in key is used. |
+| `--daemon [PRIORITY]` | `-d` | Integer | Run in the background (daemonized) with an optional process priority `[-20..19]`. Without a value the priority is `-3`. *(Unix only)* |
+| `--logsink <SINK>` | — | String | Log output target: `null`, `stdout` (default), `stderr`, `file:<path>` or `system`. `system` writes to stderr, not to syslog. |
 | `--logfilter <FILTER>`| — | String | Log tag levels filter (default: `*:info`, e.g. `*:debug`). |
+
+<Aside type="note">
+The client has a few hidden or compatibility options that do nothing. `--sampleformat` is ignored because the output follows the stream's format. `--cert`, `--cert-key`, `--key-password` and `--server-cert` are ignored because TLS is not available, and the client connects over plain `tcp://`. `--user` is refused, so run the client as the user you want, as the shipped systemd unit does with `DynamicUser=yes`.
+</Aside>
 
 <Aside type="tip">
 **Mixer Modes:**
 * `software` (Default): Digital volume scaling of the incoming PCM buffer.
 * `hardware:<control>`: Calls ALSA's mixer interface to set physical soundcard gain (e.g. `--mixer hardware:Master` or `--mixer hardware:Speaker`).
-* `midi:<interface>:<ch>`: Maps incoming volume levels to a MIDI CC control message (typically CC7).
-* `script:<path>`: Uses an external script mixer backend supported by the Snapcast client layer.
+* `midi:<interface>:<ch>[:<cc>]`: Maps incoming volume levels to a MIDI CC control message. The CC number is optional and defaults to CC7.
+* `x32:<host>:<ch>[,<ch>][:<port>]`: Drives the channel fader of a Behringer X32 over OSC, with the same scale as `midi`. Use `--mixer-sync` to choose whether changes at the desk go back to the server.
 * `none`: Disables volume adjustments on the client.
+* `script` is not implemented. The client falls back to `software` and prints a warning.
 </Aside>
 
 ### Client Boot Examples
@@ -140,24 +151,24 @@ The `URL` has the format `<scheme>://<host>[:port]`, where scheme can be `tcp`, 
   </TabItem>
 
   <TabItem label="Hardware Mixer Control">
-    Directly target a server IP and utilize ALSA physical card mixers to control volume:
+    Directly target a server IP and utilize ALSA physical card mixers to control volume. `DAC` stands for any part of a device name that `--list` prints:
     ```bash
-    snapdog-client --soundcard "hw:CARD=DAC,DEV=0" --mixer "hardware:Digital" tcp://192.168.1.100:1704
+    snapdog-client --soundcard DAC --mixer "hardware:Digital" tcp://192.168.1.100:1704
     ```
   </TabItem>
 
   <TabItem label="Diagnostics Check">
-    List all local audio output interfaces, run a test sound, and exit:
+    List all local audio output devices, then run a test sound on the device with index `1` from that list:
     ```bash
     snapdog-client --list
-    snapdog-client --soundcard "hw:1" --test-tone
+    snapdog-client --soundcard 1 --test-tone
     ```
   </TabItem>
 
-  <TabItem label="Secure WebSockets & PSK">
-    Connect to a secure cloud server instance, verifying certificates and decrypting the audio stream with a pre-shared key:
+  <TabItem label="Encrypted Stream (PSK)">
+    Decrypt a stream that the server sends with `codec = "f32lz4e"`, using the same pre-shared key as `[snapcast].encryption_psk`:
     ```bash
-    snapdog-client --server-cert /etc/ssl/certs/ca.pem --encryption-psk "my_secret_key" wss://music.example.com
+    snapdog-client --encryption-psk "my_secret_key" tcp://192.168.1.100:1704
     ```
   </TabItem>
 </Tabs>

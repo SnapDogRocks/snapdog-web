@@ -9,51 +9,128 @@ Docker is the recommended deployment method for home servers or Network Attached
 
 ---
 
+## How the container setup is split
+
+The `snapdog` server has no audio output of its own. It decodes and mixes the zones and streams them to clients over TCP. The sound comes out of `snapdog-client`, which plays the stream on a soundcard. So the server container needs no soundcard, and a separate `snapdog-client` container (or a client on another machine) gets `/dev/snd`.
+
+---
+
 ## System Prerequisites
 
-Before running SnapDog inside Docker, make sure you configure your container hosting environment correctly:
+### 1. Network mode
 
-### 1. Network Mode Selection
-For full plug-and-play functionality, running the container in `network_mode: host` is **strongly recommended**. 
+SnapDog uses mDNS (multicast DNS) for two things. It advertises `_snapdog._tcp` so that clients can find the server, and it announces the AirPlay and Spotify Connect receivers of every zone. KNX/IP routing also uses multicast.
 
-SnapDog relies on **mDNS/Bonjour multicast** for automated client zone discovery and **KNX IP multicast routing** for smart building integration. Standard bridge networks will block multicast traffic unless configured with complex mDNS reflectors. 
+Multicast does not pass through a normal bridge network. For plug-and-play use on Linux, run the server with `network_mode: host`, or put it on a macvlan or ipvlan network that can see your LAN. Published ports only cover unicast traffic.
 
-However, running in standard container bridge mode is fully supported if:
-* You configure client receiver targets manually via IP addresses (disabling mDNS autodiscovery).
-* Your KNX integration is configured in **tunneling mode** rather than routing mode (as point-to-point UDP tunnels do not require multicast access).
+In bridge mode you can still:
+* Point clients at the server by address (`tcp://snapdog:1704`) instead of relying on mDNS.
+* Use KNX in tunneling mode, which does not need multicast.
+* Publish the ports from the table below.
 
-### 2. Device Access for Audio Output
-If you plan to use local soundcards connected to the host machine for audio output (via ALSA), you must expose `/dev/snd` to the container:
-* Docker CLI flag: `--device /dev/snd:/dev/snd`
-* Compose property: `devices: - "/dev/snd:/dev/snd"`
+AirPlay and Spotify Connect discovery do not work from a bridge network, because the phones and Macs on your LAN never see the announcements.
+
+### 2. Ports in bridge mode
+
+| Port | Protocol | Used for |
+|------|----------|----------|
+| 5555 | TCP | Web UI, REST API, WebSocket |
+| 1704 | TCP | Snapcast audio stream to clients |
+| 3671 | UDP | KNX/IP device mode |
+| 7001 and up | TCP (plus UDP chosen at run time) | AirPlay, one port per zone (zone 1 is 7001) |
+| 7100 and up | TCP | Spotify Connect, one port per zone (zone 1 is 7100) |
+
+The image itself declares 5555, 1704 and 3671/udp. Publish the AirPlay and Spotify ports yourself if you need them, and remember that AirPlay also uses UDP ports picked at run time, which is another reason to prefer host networking.
+
+### 3. AirPlay 2 and UDP 319/320
+
+AirPlay 2 listens on UDP 319 and 320 for clock traffic. These are privileged ports. The image runs as a non-root user, and Docker does not pass `cap_add: [NET_BIND_SERVICE]` on to such a user, so that option does not help. Under host networking you can lower the host's limit for unprivileged ports:
+
+```bash
+echo 'net.ipv4.ip_unprivileged_port_start=319' | sudo tee /etc/sysctl.d/50-snapdog-ptp.conf
+sudo sysctl --system
+```
+
+This lets every unprivileged process on the host bind ports from 319 upwards. If you do not want that, leave it. AirPlay 2 still works, but each connect takes a little longer. Details are in the [upgrade notes](https://github.com/SnapDogRocks/snapdog/blob/main/docs/upgrading.md).
+
+### 4. Soundcards belong to the client
+
+Expose `/dev/snd` to the `snapdog-client` container only:
+* Docker CLI flag: `--device /dev/snd`
+* Compose property: `devices: - /dev/snd`
+
+### 5. Configuration file permissions
+
+The image runs as uid/gid 10001 (user `snapdog`). The directory `/etc/snapdog` in the image is owned by `root:snapdog` with mode `0750`, so the config file you mount must be readable by uid 10001 (or by gid 10001). For a bind-mounted file, `chmod 644 snapdog.toml` or `chown 10001:10001 snapdog.toml` works.
 
 ---
 
 ## Docker Compose Setup
 
-1. Create a `docker-compose.yml` file:
+1. Create a `docker-compose.yml` file. This is a hardened setup with a server and a client:
    ```yaml
    services:
      snapdog:
        image: ghcr.io/snapdogrocks/snapdog:latest
-       container_name: snapdog
        restart: unless-stopped
-       network_mode: host # Recommended for mDNS discovery and KNX multicast. Can be omitted for bridge mode if using manual IPs and KNX tunneling.
-       devices:
-         - "/dev/snd:/dev/snd" # Expose ALSA soundcards for direct playback
+       read_only: true
+       tmpfs:
+         - /tmp:rw,noexec,nosuid,size=64m
+       cap_drop: [ALL]
+       security_opt:
+         - no-new-privileges:true
+       stop_grace_period: 15s
        volumes:
          - snapdog-data:/var/lib/snapdog
          - ./snapdog.toml:/etc/snapdog/snapdog.toml:ro
-       environment:
-         - TZ=Europe/Berlin
+       ports:
+         - "5555:5555"      # Web UI + REST API
+         - "1704:1704"      # Snapcast streaming
+         - "3671:3671/udp"  # KNX/IP device
+       healthcheck:
+         test: ["CMD", "curl", "--fail", "--silent", "--show-error", "--max-time", "4", "http://127.0.0.1:5555/health/live"]
+         interval: 30s
+         timeout: 5s
+         retries: 3
+
+     snapdog-client:
+       image: ghcr.io/snapdogrocks/snapdog-client:latest
+       restart: unless-stopped
+       read_only: true
+       tmpfs:
+         - /tmp:rw,noexec,nosuid,size=64m
+       cap_drop: [ALL]
+       security_opt:
+         - no-new-privileges:true
+       stop_grace_period: 15s
+       devices:
+         - /dev/snd
+       command: ["tcp://snapdog:1704"]
+       depends_on:
+         snapdog:
+           condition: service_healthy
 
    volumes:
      snapdog-data:
    ```
-2. Start the container:
+   This example uses a bridge network. The ports are published, and the client reaches the server by service name. For AirPlay and Spotify Connect discovery, switch the `snapdog` service to `network_mode: host` and drop its `ports:` section. The client then needs the server's address instead of `snapdog` in its `command`.
+2. Check the configuration before you start:
+   ```bash
+   docker compose run --rm snapdog --config /etc/snapdog/snapdog.toml --check-config
+   ```
+   `--check-config` loads the file, reports problems and exits without starting the server.
+3. Start the containers:
    ```bash
    docker compose up -d
    ```
+
+Pin a version or digest instead of `latest` if you want reproducible deployments.
+
+---
+
+## Verified updates
+
+For unattended updates, the SnapDog repository ships a production Compose stack with an updater sidecar. It pulls an exact release, checks its signature, waits for the health check and rolls back if the new version does not become ready. See [Verified Docker updates](https://github.com/SnapDogRocks/snapdog/blob/main/docs/docker-updates.md) for how to set it up.
 
 ---
 

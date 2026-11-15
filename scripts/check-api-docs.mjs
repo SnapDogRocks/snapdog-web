@@ -20,6 +20,33 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
+// Every method of every path has to appear in api-rest.mdx too. The guide writes
+// it as "**Method:** `GET` | `PUT`" above the endpoint, as "`POST` `/path`" or as
+// "`GET /path`", so look for the path and then for the method name in the text
+// from the heading before it up to the next heading.
+const httpMethods = ['get', 'put', 'post', 'delete', 'patch'];
+const sections = guide.split(/^#{2,4} /m);
+function documentedMethods(path) {
+  const found = new Set();
+  for (const section of sections) {
+    if (!section.includes(path)) continue;
+    for (const match of section.matchAll(/\b(GET|PUT|POST|DELETE|PATCH)\b/g)) found.add(match[1].toLowerCase());
+  }
+  return found;
+}
+const missingMethods = [];
+for (const [path, pathItem] of Object.entries(spec.paths ?? {})) {
+  const documentedHere = documentedMethods(path);
+  for (const method of httpMethods) {
+    if (pathItem[method] && !documentedHere.has(method)) missingMethods.push(`${method.toUpperCase()} ${path}`);
+  }
+}
+if (missingMethods.length > 0) {
+  console.error('HTTP methods missing from api-rest.mdx:');
+  for (const entry of missingMethods.sort()) console.error(`  ${entry}`);
+  process.exit(1);
+}
+
 function resolveSchema(schema) {
   if (!schema?.$ref) return schema;
   const name = schema.$ref.split('/').at(-1);
