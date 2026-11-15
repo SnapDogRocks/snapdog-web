@@ -57,7 +57,7 @@ All WebSocket messages are JSON objects containing a `"type"` string that identi
 | `zone_volume_changed` | Lightweight zone volume/mute update. |
 | `zone_progress` | Periodic position and optional buffer progress update. |
 | `client_state_changed` | Client connection, volume, mute, zone assignment, or SnapDog capability update. |
-| `zone_presence_changed` | Presence detection and auto-off timer update. |
+| `zone_presence_changed` | Presence detection, auto-off timer and auto-off delay update. |
 | `zone_eq_changed` | Zone equalizer configuration update. |
 | `client_eq_changed` | Client equalizer configuration update. |
 | `client_speaker_changed` | Speaker correction of a client changed. |
@@ -196,7 +196,7 @@ Fired when a Snapcast/SnapDog client changes connection state, volume, mute stat
 Servers from before these two fields omit `latency_ms` and `name`. Read a missing `latency_ms` as `0` and a missing `name` as an empty string.
 
 ### `zone_presence_changed`
-Fired when presence detection, presence-triggered playback enablement, or the auto-off timer state changes.
+Fired when presence detection, presence-triggered playback enablement, the auto-off timer state or the auto-off delay changes. The delay changes through the REST API, MQTT or KNX, and `auto_off_delay` carries the new value in seconds. Servers before 0.36 do not send the field, and the delay then changes without an event.
 
 ```json
 {
@@ -204,7 +204,8 @@ Fired when presence detection, presence-triggered playback enablement, or the au
   "zone": 1,
   "presence": true,
   "enabled": true,
-  "timer_active": false
+  "timer_active": false,
+  "auto_off_delay": 900
 }
 ```
 
