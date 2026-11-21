@@ -297,7 +297,6 @@ Body of `POST /zones/&#123;zone_index&#125;/play/playlist/by-id`.
 
 | Field | Type | Required | Description |
 |---|---|:---:|---|
-| `id` | `integer` | yes | Unified playlist index. Deprecated. Use `index`. Removed with SnapDog 1.0, which breaks compatibility of `/api/v1` for clients that still read it. |
 | `index` | `integer` | yes | Unified playlist index (0-based). Moves when the list changes, see `playlist_id`. |
 | `name` | `string` | yes | — |
 | `playlist_id` | `string` | yes | Stable reference: `snapdog:radio` or `subsonic:&lt;subsonic id&gt;`. |
@@ -309,7 +308,6 @@ Body of `POST /zones/&#123;zone_index&#125;/play/playlist/by-id`.
 |---|---|:---:|---|
 | `cover_art` | `string` or `null` | no | — |
 | `duration` | `integer` | yes | — |
-| `id` | `integer` | yes | Unified playlist index. Deprecated. Use `index`. Removed with SnapDog 1.0, which breaks compatibility of `/api/v1` for clients that still read it. |
 | `index` | `integer` | yes | Unified playlist index (0-based). Moves when the list changes, see `playlist_id`. |
 | `name` | `string` | yes | — |
 | `playlist_id` | `string` | yes | Stable reference: `snapdog:radio` or `subsonic:&lt;subsonic id&gt;`. |
@@ -319,7 +317,6 @@ Body of `POST /zones/&#123;zone_index&#125;/play/playlist/by-id`.
 
 | Field | Type | Required | Description |
 |---|---|:---:|---|
-| `id` | `integer` or `null` | no | Unified playlist index. Deprecated. Use `index`. Removed with SnapDog 1.0, which breaks compatibility of `/api/v1` for clients that still read it. |
 | `index` | `integer` or `null` | no | Unified playlist index (0-based). |
 | `track` | `integer` | no | — |
 
@@ -458,7 +455,7 @@ The sidecar may add further fields; the ones listed here are what the `WebUI` re
 
 ### VolumeValue
 
-Volume value: absolute (e.g. `75`) or relative (e.g. `"+5"`, `"-3"`).
+Volume value: absolute (`75` or `"75"`) or relative (a string with a sign, `"+5"` or `"-3"`).
 
 Type: `integer` or `string`
 
