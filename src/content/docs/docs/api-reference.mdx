@@ -225,7 +225,7 @@ Single EQ band configuration.
 |---|---|:---:|---|
 | `freq` | `number` | yes | Center frequency in Hz. |
 | `gain` | `number` | yes | Gain in dB (positive = boost, negative = cut). Ignored for low/high pass. |
-| `q` | `number` | yes | Q factor controlling bandwidth. Higher values = narrower band. |
+| `q` | `number` | yes | Q factor controlling bandwidth. Higher values = narrower band. 0 selects the Butterworth default. |
 | `type` | [`FilterType`](#filtertype) | yes | Filter type (low shelf, high shelf, peaking, low pass, high pass). |
 
 ### EqConfig
@@ -234,7 +234,7 @@ Full EQ configuration for a zone.
 
 | Field | Type | Required | Description |
 |---|---|:---:|---|
-| `bands` | array&lt;[`EqBand`](#eqband)&gt; | yes | Ordered list of biquad filter bands applied in series. |
+| `bands` | array&lt;[`EqBand`](#eqband)&gt; | yes | Ordered list of biquad filter bands applied in series, at most `MAX_EQ_BANDS`. |
 | `enabled` | `boolean` | yes | Whether the EQ is active. When `false`, audio passes through unmodified. |
 | `preset` | `string` or `null` | no | Name of the preset this config was loaded from, if any. |
 
